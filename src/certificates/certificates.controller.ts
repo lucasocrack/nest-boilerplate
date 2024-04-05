@@ -1,11 +1,11 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { CertificatesService } from './certificates.service';
 
 @Controller('certificates')
 export class CertificatesController {
   constructor(private readonly certificatesService: CertificatesService) { }
   @Get()
-  findAll(@Res() response) {
+  findAll() {
     return this.certificatesService.findAll();
   }
   @Get('id-:id')
