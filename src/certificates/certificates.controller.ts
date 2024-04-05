@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Res } from '@nestjs/common';
 import { CertificatesService } from './certificates.service';
 
 @Controller('certificates')
@@ -6,24 +6,28 @@ export class CertificatesController {
   constructor(private readonly certificatesService: CertificatesService) { }
   @Get()
   findAll(@Res() response) {
-    return response.status(HttpStatus.OK).json({ message: 'All certificates' })
+    return this.certificatesService.findAll();
   }
   @Get('id-:id')
   findOne(@Param('id') id: string) {
-    return `Curso #${id}`;
+    return this.certificatesService.findOne(id);
   }
   @Get('cnpj-:cnpj')
   findByCnpj(@Param('cnpj') cnpj: string) {
-    return `CNPJ #${cnpj}`;
+    return this.certificatesService.findByCnpj(cnpj);
   }
   @Post()
-  @HttpCode(HttpStatus.NO_CONTENT)
-  create(@Body('name') body ) {
-    return body;
+  create(@Body() body ) {
+    return this.certificatesService.create(body);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() body) {
-    return `Atualizado o certificado ${body}`;
+    return this.certificatesService.update(id, body);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.certificatesService.remove(id);
   }
 }

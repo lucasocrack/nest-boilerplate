@@ -38,7 +38,25 @@ export class CertificatesService {
     return this.certificates.find(certificate => certificate.cnpj === cnpj);
   }
 
-  create(createCertificateDTO : Certificate) {
+  create(createCertificateDTO: any) {
     this.certificates.push(createCertificateDTO);
+  }
+
+  update(id: string, updateCertificateDTO: any) {
+    const indexCertificate = this.certificates.findIndex(
+      (certificate) => certificate.id === Number(id),
+    );
+
+    this.certificates[indexCertificate] = updateCertificateDTO;
+  }
+
+  remove(id: string) {
+    const indexCertificate = this.certificates.findIndex(
+      (certificate) => certificate.id === Number(id),
+    );
+
+    if (indexCertificate >= 0) {
+      this.certificates.splice(indexCertificate, 1);
+    }
   }
 }
