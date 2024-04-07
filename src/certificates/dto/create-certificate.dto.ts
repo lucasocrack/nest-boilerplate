@@ -1,9 +1,12 @@
+import { IsString } from 'class-validator'
+
 export class CreateCertificateDto {
-  name: string;
-  description: string;
-  cnpj: string;
-  createdAt: Date;
-  validatedAt: Date;
-  updatedAt: Date;
-  usercreated: string;
+  @IsString()
+  readonly name: string
+  @IsString()
+  readonly description: string
+  @IsString()
+  readonly cnpj: string
+  @IsString()
+  readonly usercreated: string
 }

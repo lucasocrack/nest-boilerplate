@@ -7,11 +7,11 @@ export class CertificatesController {
   constructor(private readonly certificatesService: CertificatesService) { }
   @Get()
   findAll() {
-    return this.certificatesService.findAll();
+    return this.certificatesService.findAll()
   }
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.certificatesService.findOne(id);
+    return this.certificatesService.findOne(id)
   }
   @Get('cnpj-:cnpj')
   findByCnpj(@Param('cnpj') cnpj: string) {
@@ -23,8 +23,8 @@ export class CertificatesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() body) {
-    return this.certificatesService.update(id, body);
+  update(@Param('id') id: string, @Body() updateCertificateDto: CreateCertificateDto) {
+    return this.certificatesService.update(id, updateCertificateDto);
   }
 
   @Delete(':id')
