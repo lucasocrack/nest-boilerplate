@@ -8,7 +8,7 @@ export class CertificatesController {
   findAll() {
     return this.certificatesService.findAll();
   }
-  @Get('id-:id')
+  @Get(':id')
   findOne(@Param('id') id: string) {
     return this.certificatesService.findOne(id);
   }
