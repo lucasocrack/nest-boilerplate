@@ -39,6 +39,8 @@ export class CertificatesService {
         HttpStatus.NOT_FOUND
       )
     }
+
+    return certificate;
   }
 
   findByCnpj(cnpj: string) {
