@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Certificate } from './entities/certificate.entity';
 
 @Injectable()
@@ -31,7 +31,14 @@ export class CertificatesService {
   }
 
   findOne(id: string) {
-    return this.certificates.find((certificate) => certificate.id === Number(id));
+    const certificate = this.certificates.find((certificate) => certificate.id === Number(id));
+
+    if (!certificate) {
+      throw new HttpException(
+        `Certificate ID ${id} not found`,
+        HttpStatus.NOT_FOUND
+      )
+    }
   }
 
   findByCnpj(cnpj: string) {
