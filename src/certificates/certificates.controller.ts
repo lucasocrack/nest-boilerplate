@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { CertificatesService } from './certificates.service';
+import { CreateCertificateDto } from './dto/create-certificate.dto';
 
 @Controller('certificates')
 export class CertificatesController {
@@ -17,8 +18,8 @@ export class CertificatesController {
     return this.certificatesService.findByCnpj(cnpj);
   }
   @Post()
-  create(@Body() body ) {
-    return this.certificatesService.create(body);
+  create(@Body() createCertificateDto: CreateCertificateDto) {
+    return this.certificatesService.create(createCertificateDto);
   }
 
   @Patch(':id')
