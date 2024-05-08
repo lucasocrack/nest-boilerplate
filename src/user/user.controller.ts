@@ -24,7 +24,7 @@ export class UserController {
 
   @Get()
   async read() {
-    return { users: [] };
+    return this.userService.list();
   }
 
   @Get(':id')
