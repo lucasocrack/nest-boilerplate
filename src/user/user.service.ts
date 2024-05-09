@@ -8,11 +8,17 @@ export class UserService {
 
   async create(data: CreateUserDto) {
     return this.prisma.user.create({
-      data: data,
+      data,
     });
   }
 
   async list() {
     return this.prisma.user.findMany();
+  }
+
+  async readOne(id: number) {
+    return this.prisma.user.findUnique({
+      where: { id },
+    });
   }
 }
