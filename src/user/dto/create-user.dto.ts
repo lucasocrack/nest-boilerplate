@@ -3,13 +3,13 @@ import {
   IsEmail,
   IsString,
   IsOptional,
+  IsDateString,
 } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
   readonly name: string;
 
-  @IsOptional()
   @IsEmail()
   readonly email: string;
 
@@ -20,4 +20,8 @@ export class CreateUserDto {
     minSymbols: 1,
   })
   readonly password: string;
+
+  @IsOptional()
+  @IsDateString()
+  birthAt: Date;
 }

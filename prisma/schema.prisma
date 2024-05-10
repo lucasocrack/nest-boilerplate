@@ -9,7 +9,7 @@ datasource db {
 
 model user {
   id       Int      @id @default(autoincrement()) @db.UnsignedInt
-  name     String?  @db.VarChar(63)
+  name     String  @db.VarChar(63)
   email    String   @db.VarChar(127)
   password String   @db.VarChar(127)
   birthAt  DateTime? @db.Date
