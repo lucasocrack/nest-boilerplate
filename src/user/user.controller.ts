@@ -12,6 +12,7 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePutUserDto } from './dto/update-put-user.dto';
 import { UserService } from './user.service';
+import { UpdatePatchUserDto } from './dto/update-patch-user.dto';
 
 @Controller('users')
 export class UserController {
@@ -28,36 +29,24 @@ export class UserController {
   }
 
   @Get(':id')
-  async readOne(@Param('id', ParseIntPipe) id) {
-    return { user: {}, id };
+  async readOne(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.readOne(id);
   }
 
   @Put(':id')
   async replaceUser(
-    @Body() { email, name, password }: UpdatePutUserDto,
-    @Param() @Param('id', ParseIntPipe) id,
+    @Body() data: UpdatePutUserDto,
+    @Param('id', ParseIntPipe) id: number,
   ) {
-    return {
-      method: 'put',
-      email,
-      name,
-      password,
-      id,
-    };
+    return this.userService.update(id, data);
   }
 
   @Patch(':id')
   async updateUser(
-    @Body() { email, name, password }: UpdatePutUserDto,
-    @Param('id', ParseIntPipe) id,
+    @Body() data: UpdatePatchUserDto,
+    @Param('id', ParseIntPipe) id: number,
   ) {
-    return {
-      metohd: 'path',
-      email,
-      name,
-      password,
-      id,
-    };
+    return this.userService.updatePartial(id, data);
   }
 
   @Delete(':id')
