@@ -1,12 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePutUserDto } from './dto/update-put-user.dto';
 import { UpdatePatchUserDto } from './dto/update-patch-user.dto';
 
 @Injectable()
 export class UserService {
-  private _data: UpdatePutUserDto;
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateUserDto) {
@@ -29,24 +28,65 @@ export class UserService {
     id: number,
     { email, name, password, birthAt }: UpdatePutUserDto,
   ) {
-    console.log({ email, name, password, birthAt });
+    if (!(await this.readOne(id))) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
 
     if (!birthAt) {
       birthAt = null;
     }
 
     return this.prisma.user.update({
-      data: { email, name, password },
+      data: {
+        email,
+        name,
+        password,
+        birthAt: birthAt ? new Date(birthAt) : null,
+      },
       where: {
         id: id,
       },
     });
   }
 
-  async updatePartial(id: number, data: UpdatePatchUserDto) {
-    console.log(data);
+  async updatePartial(
+    id: number,
+    { email, name, password, birthAt }: UpdatePatchUserDto,
+  ) {
+    if (!(await this.readOne(id))) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+
+    const data: any = {};
+
+    if (birthAt) {
+      data.birthAt = new Date(birthAt);
+    }
+
+    if (email) {
+      data.email = email;
+    }
+
+    if (name) {
+      data.name = name;
+    }
+
+    if (password) {
+      data.password = password;
+    }
+
     return this.prisma.user.update({
-      data: { ...data },
+      data,
+      where: { id },
+    });
+  }
+
+  async delete(id: number) {
+    if (!(await this.readOne(id))) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+
+    return this.prisma.user.delete({
       where: { id },
     });
   }
