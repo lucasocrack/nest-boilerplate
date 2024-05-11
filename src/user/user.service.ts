@@ -94,7 +94,7 @@ export class UserService {
         },
       }))
     ) {
-      throw new NotFoundException(`User with id ${id} not found`);
+      throw new NotFoundException(`O usuário ${id} não foi encontrado.`);
     }
   }
 }
