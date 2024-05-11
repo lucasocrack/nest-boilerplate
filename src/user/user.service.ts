@@ -28,9 +28,7 @@ export class UserService {
     id: number,
     { email, name, password, birthAt }: UpdatePutUserDto,
   ) {
-    if (!(await this.readOne(id))) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
+    await this.exists(id);
 
     if (!birthAt) {
       birthAt = null;
@@ -53,9 +51,7 @@ export class UserService {
     id: number,
     { email, name, password, birthAt }: UpdatePatchUserDto,
   ) {
-    if (!(await this.readOne(id))) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
+    await this.exists(id);
 
     const data: any = {};
 
@@ -82,12 +78,16 @@ export class UserService {
   }
 
   async delete(id: number) {
-    if (!(await this.readOne(id))) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
+    await this.exists(id);
 
     return this.prisma.user.delete({
       where: { id },
     });
+  }
+
+  async exists(id: number) {
+    if (!(await this.readOne(id))) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
   }
 }
