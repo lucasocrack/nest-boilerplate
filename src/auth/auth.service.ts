@@ -15,24 +15,57 @@ export class AuthService {
   ) {}
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async createToken(user: user) {
-    return this.jwtService.sign(
-      {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-      },
-      {
-        expiresIn: '12h',
-        subject: String(user.id),
-        issuer: 'login',
-        audience: 'users',
-      },
-    );
+  createToken(user: user) {
+    return {
+      access_token: this.jwtService.sign(
+        {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+        },
+        {
+          expiresIn: '7 days',
+          subject: user.id.toString(),
+          issuer: 'login',
+          audience: 'users',
+        },
+      ),
+    };
   }
 
-  async checkToken() {
-    //return this.jwtService.verify();
+  async isValidToken(token: string) {
+    try {
+      const data = this.jwtService.verify(token, {
+        audience: 'users',
+        issuer: 'login',
+      });
+      if (data) {
+        const user = await this.prisma.user.findFirst({
+          where: {
+            id: data.id,
+          },
+        });
+        if (user) {
+          this.createToken(user);
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async checkToken(token: string) {
+    try {
+      const data = this.jwtService.verify(token, {
+        audience: 'users',
+        issuer: 'login',
+      });
+      return data;
+    } catch (e) {
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 
   async login(email: string, password: string) {
