@@ -6,6 +6,7 @@ import { AuthForgetDTO } from './dto/auth-forget.dto';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './guards/auth.guard';
+import { User } from '../decorators/user.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -36,8 +37,8 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @Post('me')
-  async me(@Req() req) {
-    console.log('tokenPayload:', req.tokenPayload);
-    return { me: 'ok', data: req.tokenPayload };
+  async me(@User() user) {
+    console.log(user);
+    return { user };
   }
 }
