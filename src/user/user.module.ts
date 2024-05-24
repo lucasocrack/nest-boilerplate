@@ -10,7 +10,7 @@ import { UserService } from './user.service';
 import { UserIdCheckMiddleware } from '../middlewares/user-id-check.middleware';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, AuthModule],
   controllers: [UserController],
   providers: [UserService],
   exports: [],
