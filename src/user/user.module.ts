@@ -1,4 +1,5 @@
 import {
+  forwardRef,
   MiddlewareConsumer,
   Module,
   NestModule,
@@ -8,9 +9,10 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { UserIdCheckMiddleware } from '../middlewares/user-id-check.middleware';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule],
+  imports: [PrismaModule, forwardRef(() => AuthModule)],
   controllers: [UserController],
   providers: [UserService],
   exports: [],

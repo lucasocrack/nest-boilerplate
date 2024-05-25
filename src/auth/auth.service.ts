@@ -5,6 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { user } from '.prisma/client';
 import { AuthRegisterDto } from './dto/auth-register.dto';
 import { UserService } from '../user/user.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -33,30 +34,7 @@ export class AuthService {
     };
   }
 
-  async isValidToken(token: string) {
-    try {
-      const data = this.jwtService.verify(token, {
-        audience: 'users',
-        issuer: 'login',
-      });
-      if (data) {
-        const user = await this.prisma.user.findFirst({
-          where: {
-            id: data.id,
-          },
-        });
-        if (user) {
-          this.createToken(user);
-          return true;
-        }
-      }
-      return false;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  async checkToken(token: string) {
+  checkToken(token: string) {
     try {
       const data = this.jwtService.verify(token, {
         audience: 'users',
@@ -68,15 +46,27 @@ export class AuthService {
     }
   }
 
+  isValidToken(token: string) {
+    try {
+      this.checkToken(token);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   async login(email: string, password: string) {
     const user = await this.prisma.user.findFirst({
       where: {
         email,
-        password,
       },
     });
+
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
+    }
+    if (!(await bcrypt.compare(password, user.password))) {
+      throw new UnauthorizedException('Invalid credentials 2');
     }
     return this.createToken(user);
   }
