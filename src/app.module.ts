@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
+import { FileModule } from './file/file.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ConfigModule } from '@nestjs/config';
     ]),
     forwardRef(() => UserModule),
     forwardRef(() => AuthModule),
+    FileModule,
   ],
   controllers: [AppController],
   providers: [
