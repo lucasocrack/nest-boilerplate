@@ -8,11 +8,12 @@ datasource db {
 }
 
 model user {
-  id       Int      @id @default(autoincrement()) @db.UnsignedInt
-  name     String  @db.VarChar(63)
-  email    String   @db.VarChar(127)
-  password String   @db.VarChar(127)
-  birthAt  DateTime? @db.Date
-  createdAt DateTime @default(now()) @db.DateTime(0)
-  updatedAt DateTime @updatedAt @db.DateTime(0)
+  id        Int       @id @default(autoincrement()) @db.UnsignedInt
+  name      String    @db.VarChar(63)
+  email     String    @db.VarChar(127)
+  password  String    @db.VarChar(127)
+  birthAt   DateTime? @db.Date
+  role      Int       @default(2)
+  createdAt DateTime  @default(now()) @db.DateTime(0)
+  updatedAt DateTime  @updatedAt @db.DateTime(0)
 }

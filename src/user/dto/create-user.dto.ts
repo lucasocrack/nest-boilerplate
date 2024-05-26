@@ -4,7 +4,9 @@ import {
   IsString,
   IsOptional,
   IsDateString,
+  IsEnum,
 } from 'class-validator';
+import { Role } from '../../enums/role.enum';
 
 export class CreateUserDto {
   @IsString()
@@ -19,9 +21,13 @@ export class CreateUserDto {
     minNumbers: 1,
     minSymbols: 1,
   })
-  readonly password: string;
+  password: string;
 
   @IsOptional()
   @IsDateString()
   birthAt: Date;
+
+  @IsOptional()
+  @IsEnum(Role)
+  role: number;
 }
