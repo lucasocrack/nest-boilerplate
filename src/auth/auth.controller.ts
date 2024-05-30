@@ -17,8 +17,8 @@ import { AuthResetDto } from './dto/auth-reset.dto';
 import { AuthForgetDTO } from './dto/auth-forget.dto';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
-import { AuthGuard } from '../guards/auth.guard';
-import { User } from '../decorators/user.decorator';
+import { AuthGuard } from '../common/guards/auth.guard';
+import { User } from '../common/decorators/user.decorator';
 import {
   FileFieldsInterceptor,
   FileInterceptor,
