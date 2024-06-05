@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { UnauthorizedException } from '@nestjs/common/exceptions/unauthorized.exception';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { user } from '.prisma/client';
 import { AuthRegisterDto } from './dto/auth-register.dto';
-import { UserService } from '../user/user.service';
+import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -12,7 +12,7 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
-    private readonly userService: UserService,
+    private readonly userService: UsersService,
   ) {}
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

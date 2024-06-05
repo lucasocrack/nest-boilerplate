@@ -2,10 +2,10 @@ import { forwardRef, Module } from '@nestjs/common';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import { UserModule } from './user/user.module';
+import { AuthModule } from './routes/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
-import { FileModule } from './file/file.module';
+import { FileModule } from './common/file/file.module';
+import { UsersModule } from './routes/users/users.module';
 
 @Module({
   imports: [
@@ -16,7 +16,7 @@ import { FileModule } from './file/file.module';
         limit: 10,
       },
     ]),
-    forwardRef(() => UserModule),
+    forwardRef(() => UsersModule),
     forwardRef(() => AuthModule),
     FileModule,
   ],

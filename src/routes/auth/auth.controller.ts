@@ -15,22 +15,22 @@ import { AuthLoginDto } from './dto/auth-login.dto';
 import { AuthRegisterDto } from './dto/auth-register.dto';
 import { AuthResetDto } from './dto/auth-reset.dto';
 import { AuthForgetDTO } from './dto/auth-forget.dto';
-import { UserService } from '../user/user.service';
+import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
-import { AuthGuard } from '../common/guards/auth.guard';
-import { User } from '../common/decorators/user.decorator';
+import { AuthGuard } from '../../common/guards/auth.guard';
+import { User } from '../../common/decorators/user.decorator';
 import {
   FileFieldsInterceptor,
   FileInterceptor,
   FilesInterceptor,
 } from '@nestjs/platform-express';
 import { join } from 'path';
-import { FileService } from '../file/file.service';
+import { FileService } from '../../common/file/file.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly userService: UserService,
+    private readonly userService: UsersService,
     private readonly authService: AuthService,
     private readonly fileService: FileService,
   ) {}
