@@ -15,7 +15,6 @@ export class AuthService {
     private readonly userService: UsersService,
   ) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createToken(user: user) {
     return {
       access_token: this.jwtService.sign(
@@ -87,7 +86,6 @@ export class AuthService {
     // validar o token
     // atualizar a senha
     const id = 0;
-
     const user = await this.prisma.user.update({
       where: {
         id,
