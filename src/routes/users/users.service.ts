@@ -32,7 +32,6 @@ export class UsersService {
   ) {
     await this.exists(id);
     password = await bcrypt.hash(password, await bcrypt.genSalt());
-
     return this.prisma.user.update({
       data: {
         email,
