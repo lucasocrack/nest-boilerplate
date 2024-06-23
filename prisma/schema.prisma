@@ -16,8 +16,7 @@ datasource db {
 model Users {
   id        String   @id @default(cuid())
   email     String   @unique
-  user      String   @unique
-  name      String?
+  username  String   @unique
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
