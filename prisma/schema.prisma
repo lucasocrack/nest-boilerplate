@@ -1,19 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-model user {
-  id        Int       @id @default(autoincrement()) @db.Integer
-  name      String    @db.VarChar(63)
-  email     String    @db.VarChar(127)
-  password  String    @db.VarChar(127)
-  birthAt   DateTime? @db.Date
-  role      Int       @default(2)
-  createdAt DateTime  @default(now()) @db.Date
-  updatedAt DateTime  @updatedAt @db.Date
+model Users {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  user      String   @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Midis {
+  id        String   @id @default(cuid())
+  title     String
+  artist    String
+  genre     String
+  url       String
+  value     Decimal  @default(0.00) @db.Decimal(5, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("midis")
 }
