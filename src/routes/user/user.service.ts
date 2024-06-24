@@ -20,7 +20,11 @@ export class UserService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  findByEmail(email: string) {
+    return this.prisma.users.findUnique({ where: { email } });
+  }
+
+  findByUsername(username: string) {
+    return this.prisma.users.findUnique({ where: { username } });
   }
 }
