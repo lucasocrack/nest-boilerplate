@@ -1,104 +1,46 @@
 import { Injectable } from '@nestjs/common';
-import { UnauthorizedException } from '@nestjs/common/exceptions/unauthorized.exception';
-import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from '../../prisma/prisma.service';
-import { user } from '.prisma/client';
-import { AuthRegisterDto } from './dto/auth-register.dto';
-import { UsersService } from '../users/users.service';
+import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
+import { UnauthorizedError } from './errors/unauthorized.error';
+import { User } from '../user/entities/user.entity';
+import { UserPayload } from './models/UserPayload';
+import { JwtService } from '@nestjs/jwt';
+import { UserToken } from './models/UserToken';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly prisma: PrismaService,
-    private readonly userService: UsersService,
+    private readonly userService: UserService,
   ) {}
 
-  createToken(user: user) {
+  login(user: User): UserToken {
+    const payload: UserPayload = {
+      sub: user.id,
+      email: user.email,
+      username: user.username,
+    };
+
     return {
-      access_token: this.jwtService.sign(
-        {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-        },
-        {
-          expiresIn: '7 days',
-          subject: user.id.toString(),
-          issuer: 'login',
-          audience: 'users',
-        },
-      ),
+      access_token: this.jwtService.sign(payload),
     };
   }
 
-  checkToken(token: string) {
-    try {
-      const data = this.jwtService.verify(token, {
-        audience: 'users',
-        issuer: 'login',
-      });
-      return data;
-    } catch (e) {
-      throw new UnauthorizedException('Invalid token');
-    }
-  }
+  async validateUser(identifier: string, password: string) {
+    const user = await this.userService.findOneByEmailOrUsername(identifier, identifier);
 
-  isValidToken(token: string) {
-    try {
-      this.checkToken(token);
-      return true;
-    } catch (e) {
-      return false;
+    if (user) {
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (isPasswordValid) {
+        return {
+          ...user,
+          password: undefined,
+        };
+      }
     }
-  }
 
-  async login(email: string, password: string) {
-    const user = await this.prisma.user.findFirst({
-      where: {
-        email,
-      },
-    });
-
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-    if (!(await bcrypt.compare(password, user.password))) {
-      throw new UnauthorizedException('Invalid credentials 2');
-    }
-    return this.createToken(user);
-  }
-
-  async forget(email: string) {
-    const user = await this.prisma.user.findFirst({
-      where: {
-        email,
-      },
-    });
-    if (!user) {
-      throw new UnauthorizedException('Invalid email');
-    }
-    // implementar envio de email
-    return true;
-  }
-  async reset(password: string, token: string) {
-    // validar o token
-    // atualizar a senha
-    const id = 0;
-    const user = await this.prisma.user.update({
-      where: {
-        id,
-      },
-      data: {
-        password,
-      },
-    });
-    return this.createToken(user);
-  }
-
-  async register(data: AuthRegisterDto) {
-    const user = await this.userService.create(data);
-    return this.createToken(user);
+    throw new UnauthorizedError(
+      'Email address or password provided is incorrect.',
+    );
   }
 }

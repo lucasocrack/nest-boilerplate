@@ -1,23 +1,27 @@
-import { forwardRef, Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { AuthService } from './auth.service';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AuthController } from './auth.controller';
-import { UsersModule } from '../users/users.module';
-import { PrismaModule } from '../../prisma/prisma.module';
-import { UsersService } from '../users/users.service';
-import { FileModule } from '../../common/file/file.module';
+import { AuthService } from './auth.service';
+import { UserModule } from '../user/user.module';
+import { LocalStrategy } from './strategies/local.strategy';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { LoginValidationMiddleware } from './middlewares/ogin-validation.middleware';
 
 @Module({
   imports: [
+    UserModule,
+    PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '7d' },
     }),
-    forwardRef(() => UsersModule),
-    PrismaModule,
-    FileModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, UsersService],
-  exports: [AuthService],
+  providers: [AuthService, LocalStrategy, JwtStrategy],
 })
-export class AuthModule {}
+export class AuthModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoginValidationMiddleware).forRoutes('login');
+  }
+}
