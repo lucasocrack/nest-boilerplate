@@ -20,11 +20,11 @@ export class UserService {
     };
   }
 
-  findByEmail(email: string) {
-    return this.prisma.users.findUnique({ where: { email } });
-  }
-
-  findByUsername(username: string) {
-    return this.prisma.users.findUnique({ where: { username } });
+  findOneByEmailOrUsername(email: string, username: string) {
+    return this.prisma.users.findFirst({
+      where: {
+        OR: [{ email: email }, { username: username }],
+      },
+    });
   }
 }
