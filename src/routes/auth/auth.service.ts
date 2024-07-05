@@ -12,7 +12,8 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
-  ) {}
+  ) {
+  }
 
   login(user: User): UserToken {
     const payload: UserPayload = {
@@ -27,7 +28,7 @@ export class AuthService {
   }
 
   async validateUser(identifier: string, password: string) {
-    const user = await this.userService.findOneByEmailOrUsername(identifier, identifier);
+    const user = await this.userService.findOneByEmailOrUsername(identifier);
 
     if (user) {
       const isPasswordValid = await bcrypt.compare(password, user.password);

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { identity } from 'rxjs';
 
 @Injectable()
 export class UserService {
@@ -20,10 +21,10 @@ export class UserService {
     };
   }
 
-  findOneByEmailOrUsername(email: string, username: string) {
+  findOneByEmailOrUsername(identity: string) {
     return this.prisma.users.findFirst({
       where: {
-        OR: [{ email: email }, { username: username }],
+        OR: [{ email: identity }, { username: identity }],
       },
     });
   }
