@@ -15,7 +15,7 @@ model Users {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
-  role      Role      @default(CLIENTE)
+  role      Int       @default(1)
   pessoaId  Int?      @unique
   Pessoa    Pessoa?   @relation(fields: [pessoaId], references: [id])
 
@@ -56,13 +56,6 @@ model Midis {
   updatedAt DateTime @updatedAt
 
   @@map("midis")
-}
-
-enum Role {
-  CODESDEVS
-  ADMINISTRADOR
-  FUNCIONARIO
-  CLIENTE
 }
 
 enum TipoPessoa {

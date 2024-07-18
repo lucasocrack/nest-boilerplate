@@ -12,14 +12,14 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
-  ) {
-  }
+  ) {}
 
   login(user: User): UserToken {
     const payload: UserPayload = {
       sub: user.id,
       email: user.email,
       username: user.username,
+      role: user.role,
     };
 
     return {
