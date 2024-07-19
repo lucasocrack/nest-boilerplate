@@ -1,4 +1,3 @@
-// src/routes/auth/enum/roles.enum.ts
 export enum Role {
   CLIENTE = 1,
   ADMINISTRADOR = 2,

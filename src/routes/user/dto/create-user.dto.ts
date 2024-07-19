@@ -1,12 +1,14 @@
 import { User } from '../entities/user.entity';
 import {
-  IsEmail,
+  IsDateString,
+  IsEmail, IsEnum, IsOptional,
   IsString,
   Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Role } from '../../../enums/roles.enum';
 
 export class CreateUserDto extends User {
   @IsEmail()
@@ -25,4 +27,8 @@ export class CreateUserDto extends User {
   @IsString()
   @ApiProperty()
   username: string;
+
+  @IsOptional()
+  @IsEnum(Role)
+  role: number;
 }
