@@ -19,6 +19,7 @@ export class AuthService {
       sub: user.id,
       email: user.email,
       username: user.username,
+      role: user.role,
     };
 
     return {
@@ -27,7 +28,7 @@ export class AuthService {
   }
 
   async validateUser(identifier: string, password: string) {
-    const user = await this.userService.findOneByEmailOrUsername(identifier, identifier);
+    const user = await this.userService.findOneByEmailOrUsername(identifier);
 
     if (user) {
       const isPasswordValid = await bcrypt.compare(password, user.password);

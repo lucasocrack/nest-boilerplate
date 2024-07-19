@@ -1,17 +1,22 @@
 import { User } from '../entities/user.entity';
 import {
-  IsEmail,
+  IsDateString,
+  IsEmail, IsEnum, IsOptional,
   IsString,
   Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { Role } from '../../../enums/roles.enum';
 
 export class CreateUserDto extends User {
   @IsEmail()
+  @ApiProperty()
   email: string;
 
   @IsString()
+  @ApiProperty()
   @MinLength(4)
   @MaxLength(20)
   @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
@@ -20,5 +25,10 @@ export class CreateUserDto extends User {
   password: string;
 
   @IsString()
+  @ApiProperty()
   username: string;
+
+  @IsOptional()
+  @IsEnum(Role)
+  role: number;
 }

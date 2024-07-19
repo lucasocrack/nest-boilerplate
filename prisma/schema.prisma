@@ -8,25 +8,58 @@ datasource db {
 }
 
 model Users {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  username  String   @unique
+  id        String    @id @default(cuid())
+  email     String    @unique
+  username  String    @unique
   password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  role      Int       @default(1)
+  pessoaId  Int?      @unique
+  Pessoa    Pessoa?   @relation(fields: [pessoaId], references: [id])
 
   @@map("users")
 }
 
+model Pessoa {
+  id           Int        @id @default(autoincrement())
+  nome         String
+  nomeFantasia String?
+  tipo         TipoPessoa
+  cpf          String?
+  cnpj         String?
+  ie           String?
+  email        String
+  telefone     String?
+  celular      String?
+  dateNasc     DateTime?
+  observacoes  String?
+  inadiplente  Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+  Users        Users[]
+
+  @@map("pessoa")
+}
+
+// CENTRAL MIDIS
 model Midis {
-  id        String   @id @default(cuid())
-  title     String
-  artist    String
-  genre     String
+  id        Int      @id @default(autoincrement())
+  titulo    String
+  artista   String
+  genero    String
   url       String
-  value     Decimal  @default(0.00) @db.Decimal(5, 2)
+  valor     Decimal  @default(0.00) @db.Decimal(5, 2)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("midis")
+}
+
+enum TipoPessoa {
+  FISICA
+  JURIDICA
+  PRODUTOR_RURAL
 }
