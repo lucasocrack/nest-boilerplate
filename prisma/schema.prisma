@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Users {
+model User {
   id              String    @id @default(cuid())
   email           String    @unique
   username        String    @unique
@@ -17,39 +17,40 @@ model Users {
   deletedAt       DateTime?
   role            Int       @default(1)
   personId        Int?      @unique
-  Person          Person?   @relation(fields: [personId], references: [id])
+  person          Person?   @relation(fields: [personId], references: [id])
   companyConfigId Int?
 
   @@map("users")
 }
 
 model Person {
-  id           Int        @id @default(autoincrement())
-  nome         String
-  nomeFantasia String?
-  tipo         TipoPerson
-  cpf          String?
-  cnpj         String?
-  ie           String?
-  email        String
-  telefone     String?
-  celular      String?
-  dateNasc     DateTime?
-  observacoes  String?
-  inadiplente  Boolean    @default(false)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  deletedAt    DateTime?
-  Users        Users[]
-  Address      Address[]
+  id          Int        @id @default(autoincrement())
+  name        String
+  fantasyName String?
+  type        PersonType
+  cpf         String?
+  cnpj        String?
+  ie          String?
+  email       String
+  phone1      String?
+  phone2      String?
+  birthDate   DateTime?
+  notes       String?
+  delinquent  Boolean    @default(false)
+  photo       String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+  users       User[]
+  addresses   Address[]
 
   @@map("person")
 }
 
-enum TipoPerson {
-  FISICA
-  JURIDICA
-  PRODUTOR_RURAL
+enum PersonType {
+  INDIVIDUAL
+  COMPANY
+  RURAL_PRODUCER
 }
 
 model Address {
@@ -59,33 +60,35 @@ model Address {
   neighborhood String
   city         String
   state        String
-  cep          String
+  zipCode      String
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?
   personId     Int
-  Person       Person    @relation(fields: [personId], references: [id])
+  person       Person    @relation(fields: [personId], references: [id])
 
   @@map("address")
 }
 
 model Company {
-  id           Int            @id @default(autoincrement())
+  id           Int           @id @default(autoincrement())
   name         String
   email        String
-  cel          String
+  mobile       String
+  phone1       String?
+  phone2       String?
   place        String
   number       String
   neighborhood String
   city         String
   state        String
-  cep          String
-  workingHours WorkingHours[]
+  zipCode      String
+  workingHours WorkingHour[]
 
   @@map("company")
 }
 
-model WorkingHours {
+model WorkingHour {
   id         Int       @id @default(autoincrement())
   day        Weekday
   open       DateTime
@@ -93,7 +96,7 @@ model WorkingHours {
   lunchStart DateTime?
   lunchEnd   DateTime?
   companyId  Int
-  Company    Company   @relation(fields: [companyId], references: [id])
+  company    Company   @relation(fields: [companyId], references: [id])
 
   @@map("working_hours")
 }
