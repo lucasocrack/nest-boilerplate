@@ -3,30 +3,31 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Users {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  username  String    @unique
-  password  String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-  role      Int       @default(1)
-  pessoaId  Int?      @unique
-  Pessoa    Pessoa?   @relation(fields: [pessoaId], references: [id])
+  id              String    @id @default(cuid())
+  email           String    @unique
+  username        String    @unique
+  password        String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+  role            Int       @default(1)
+  personId        Int?      @unique
+  Person          Person?   @relation(fields: [personId], references: [id])
+  companyConfigId Int?
 
   @@map("users")
 }
 
-model Pessoa {
+model Person {
   id           Int        @id @default(autoincrement())
   nome         String
   nomeFantasia String?
-  tipo         TipoPessoa
+  tipo         TipoPerson
   cpf          String?
   cnpj         String?
   ie           String?
@@ -40,30 +41,69 @@ model Pessoa {
   updatedAt    DateTime   @updatedAt
   deletedAt    DateTime?
   Users        Users[]
-  Endereco     Endereco[]
+  Address      Address[]
 
-  @@map("pessoa")
+  @@map("person")
 }
 
-enum TipoPessoa {
+enum TipoPerson {
   FISICA
   JURIDICA
   PRODUTOR_RURAL
 }
 
-model Endereco {
-  id         Int       @id @default(autoincrement())
-  logradouro String
-  numero     String
-  bairro     String
-  cidade     String
-  estado     String
-  cep        String
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  deletedAt  DateTime?
-  pessoaId   Int
-  Pessoa     Pessoa    @relation(fields: [pessoaId], references: [id])
+model Address {
+  id           Int       @id @default(autoincrement())
+  place        String
+  number       String
+  neighborhood String
+  city         String
+  state        String
+  cep          String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+  personId     Int
+  Person       Person    @relation(fields: [personId], references: [id])
 
-  @@map("endereco")
+  @@map("address")
+}
+
+model Company {
+  id           Int            @id @default(autoincrement())
+  name         String
+  email        String
+  cel          String
+  place        String
+  number       String
+  neighborhood String
+  city         String
+  state        String
+  cep          String
+  workingHours WorkingHours[]
+
+  @@map("company")
+}
+
+model WorkingHours {
+  id         Int       @id @default(autoincrement())
+  day        Weekday
+  open       DateTime
+  close      DateTime
+  lunchStart DateTime?
+  lunchEnd   DateTime?
+  companyId  Int
+  Company    Company   @relation(fields: [companyId], references: [id])
+
+  @@map("working_hours")
+}
+
+enum Weekday {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
 }

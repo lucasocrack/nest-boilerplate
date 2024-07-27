@@ -5,5 +5,6 @@ export enum Role {
   Financeiro = 4,
   Vendedor = 5,
   Produtor = 6,
+  Tecnico = 7,
   SuperAdmin = 0,
 }
