@@ -1,8 +1,9 @@
 export enum Role {
-  CLIENTE = 1,
-  ADMINISTRADOR = 2,
-  FUNCIONARIO = 3,
-  FINANCEIRO = 4,
-  VENDEDOR = 5,
-  PUBLISHER = 6,
+  Cliente = 1,
+  Administrador = 2,
+  Funcionario = 3,
+  Financeiro = 4,
+  Vendedor = 5,
+  Produtor = 6,
+  SuperAdmin = 0,
 }

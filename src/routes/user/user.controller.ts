@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Patch, Delete } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Post } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ApiTags } from '@nestjs/swagger';
@@ -7,6 +7,8 @@ import { CurrentUser } from '../../decorators/current-user.decorator';
 import { User } from './entities/user.entity';
 import { ParamId } from '../../decorators/param-id.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Roles } from '../../decorators/roles.decorator';
+import { Role } from '../../enums/roles.enum';
 
 @ApiTags('user')
 @Controller('user')
@@ -24,6 +26,7 @@ export class UserController {
     return user;
   }
 
+  @Roles(Role.Administrador, Role.SuperAdmin)
   @Get()
   async list() {
     return this.userService.list();

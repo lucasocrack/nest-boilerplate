@@ -40,26 +40,30 @@ model Pessoa {
   updatedAt    DateTime   @updatedAt
   deletedAt    DateTime?
   Users        Users[]
+  Endereco     Endereco[]
 
   @@map("pessoa")
-}
-
-// CENTRAL MIDIS
-model Midis {
-  id        Int      @id @default(autoincrement())
-  titulo    String
-  artista   String
-  genero    String
-  url       String
-  valor     Decimal  @default(0.00) @db.Decimal(5, 2)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("midis")
 }
 
 enum TipoPessoa {
   FISICA
   JURIDICA
   PRODUTOR_RURAL
+}
+
+model Endereco {
+  id         Int       @id @default(autoincrement())
+  logradouro String
+  numero     String
+  bairro     String
+  cidade     String
+  estado     String
+  cep        String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+  pessoaId   Int
+  Pessoa     Pessoa    @relation(fields: [pessoaId], references: [id])
+
+  @@map("endereco")
 }
