@@ -35,9 +35,14 @@ export class UserService {
 
   async readOne(id: string) {
     await this.exists(id);
-    return this.prisma.users.findUnique({
+    const user = await this.prisma.users.findUnique({
       where: { id },
     });
+    if (user) {
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    }
+    return null;
   }
 
   async update(id: string, { email, username, password, role }: UpdateUserDto) {
