@@ -45,22 +45,6 @@ export class UserService {
     return null;
   }
 
-  async update(id: string, { email, username, password, role }: UpdateUserDto) {
-    await this.exists(id);
-    password = await bcrypt.hash(password, await bcrypt.genSalt());
-    return this.prisma.users.update({
-      data: {
-        email,
-        username,
-        password,
-        role,
-      },
-      where: {
-        id: id,
-      },
-    });
-  }
-
   async updatePartial(id: string, updateUserDto: UpdateUserDto) {
     await this.exists(id);
     const data: any = Object.keys(updateUserDto).reduce((acc, key) => {

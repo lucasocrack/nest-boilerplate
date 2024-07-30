@@ -11,6 +11,7 @@ model User {
   id              String    @id @default(cuid())
   email           String    @unique
   username        String    @unique
+  cpf             String?
   password        String
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -31,7 +32,7 @@ model Person {
   cpf         String?
   cnpj        String?
   ie          String?
-  email       String
+  email       String?
   phone1      String?
   phone2      String?
   birthDate   DateTime?
