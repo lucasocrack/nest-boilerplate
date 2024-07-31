@@ -11,11 +11,7 @@ model User {
   id              String    @id @default(cuid())
   email           String    @unique
   username        String    @unique
-<<<<<<< HEAD
   cpf             String?
-=======
-  cpf             String
->>>>>>> 59fd1ff0491e0a9eddf715ed71ae3e96d79f5f03
   password        String
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
