@@ -13,7 +13,7 @@ export class UserService {
       ...createUserDto,
       password: await bcrypt.hash(createUserDto.password, 10),
     };
-    const createdUser = await this.prisma.users.create({ data });
+    const createdUser = await this.prisma.user.create({ data });
 
     return {
       ...createdUser,
@@ -22,7 +22,7 @@ export class UserService {
   }
 
   findOneByEmailOrUsername(identity: string) {
-    return this.prisma.users.findFirst({
+    return this.prisma.user.findFirst({
       where: {
         OR: [{ email: identity }, { username: identity }],
       },
@@ -30,12 +30,12 @@ export class UserService {
   }
 
   async list() {
-    return this.prisma.users.findMany();
+    return this.prisma.user.findMany();
   }
 
   async readOne(id: string) {
     await this.exists(id);
-    const user = await this.prisma.users.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { id },
     });
     if (user) {
@@ -60,7 +60,7 @@ export class UserService {
         await bcrypt.genSalt(),
       );
     }
-    return this.prisma.users.update({
+    return this.prisma.user.update({
       data,
       where: { id },
     });
@@ -69,14 +69,14 @@ export class UserService {
   async delete(id: string) {
     await this.exists(id);
 
-    return this.prisma.users.delete({
+    return this.prisma.user.delete({
       where: { id },
     });
   }
 
   async exists(id: string) {
     if (
-      !(await this.prisma.users.count({
+      !(await this.prisma.user.count({
         where: {
           id,
         },

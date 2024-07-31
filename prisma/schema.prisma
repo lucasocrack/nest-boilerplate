@@ -120,6 +120,7 @@ model Post {
   date               DateTime     @default(now())
   price              Float?
   productDescription String?
+  linkAffiliate      String?
   authorId           String
   tags               String
   categoryId         Int
