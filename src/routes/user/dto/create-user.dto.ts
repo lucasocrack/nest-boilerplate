@@ -1,7 +1,8 @@
 import { User } from '../entities/user.entity';
 import {
-  IsDateString,
-  IsEmail, IsEnum, IsOptional,
+  IsEmail,
+  IsEnum,
+  IsOptional,
   IsString,
   Matches,
   MaxLength,
@@ -31,4 +32,7 @@ export class CreateUserDto extends User {
   @IsOptional()
   @IsEnum(Role)
   role: number;
+
+  @IsString()
+  cpf: string;
 }

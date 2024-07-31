@@ -39,6 +39,7 @@ export class UserService {
       where: { id },
     });
     if (user) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...userWithoutPassword } = user;
       return userWithoutPassword;
     }
