@@ -7,6 +7,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Config {
+  id           Int                 @id @default(autoincrement())
+  name         String
+  email        String
+  mobile       String
+  phone1       String?
+  phone2       String?
+  place        String
+  number       String
+  neighborhood String
+  city         String
+  state        String
+  zipCode      String
+  workingHours ConfigWorkingHour[]
+
+  @@map("config")
+}
+
 model User {
   id        String    @id @default(cuid())
   email     String    @unique
@@ -71,24 +89,6 @@ model Address {
   @@map("address")
 }
 
-model Config {
-  id           Int                 @id @default(autoincrement())
-  name         String
-  email        String
-  mobile       String
-  phone1       String?
-  phone2       String?
-  place        String
-  number       String
-  neighborhood String
-  city         String
-  state        String
-  zipCode      String
-  workingHours ConfigWorkingHour[]
-
-  @@map("config")
-}
-
 model ConfigWorkingHour {
   id         Int       @id @default(autoincrement())
   day        Weekday
@@ -120,6 +120,7 @@ model Post {
   date               DateTime     @default(now())
   price              Float?
   productDescription String?
+  productCategory    String?
   linkAffiliate      String?
   authorId           String
   tags               String
