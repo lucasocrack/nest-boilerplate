@@ -10,6 +10,8 @@ import {
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { Role } from '@prisma/client';
+import { Roles } from '../../decorators/roles.decorator';
 
 @Controller('post')
 export class PostController {
@@ -35,6 +37,7 @@ export class PostController {
     return this.postService.findOne(+id);
   }
 
+  @Roles(Role.ADMIN, Role.SUPERADMIN)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.postService.remove(+id);

@@ -34,12 +34,23 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
-  role      Int       @default(1)
+  role      Role      @default(CLIENT)
   personId  Int?      @unique
   person    Person?   @relation(fields: [personId], references: [id])
   posts     Post[]
 
   @@map("user")
+}
+
+enum Role {
+  CLIENT
+  ADMIN
+  EMPLOYEE
+  FINANCIAL
+  SALESPERSON
+  TECHNICIAN
+  SUPERVISOR
+  SUPERADMIN
 }
 
 model Person {
