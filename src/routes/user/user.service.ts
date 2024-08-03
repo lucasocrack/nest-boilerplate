@@ -4,6 +4,7 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { MeUpdateUserDto } from './dto/me-update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -80,6 +81,25 @@ export class UserService {
     });
   }
 
+  async meUpdate(id: string, meUpdateUserDto: MeUpdateUserDto) {
+    await this.exists(id);
+    const data: any = Object.keys(meUpdateUserDto).reduce((acc, key) => {
+      if (meUpdateUserDto[key]) {
+        acc[key] = meUpdateUserDto[key];
+      }
+      return acc;
+    }, {});
+    if (meUpdateUserDto.password) {
+      data.password = await bcrypt.hash(
+        meUpdateUserDto.password,
+        await bcrypt.genSalt(),
+      );
+    }
+    return this.prisma.user.update({
+      data,
+      where: { id },
+    });
+  }
   async delete(id: string) {
     await this.exists(id);
 
