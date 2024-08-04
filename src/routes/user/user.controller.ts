@@ -9,7 +9,7 @@ import { ParamId } from '../../decorators/param-id.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Roles } from '../../decorators/roles.decorator';
 import { Role } from '@prisma/client';
-import { RegisterUserDto } from './dto/register-user.dto';
+import { RegisterUserDto } from '../auth/dto/register-user.dto';
 
 @ApiTags('user')
 @Controller('user')
@@ -20,12 +20,6 @@ export class UserController {
   @Post('')
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
-  }
-
-  @IsPublic()
-  @Post('register')
-  register(@Body() registerUserDto: RegisterUserDto) {
-    return this.userService.register(registerUserDto);
   }
 
   @Get('me')

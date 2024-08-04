@@ -9,17 +9,18 @@ datasource db {
 
 model Config {
   id           Int                 @id @default(autoincrement())
-  name         String
-  email        String
-  mobile       String
-  phone1       String?
-  phone2       String?
-  place        String
-  number       String
-  neighborhood String
-  city         String
-  state        String
-  zipCode      String
+  name         String              @db.VarChar(120)
+  email        String              @db.VarChar(120)
+  mobile       String              @db.VarChar(20)
+  phone1       String?             @db.VarChar(20)
+  phone2       String?             @db.VarChar(20)
+  place        String              @db.VarChar(150)
+  number       String              @db.VarChar(10)
+  complement   String?             @db.VarChar(50)
+  neighborhood String              @db.VarChar(120)
+  city         String              @db.VarChar(60)
+  state        String              @db.VarChar(2)
+  zipCode      String              @db.VarChar(10)
   workingHours ConfigWorkingHour[]
 
   @@map("config")
@@ -27,10 +28,10 @@ model Config {
 
 model User {
   id        String    @id @default(cuid())
-  email     String    @unique
-  username  String    @unique
-  cpf       String?
-  password  String
+  email     String    @unique @db.VarChar(255)
+  username  String    @unique @db.VarChar(255)
+  cpf       String?   @db.VarChar(11)
+  password  String    @db.VarChar(255)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
@@ -56,15 +57,15 @@ enum Role {
 
 model Person {
   id          Int        @id @default(autoincrement())
-  name        String
-  fantasyName String?
+  name        String     @db.VarChar(255)
+  fantasyName String?    @db.VarChar(255)
   type        PersonType
-  cpf         String?
-  cnpj        String?
-  ie          String?
-  email       String?
-  phone1      String?
-  phone2      String?
+  cpf         String?    @db.VarChar(11)
+  cnpj        String?    @db.VarChar(14)
+  ie          String?    @db.VarChar(20)
+  email       String?    @db.VarChar(255)
+  phone1      String?    @db.VarChar(20)
+  phone2      String?    @db.VarChar(20)
   birthDate   DateTime?
   notes       String?
   delinquent  Boolean    @default(false)
@@ -86,12 +87,12 @@ enum PersonType {
 
 model Address {
   id           Int       @id @default(autoincrement())
-  place        String
-  number       String
-  neighborhood String
-  city         String
-  state        String
-  zipCode      String
+  place        String    @db.VarChar(255)
+  number       String    @db.VarChar(10)
+  neighborhood String    @db.VarChar(255)
+  city         String    @db.VarChar(255)
+  state        String    @db.VarChar(2)
+  zipCode      String    @db.VarChar(10)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?
@@ -125,28 +126,30 @@ enum Weekday {
 }
 
 model Post {
-  id                 Int      @id @default(autoincrement())
-  title              String
+  id                 Int          @id @default(autoincrement())
+  title              String       @db.VarChar(255)
   content            String
-  published          Boolean  @default(false)
-  date               DateTime @default(now())
+  published          Boolean      @default(false)
+  date               DateTime     @default(now())
+  productTitle       String?      @db.VarChar(255)
   price              Float?
   productDescription String?
-  productCategory    String?
-  linkAffiliate      String?
+  productCategory    String?      @db.VarChar(255)
+  linkAffiliate      String?      @db.VarChar(255)
+  tags               String       @db.VarChar(255)
   authorId           String
-  tags               String
-  // categoryPost       Int
-  // category           CategoryPost @relation(fields: [categoryPost], references: [id])
-  author             User     @relation(fields: [authorId], references: [id])
+  categoryPost       Int
+  category           CategoryPost @relation(fields: [categoryPost], references: [id])
+  author             User         @relation(fields: [authorId], references: [id])
 
   @@map("posts")
 }
 
 model CategoryPost {
   id   Int    @id @default(autoincrement())
-  name String
+  name String @db.VarChar(255)
 
-  // posts Post[]
+  posts Post[]
+
   @@map("categorypost")
 }

@@ -1,19 +1,18 @@
 meta {
-  name: Create
+  name: login
   type: http
-  seq: 2
+  seq: 1
 }
 
 post {
-  url: {{host}}/user
+  url: {{host}}/login
   body: formUrlEncoded
   auth: none
 }
 
 body:form-urlencoded {
-  username: bhlucas
-  password: As123456@++
-  email: bhlucascampos@gmail.com
+  identifier: lucas
+  password: 123456
 }
 
 body:multipart-form {
