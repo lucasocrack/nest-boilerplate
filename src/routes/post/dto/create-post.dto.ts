@@ -1,16 +1,9 @@
+import { IsString, IsBoolean, IsOptional, IsNumber, IsDate } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsBoolean, IsDate,
-  IsNumber,
-  IsOptional,
-  IsString,
-  MaxLength,
-} from 'class-validator';
 
 export class CreatePostDto {
   @ApiProperty()
   @IsString()
-  @MaxLength(100)
   title: string;
 
   @ApiProperty()
@@ -18,13 +11,13 @@ export class CreatePostDto {
   content: string;
 
   @ApiProperty()
-  @IsNumber()
-  categoryId: number;
+  @IsBoolean()
+  published: boolean;
 
   @ApiProperty()
-  @IsBoolean()
+  @IsDate()
   @IsOptional()
-  published: boolean;
+  date: Date;
 
   @ApiProperty()
   @IsNumber()
@@ -39,20 +32,21 @@ export class CreatePostDto {
   @ApiProperty()
   @IsString()
   @IsOptional()
+  productCategory: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
   linkAffiliate: string;
 
   @ApiProperty()
-  @IsNumber()
+  @IsString()
   @IsOptional()
-  authorId: number;
+  authorId: string;
 
   @ApiProperty()
   @IsString()
   @IsOptional()
   tags: string;
 
-  @ApiProperty()
-  @IsDate()
-  @IsOptional()
-  date: Date;
 }

@@ -1,0 +1,21 @@
+meta {
+  name: login
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/login
+  body: formUrlEncoded
+  auth: none
+}
+
+body:form-urlencoded {
+  identifier: lucas
+  password: 123456
+}
+
+body:multipart-form {
+  identifier: lucas
+  password: A12345a@++
+}

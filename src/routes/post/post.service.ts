@@ -1,26 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class PostService {
-  async create(createPostDto: CreatePostDto) {
-    return createPostDto;
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
-  }
-
-  findAll() {
-    return `This action returns all post`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} post`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+  async createPost(data: CreatePostDto) {
+    try {
+      // @ts-ignore
+      return await this.prisma.post.create({ data });
+    } catch (error) {
+      throw new InternalServerErrorException('Error creating post');
+    }
   }
 }

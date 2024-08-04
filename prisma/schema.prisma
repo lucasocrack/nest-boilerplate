@@ -125,28 +125,28 @@ enum Weekday {
 }
 
 model Post {
-  id                 Int          @id @default(autoincrement())
+  id                 Int      @id @default(autoincrement())
   title              String
   content            String
-  published          Boolean      @default(false)
-  date               DateTime     @default(now())
+  published          Boolean  @default(false)
+  date               DateTime @default(now())
   price              Float?
   productDescription String?
   productCategory    String?
   linkAffiliate      String?
   authorId           String
   tags               String
-  categoryId         Int
-  category           CategoryPost @relation(fields: [categoryId], references: [id])
-  author             User         @relation(fields: [authorId], references: [id])
+  // categoryPost       Int
+  // category           CategoryPost @relation(fields: [categoryPost], references: [id])
+  author             User     @relation(fields: [authorId], references: [id])
 
   @@map("posts")
 }
 
 model CategoryPost {
-  id    Int    @id @default(autoincrement())
-  name  String
-  posts Post[]
+  id   Int    @id @default(autoincrement())
+  name String
 
+  // posts Post[]
   @@map("categorypost")
 }

@@ -1,0 +1,22 @@
+meta {
+  name: Create
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/user
+  body: formUrlEncoded
+  auth: none
+}
+
+body:form-urlencoded {
+  username: bhlucas
+  password: As123456@++
+  email: bhlucascampos@gmail.com
+}
+
+body:multipart-form {
+  identifier: lucas
+  password: A12345a@++
+}
