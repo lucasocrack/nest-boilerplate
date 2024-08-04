@@ -9,7 +9,6 @@ import { ParamId } from '../../decorators/param-id.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Roles } from '../../decorators/roles.decorator';
 import { Role } from '@prisma/client';
-import { RegisterUserDto } from '../auth/dto/register-user.dto';
 
 @ApiTags('user')
 @Controller('user')
