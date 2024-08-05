@@ -10,14 +10,14 @@ datasource db {
 model Config {
   id           Int                 @id @default(autoincrement())
   name         String              @db.VarChar(120)
-  email        String              @db.VarChar(120)
+  email        String              @db.VarChar(60)
   mobile       String              @db.VarChar(20)
   phone1       String?             @db.VarChar(20)
   phone2       String?             @db.VarChar(20)
   place        String              @db.VarChar(150)
   number       String              @db.VarChar(10)
   complement   String?             @db.VarChar(50)
-  neighborhood String              @db.VarChar(120)
+  neighborhood String              @db.VarChar(80)
   city         String              @db.VarChar(60)
   state        String              @db.VarChar(2)
   zipCode      String              @db.VarChar(10)
@@ -57,23 +57,23 @@ enum Role {
 
 model Person {
   id          Int        @id @default(autoincrement())
-  name        String     @db.VarChar(255)
-  fantasyName String?    @db.VarChar(255)
+  name        String     @db.VarChar(80)
+  fantasyName String?    @db.VarChar(80)
   type        PersonType
   cpf         String?    @db.VarChar(11)
   cnpj        String?    @db.VarChar(14)
-  ie          String?    @db.VarChar(20)
-  email       String?    @db.VarChar(255)
-  phone1      String?    @db.VarChar(20)
-  phone2      String?    @db.VarChar(20)
+  ie          String?    @db.VarChar(9)
+  email       String?    @db.VarChar(40)
+  phone1      String?    @db.VarChar(12)
+  phone2      String?    @db.VarChar(12)
   birthDate   DateTime?
   notes       String?
-  delinquent  Boolean    @default(false)
+  defaulter   Boolean    @default(false)
   photo       String?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   deletedAt   DateTime?
-  users       User[]
+  user        User?
   addresses   Address[]
 
   @@map("person")
@@ -87,10 +87,11 @@ enum PersonType {
 
 model Address {
   id           Int       @id @default(autoincrement())
-  place        String    @db.VarChar(255)
+  place        String    @db.VarChar(140)
   number       String    @db.VarChar(10)
-  neighborhood String    @db.VarChar(255)
-  city         String    @db.VarChar(255)
+  complement   String    @db.VarChar(50)
+  neighborhood String    @db.VarChar(60)
+  city         String    @db.VarChar(60)
   state        String    @db.VarChar(2)
   zipCode      String    @db.VarChar(10)
   createdAt    DateTime  @default(now())
@@ -127,14 +128,14 @@ enum Weekday {
 
 model Post {
   id                 Int          @id @default(autoincrement())
-  title              String       @db.VarChar(255)
+  title              String       @db.VarChar(150)
   content            String
   published          Boolean      @default(false)
   date               DateTime     @default(now())
-  productTitle       String?      @db.VarChar(255)
+  productTitle       String?      @db.VarChar(150)
   price              Float?
   productDescription String?
-  productCategory    String?      @db.VarChar(255)
+  productCategory    String?      @db.VarChar(32)
   linkAffiliate      String?      @db.VarChar(255)
   tags               String       @db.VarChar(255)
   authorId           String
@@ -146,9 +147,8 @@ model Post {
 }
 
 model CategoryPost {
-  id   Int    @id @default(autoincrement())
-  name String @db.VarChar(255)
-
+  id    Int    @id @default(autoincrement())
+  name  String @db.VarChar(50)
   posts Post[]
 
   @@map("categorypost")

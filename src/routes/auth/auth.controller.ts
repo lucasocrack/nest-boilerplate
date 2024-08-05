@@ -14,12 +14,12 @@ import { IsPublic } from '../../decorators/is-public.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { RegisterUserDto } from './dto/register-user.dto';
 
-@ApiTags('login')
+@IsPublic()
 @Controller()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @IsPublic()
+  @ApiTags('login')
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
@@ -27,7 +27,7 @@ export class AuthController {
     return this.authService.login(req.user);
   }
 
-  @IsPublic()
+  @ApiTags('Register')
   @Post('register')
   @HttpCode(HttpStatus.OK)
   register(@Body() registerUserDto: RegisterUserDto) {

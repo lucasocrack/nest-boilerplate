@@ -1,16 +1,18 @@
-import { Body, Controller, Delete, Get, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Post, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { IsPublic } from '../../decorators/is-public.decorator';
 import { CurrentUser } from '../../decorators/current-user.decorator';
 import { User } from './entities/user.entity';
 import { ParamId } from '../../decorators/param-id.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Roles } from '../../decorators/roles.decorator';
 import { Role } from '@prisma/client';
+import { AuthGuard } from '@nestjs/passport';
+import { ExcludeRoles } from '../../decorators/exclude-roles.decorator';
 
 @ApiTags('user')
+@UseGuards(AuthGuard('jwt'))
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -27,6 +29,7 @@ export class UserController {
   }
 
   @Roles(Role.ADMIN, Role.SUPERADMIN)
+  @ExcludeRoles(Role.CLIENT)
   @Get('')
   async list() {
     return this.userService.list();
