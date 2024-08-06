@@ -1,0 +1,32 @@
+meta {
+  name: send mail
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/email/send
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "to": "bhlucascampos@gmail.com",
+    "subject": "Welcome!",
+    "template": "example",
+    "context": {
+      "title": "Welcome to our service",
+      "message": "Thank you for joining us!"
+    }
+  }
+}
+
+body:form-urlencoded {
+  to: bhlucascampos@gmail.com
+  subject: Welcome
+}
