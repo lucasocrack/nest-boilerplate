@@ -10,16 +10,12 @@ export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
-    const data = {
-      ...createUserDto,
-      password: await bcrypt.hash(createUserDto.password, 10),
-    };
-    const createdUser = await this.prisma.user.create({ data });
+    const { password, ...rest } = createUserDto;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const data: any = { ...rest, password: hashedPassword };
 
-    return {
-      ...createdUser,
-      password: undefined,
-    };
+    const createdUser = await this.prisma.user.create({ data });
+    return { ...createdUser, password: undefined };
   }
 
   findOneByEmailOrUsername(identity: string) {
@@ -36,11 +32,8 @@ export class UserService {
 
   async readOne(id: string) {
     await this.exists(id);
-    const user = await this.prisma.user.findUnique({
-      where: { id },
-    });
+    const user = await this.prisma.user.findUnique({ where: { id } });
     if (user) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...userWithoutPassword } = user;
       return userWithoutPassword;
     }
@@ -48,9 +41,20 @@ export class UserService {
   }
 
   async updatePartial(id: string, updateUserDto: UpdateUserDto) {
+    return this.updateUser(id, updateUserDto);
+  }
+
+  async meUpdate(id: string, meUpdateUserDto: MeUpdateUserDto) {
+    return this.updateUser(id, meUpdateUserDto);
+  }
+
+  private async updateUser(
+    id: string,
+    updateUserDto: Partial<UpdateUserDto | MeUpdateUserDto>,
+  ) {
     await this.exists(id);
     const data: any = Object.keys(updateUserDto).reduce((acc, key) => {
-      if (updateUserDto[key]) {
+      if (updateUserDto[key] !== undefined) {
         acc[key] = updateUserDto[key];
       }
       return acc;
@@ -61,47 +65,17 @@ export class UserService {
         await bcrypt.genSalt(),
       );
     }
-    return this.prisma.user.update({
-      data,
-      where: { id },
-    });
+    return this.prisma.user.update({ data, where: { id } });
   }
 
-  async meUpdate(id: string, meUpdateUserDto: MeUpdateUserDto) {
-    await this.exists(id);
-    const data: any = Object.keys(meUpdateUserDto).reduce((acc, key) => {
-      if (meUpdateUserDto[key]) {
-        acc[key] = meUpdateUserDto[key];
-      }
-      return acc;
-    }, {});
-    if (meUpdateUserDto.password) {
-      data.password = await bcrypt.hash(
-        meUpdateUserDto.password,
-        await bcrypt.genSalt(),
-      );
-    }
-    return this.prisma.user.update({
-      data,
-      where: { id },
-    });
-  }
   async delete(id: string) {
     await this.exists(id);
-
-    return this.prisma.user.delete({
-      where: { id },
-    });
+    return this.prisma.user.delete({ where: { id } });
   }
 
-  async exists(id: string) {
-    if (
-      !(await this.prisma.user.count({
-        where: {
-          id,
-        },
-      }))
-    ) {
+  private async exists(id: string) {
+    const count = await this.prisma.user.count({ where: { id } });
+    if (!count) {
       throw new NotFoundException(`O usuário ${id} não foi encontrado.`);
     }
   }

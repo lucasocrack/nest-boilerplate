@@ -1,8 +1,9 @@
+// src/routes/auth/auth.service.ts
 import { Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
 import { UnauthorizedError } from './errors/unauthorized.error';
-import { User } from '../user/entities/user.entity';
+import { User } from '../../entities/user.entity';
 import { UserPayload } from './models/UserPayload';
 import { JwtService } from '@nestjs/jwt';
 import { UserToken } from './models/UserToken';
@@ -24,7 +25,6 @@ export class AuthService {
       username: user.username,
       role: user.role,
     };
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = user;
 
     return {
@@ -52,10 +52,18 @@ export class AuthService {
   }
 
   async register(registerUserDto: RegisterUserDto) {
+    const { email, username, cpf, password, role, personId } = registerUserDto;
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const data = {
-      ...registerUserDto,
-      password: await bcrypt.hash(registerUserDto.password, 10),
+      email,
+      username,
+      cpf,
+      password: hashedPassword,
+      role,
+      personId,
     };
+
     const createdUser = await this.prisma.user.create({ data });
 
     return {

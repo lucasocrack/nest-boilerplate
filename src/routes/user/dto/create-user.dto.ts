@@ -1,4 +1,3 @@
-import { User } from '../entities/user.entity';
 import {
   IsEmail,
   IsEnum,
@@ -11,7 +10,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 
-export class CreateUserDto extends User {
+export class CreateUserDto {
   @IsEmail()
   @ApiProperty()
   email: string;

@@ -3,7 +3,7 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../../decorators/current-user.decorator';
-import { User } from './entities/user.entity';
+import { User } from '../../entities/user.entity';
 import { ParamId } from '../../decorators/param-id.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Roles } from '../../decorators/roles.decorator';

@@ -1,4 +1,3 @@
-import { User } from '../../user/entities/user.entity';
 import {
   IsEmail,
   IsOptional,
@@ -6,10 +5,13 @@ import {
   Matches,
   MaxLength,
   MinLength,
+  IsEnum,
+  IsInt,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 
-export class RegisterUserDto extends User {
+export class RegisterUserDto {
   @IsEmail()
   @ApiProperty()
   email: string;
@@ -18,7 +20,6 @@ export class RegisterUserDto extends User {
   @ApiProperty()
   @MinLength(3)
   @MaxLength(20)
-  // @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
   @Matches(/.*/, {
     message: 'senha muito fraca',
   })
@@ -31,4 +32,12 @@ export class RegisterUserDto extends User {
   @IsString()
   @IsOptional()
   cpf: string;
+
+  @IsEnum(Role)
+  @ApiProperty({ enum: Role })
+  role: Role;
+
+  @IsInt()
+  @IsOptional()
+  personId?: number;
 }
