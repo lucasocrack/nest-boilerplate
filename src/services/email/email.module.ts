@@ -5,7 +5,6 @@ import { join } from 'path';
 import { EmailService } from './email.service';
 import { EmailController } from './email.controller';
 import { PasswordResetService } from './password-reset.service';
-import { AccountRegistrationService } from './account-registration.service';
 
 @Module({
   imports: [],
@@ -43,7 +42,6 @@ import { AccountRegistrationService } from './account-registration.service';
     },
     EmailService,
     PasswordResetService,
-    AccountRegistrationService,
   ],
   exports: [EmailService],
 })

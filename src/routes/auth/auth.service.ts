@@ -1,4 +1,3 @@
-// src/routes/auth/auth.service.ts
 import { Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
@@ -9,6 +8,8 @@ import { JwtService } from '@nestjs/jwt';
 import { UserToken } from './models/UserToken';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { PrismaService } from '../../services/prisma/prisma.service';
+import { EmailService } from '../../services/email/email.service';
+
 
 @Injectable()
 export class AuthService {
@@ -16,6 +17,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
     private readonly prisma: PrismaService,
+    private readonly emailService: EmailService,
   ) {}
 
   login(user: User): UserToken {
@@ -65,6 +67,10 @@ export class AuthService {
     };
 
     const createdUser = await this.prisma.user.create({ data });
+    await this.emailService.sendRegistrationEmail(email, {
+      name: username,
+      activationLink: `https://example.com/activate?token=someToken`,
+    });
 
     return {
       ...createdUser,

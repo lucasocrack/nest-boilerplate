@@ -32,5 +32,24 @@ export class EmailService {
     });
   }
 
+  async sendRegistrationEmail(to: string, context: any): Promise<void> {
+    const templatePath = path.join(
+      process.cwd(),
+      'src',
+      'templates',
+      'account-registration.hbs',
+    );
+    const templateString = fs.readFileSync(templatePath, 'utf-8');
+    const compiledTemplate = handlebars.compile(templateString);
+    const html = compiledTemplate(context);
+
+    await this.mailer.sendMail({
+      from: process.env.EMAIL_USER,
+      to,
+      subject: 'Account Registration',
+      html,
+    });
+  }
+
 
 }
