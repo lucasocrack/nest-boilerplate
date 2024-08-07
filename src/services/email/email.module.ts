@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import * as hbs from 'nodemailer-express-handlebars';
-import { join } from 'path';
 import { EmailService } from './email.service';
 import { EmailController } from './email.controller';
 import { PasswordResetService } from './password-reset.service';
@@ -28,11 +27,11 @@ import { PasswordResetService } from './password-reset.service';
           hbs({
             viewEngine: {
               extname: '.hbs',
-              layoutsDir: join(process.cwd(), 'src', 'templates'),
+              layoutsDir: process.env.EMAIL_LAYOUTS_DIR,
               defaultLayout: false,
-              partialsDir: join(process.cwd(), 'src', 'templates'),
+              partialsDir: process.env.EMAIL_PARTIALS_DIR,
             },
-            viewPath: join(process.cwd(), 'src', 'templates'),
+            viewPath: process.env.EMAIL_LAYOUTS_DIR,
             extName: '.hbs',
           }),
         );

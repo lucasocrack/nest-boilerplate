@@ -15,9 +15,7 @@ export class EmailService {
     context: any,
   ): Promise<void> {
     const templatePath = path.join(
-      process.cwd(),
-      'src',
-      'templates',
+      process.env.EMAIL_LAYOUTS_DIR,
       `${template}.hbs`,
     );
     const templateString = fs.readFileSync(templatePath, 'utf-8');
@@ -33,10 +31,10 @@ export class EmailService {
   }
 
   async sendRegistrationEmail(to: string, context: any): Promise<void> {
+    context.logoUrl = process.env.LOGO_URL;
+
     const templatePath = path.join(
-      process.cwd(),
-      'src',
-      'templates',
+      process.env.EMAIL_LAYOUTS_DIR,
       'account-registration.hbs',
     );
     const templateString = fs.readFileSync(templatePath, 'utf-8');
@@ -50,6 +48,4 @@ export class EmailService {
       html,
     });
   }
-
-
 }
