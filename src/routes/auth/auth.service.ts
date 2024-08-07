@@ -10,7 +10,6 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { PrismaService } from '../../services/prisma/prisma.service';
 import { EmailService } from '../../services/email/email.service';
 
-
 @Injectable()
 export class AuthService {
   constructor(
@@ -21,12 +20,7 @@ export class AuthService {
   ) {}
 
   login(user: User): UserToken {
-    const payload: UserPayload = {
-      sub: user.id,
-      email: user.email,
-      username: user.username,
-      role: user.role,
-    };
+    const payload = this.createUserPayload(user);
     const { password, ...userWithoutPassword } = user;
 
     return {
@@ -37,44 +31,47 @@ export class AuthService {
 
   async validateUser(identifier: string, password: string) {
     const user = await this.userService.findOneByEmailOrUsername(identifier);
-
-    if (user) {
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (isPasswordValid) {
-        return {
-          ...user,
-          password: undefined,
-        };
-      }
+    if (user && (await this.isPasswordValid(password, user.password))) {
+      return { ...user, password: undefined };
     }
-
     throw new UnauthorizedError(
       'Email address or password provided is incorrect.',
     );
   }
 
   async register(registerUserDto: RegisterUserDto) {
-    const { email, username, cpf, password, role, personId } = registerUserDto;
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const { email, username, cpf, password, role } = registerUserDto;
+    const hashedPassword = await this.hashPassword(password);
 
-    const data = {
-      email,
-      username,
-      cpf,
-      password: hashedPassword,
-      role,
-      personId,
-    };
+    const createdUser = await this.prisma.user.create({
+      data: { email, username, cpf, password: hashedPassword, role },
+    });
 
-    const createdUser = await this.prisma.user.create({ data });
     await this.emailService.sendRegistrationEmail(email, {
       name: username,
       activationLink: `https://example.com/activate?token=someToken`,
     });
 
+    return { ...createdUser, password: undefined };
+  }
+
+  private createUserPayload(user: User): UserPayload {
     return {
-      ...createdUser,
-      password: undefined,
+      sub: user.id,
+      email: user.email,
+      username: user.username,
+      role: user.role,
     };
+  }
+
+  private async isPasswordValid(
+    password: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
+    return bcrypt.compare(password, hashedPassword);
+  }
+
+  private async hashPassword(password: string): Promise<string> {
+    return bcrypt.hash(password, 10);
   }
 }
