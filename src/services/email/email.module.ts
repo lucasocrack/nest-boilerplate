@@ -4,6 +4,8 @@ import * as hbs from 'nodemailer-express-handlebars';
 import { join } from 'path';
 import { EmailService } from './email.service';
 import { EmailController } from './email.controller';
+import { PasswordResetService } from './password-reset.service';
+import { AccountRegistrationService } from './account-registration.service';
 
 @Module({
   imports: [],
@@ -27,11 +29,11 @@ import { EmailController } from './email.controller';
           hbs({
             viewEngine: {
               extname: '.hbs',
-              layoutsDir: join(__dirname, 'templates'),
+              layoutsDir: join(process.cwd(), 'src', 'templates'),
               defaultLayout: false,
-              partialsDir: join(__dirname, 'templates'),
+              partialsDir: join(process.cwd(), 'src', 'templates'),
             },
-            viewPath: join(__dirname, 'templates'),
+            viewPath: join(process.cwd(), 'src', 'templates'),
             extName: '.hbs',
           }),
         );
@@ -40,6 +42,8 @@ import { EmailController } from './email.controller';
       },
     },
     EmailService,
+    PasswordResetService,
+    AccountRegistrationService,
   ],
   exports: [EmailService],
 })

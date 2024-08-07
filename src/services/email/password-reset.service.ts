@@ -5,20 +5,15 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 @Injectable()
-export class EmailService {
+export class PasswordResetService {
   constructor(@Inject('MAILER') private readonly mailer: Transporter) {}
 
-  async sendMail(
-    to: string,
-    subject: string,
-    template: string,
-    context: any,
-  ): Promise<void> {
+  async sendPasswordResetEmail(to: string, context: any): Promise<void> {
     const templatePath = path.join(
       process.cwd(),
       'src',
       'templates',
-      `${template}.hbs`,
+      'password-reset.hbs',
     );
     const templateString = fs.readFileSync(templatePath, 'utf-8');
     const compiledTemplate = handlebars.compile(templateString);
@@ -27,10 +22,8 @@ export class EmailService {
     await this.mailer.sendMail({
       from: process.env.EMAIL_USER,
       to,
-      subject,
+      subject: 'Password Reset Request',
       html,
     });
   }
-
-
 }
