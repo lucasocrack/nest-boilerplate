@@ -36,5 +36,6 @@ export class RegisterUserDto {
 
   @IsEnum(Role)
   @ApiProperty({ enum: Role })
-  role: Role;
+  @IsOptional()
+  role?: Role;
 }

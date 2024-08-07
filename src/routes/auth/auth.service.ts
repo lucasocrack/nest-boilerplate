@@ -9,6 +9,7 @@ import { UserToken } from './models/UserToken';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { PrismaService } from '../../services/prisma/prisma.service';
 import { EmailService } from '../../services/email/email.service';
+import { LoginAuthDto } from './dto/login-auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -19,9 +20,11 @@ export class AuthService {
     private readonly emailService: EmailService,
   ) {}
 
-  login(user: User): UserToken {
+  async login(loginAuthDto: LoginAuthDto): Promise<UserToken> {
+    const { identifier, password } = loginAuthDto;
+    const user = await this.validateUser(identifier, password);
     const payload = this.createUserPayload(user);
-    const { password, ...userWithoutPassword } = user;
+    const { password: userPassword, ...userWithoutPassword } = user;
 
     return {
       access_token: this.jwtService.sign(payload),
@@ -31,11 +34,18 @@ export class AuthService {
 
   async validateUser(identifier: string, password: string) {
     const user = await this.userService.findOneByEmailOrUsername(identifier);
-    if (user && (await this.isPasswordValid(password, user.password))) {
+    if (
+      user &&
+      user.deletedAt === null &&
+      (await this.isPasswordValid(password, user.password))
+    ) {
       return { ...user, password: undefined };
     }
     throw new UnauthorizedError(
-      'Email address or password provided is incorrect.',
+      user && user.deletedAt !== null
+        ? 'User account is deleted.'
+        : 'Email address or password provided is incorrect.',
+      user && user.deletedAt !== null ? 403 : 401,
     );
   }
 
