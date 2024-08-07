@@ -7,7 +7,8 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LoginValidationMiddleware } from './middlewares/ogin-validation.middleware';
-import { PrismaModule } from '../../prisma/prisma.module';
+import { PrismaModule } from '../../services/prisma/prisma.module';
+import { EmailModule } from '../../services/email/email.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { PrismaModule } from '../../prisma/prisma.module';
       signOptions: { expiresIn: '7d' },
     }),
     PrismaModule,
+    EmailModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy],

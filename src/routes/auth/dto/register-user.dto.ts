@@ -31,13 +31,11 @@ export class RegisterUserDto {
 
   @IsString()
   @IsOptional()
-  cpf: string;
+  @ApiProperty()
+  cpf?: string;
 
   @IsEnum(Role)
   @ApiProperty({ enum: Role })
-  role: Role;
-
-  @IsInt()
   @IsOptional()
-  personId?: number;
+  role?: Role;
 }
