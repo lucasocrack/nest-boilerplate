@@ -24,7 +24,7 @@
 
 ## Description
 
-This project is built using the [Nest](https://github.com/nestjs/nest) framework, a progressive Node.js framework for building efficient and scalable server-side applications.
+In this initial version, I am considering basic parameters for a backend, which includes full authentication security for user login using JWT tokens.
 
 ## Technologies Used
 
