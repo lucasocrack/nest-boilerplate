@@ -51,6 +51,11 @@ export class AuthService {
 
   async register(registerUserDto: RegisterUserDto) {
     const { email, username, cpf, password, role } = registerUserDto;
+
+    await this.validateUniqueEmail(email);
+    await this.validateUniqueUsername(username);
+    await this.validateUniqueCpf(cpf);
+
     const hashedPassword = await this.hashPassword(password);
 
     const createdUser = await this.prisma.user.create({
@@ -83,5 +88,26 @@ export class AuthService {
 
   private async hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, 10);
+  }
+
+  private async validateUniqueEmail(email: string) {
+    const user = await this.userService.findOneByEmail(email);
+    if (user) {
+      throw new UnauthorizedError('Email address is already in use.', 400);
+    }
+  }
+
+  private async validateUniqueUsername(username: string) {
+    const user = await this.userService.findOneByUsername(username);
+    if (user) {
+      throw new UnauthorizedError('Username is already in use.', 400);
+    }
+  }
+
+  private async validateUniqueCpf(cpf: string) {
+    const user = await this.userService.findOneByCpf(cpf);
+    if (user) {
+      throw new UnauthorizedError('CPF is already in use.', 400);
+    }
   }
 }

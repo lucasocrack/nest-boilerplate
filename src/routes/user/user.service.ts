@@ -79,4 +79,16 @@ export class UserService {
       throw new NotFoundException(`O usuário ${id} não foi encontrado.`);
     }
   }
+
+  async findOneByEmail(email: string) {
+    return this.prisma.user.findFirst({ where: { email } });
+  }
+
+  async findOneByUsername(username: string) {
+    return this.prisma.user.findFirst({ where: { username } });
+  }
+
+  async findOneByCpf(cpf: string) {
+    return this.prisma.user.findFirst({ where: { cpf } });
+  }
 }
