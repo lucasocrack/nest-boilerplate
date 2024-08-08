@@ -24,38 +24,68 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This project is built using the [Nest](https://github.com/nestjs/nest) framework, a progressive Node.js framework for building efficient and scalable server-side applications.
+
+## Technologies Used
+
+- **NestJS**: A progressive Node.js framework for building efficient and scalable server-side applications.
+- **TypeScript**: A strongly typed programming language that builds on JavaScript.
+- **Prisma**: An open-source database toolkit for TypeScript and Node.js.
+- **Passport**: A popular Node.js library used to implement authentication.
+- **Bun**: A fast JavaScript runtime like Node.js or Deno.
+- **Bcrypt**: A library to help you hash passwords.
+- **JWT**: JSON Web Tokens for securely transmitting information between parties.
+- **Email Service**: For sending emails using SMTP.
+ 
 
 ## Installation
 
 ```bash
-$ npm install
+$ bun install
 ```
 
 ## Running the app
 
 ```bash
 # development
-$ npm run start
+$ bun run start
 
 # watch mode
-$ npm run start:dev
+$ bun run start:dev
 
 # production mode
-$ npm run start:prod
+$ bun run start:prod
 ```
 
 ## Test
 
 ```bash
 # unit tests
-$ npm run test
+$ bun run test
 
 # e2e tests
-$ npm run test:e2e
+$ bun run test:e2e
 
 # test coverage
-$ npm run test:cov
+$ bun run test:cov
+```
+
+```bash
+## Environment Variables
+The following environment variables are used in this project:
+
+DATABASE_URL="your_database_url"
+JWT_SECRET="your_jwt_secret"
+
+EMAIL_LAYOUTS_DIR=templates
+EMAIL_PARTIALS_DIR=templates/partials
+
+LOGO_URL="your_logo_url"
+
+EMAIL_HOST="your_email_host"
+EMAIL_PORT=your_email_port
+EMAIL_USER="your_email_user"
+EMAIL_PASS="your_email_password"
 ```
 
 ## Support
@@ -64,9 +94,7 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 
 ## Stay in touch
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- Author - [Lucas Campos](https://www.linkedin.com/in/lucas-ferreira-campos-12146997/)
 
 ## License
 
