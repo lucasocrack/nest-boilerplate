@@ -121,14 +121,14 @@ export class AuthService {
   private async validateUniqueEmail(email: string) {
     const user = await this.userService.findOneByEmail(email);
     if (user) {
-      throw new UnauthorizedError('Email address is already in use.', 400);
+      throw new UnauthorizedError('Email ja esta em uso.', 400);
     }
   }
 
   private async validateUniqueUsername(username: string) {
     const user = await this.userService.findOneByUsername(username);
     if (user) {
-      throw new UnauthorizedError('Username is already in use.', 400);
+      throw new UnauthorizedError('Username já esta em uso.', 400);
     }
   }
 

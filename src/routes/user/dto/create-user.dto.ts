@@ -6,6 +6,9 @@ import {
   Matches,
   MaxLength,
   MinLength,
+  IsBoolean,
+  IsDateString,
+  IsInt,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
@@ -31,9 +34,26 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsEnum(Role)
+  @ApiProperty({ enum: Role })
   role: Role;
 
   @IsString()
   @IsOptional()
+  @ApiProperty()
   cpfCnpj: string;
+
+  @IsDateString()
+  @IsOptional()
+  @ApiProperty()
+  createdAt: Date;
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiProperty({ default: true })
+  isActive: boolean = true;
+
+  @IsInt()
+  @IsOptional()
+  @ApiProperty()
+  personId: number;
 }

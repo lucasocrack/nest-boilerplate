@@ -4,15 +4,44 @@ import { PrismaService } from '../../services/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { MeUpdateUserDto } from './dto/me-update-user.dto';
+import { ConflictException } from '@nestjs/common';
 
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
-    const { password, ...rest } = createUserDto;
+    const { email, cpfCnpj, username, password, ...rest } = createUserDto;
+
+    const existingEmail = await this.prisma.user.findFirst({
+      where: { email },
+    });
+    if (existingEmail) {
+      throw new ConflictException('Email já cadastrado.');
+    }
+
+    const existingCpfCnpj = await this.prisma.user.findFirst({
+      where: { cpfCnpj },
+    });
+    if (existingCpfCnpj) {
+      throw new ConflictException('CPF/CNPJ já cadastrado.');
+    }
+
+    const existingUsername = await this.prisma.user.findFirst({
+      where: { username },
+    });
+    if (existingUsername) {
+      throw new ConflictException('Username já cadastrado.');
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    const data: any = { ...rest, password: hashedPassword };
+    const data: any = {
+      ...rest,
+      email,
+      cpfCnpj,
+      username,
+      password: hashedPassword,
+    };
 
     const createdUser = await this.prisma.user.create({ data });
     return { ...createdUser, password: undefined };
