@@ -26,6 +26,7 @@ export class AuthService {
     const { identifier, password } = loginAuthDto;
     const user = await this.validateUser(identifier, password);
     const payload = this.createUserPayload(user);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: userPassword, ...userWithoutPassword } = user;
 
     return {
@@ -78,20 +79,22 @@ export class AuthService {
   }
 
   async activateAccount(token: string): Promise<void> {
+    let payload: any;
     try {
-      const payload = this.jwtService.verify(token);
-      const userId = payload.sub;
-
-      const user = await this.prisma.user.update({
-        where: { id: userId },
-        data: { isActive: true },
-      });
-
-      if (!user) {
-        throw new UnauthorizedError('Invalid token');
-      }
+      payload = this.jwtService.verify(token);
     } catch (error) {
       throw new UnauthorizedError('Invalid or expired token');
+    }
+
+    const userId = payload.sub;
+
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: { isActive: true },
+    });
+
+    if (!user) {
+      throw new UnauthorizedError('Invalid token');
     }
   }
 

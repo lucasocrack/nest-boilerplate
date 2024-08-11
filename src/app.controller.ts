@@ -10,17 +10,17 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { LocalAuthGuard } from '../../guards/local-auth.guard';
-import { AuthRequest } from './models/AuthRequest';
-import { IsPublic } from '../../decorators/is-public.decorator';
+import { AuthService } from './routes/auth/auth.service';
+import { LocalAuthGuard } from './guards/local-auth.guard';
+import { AuthRequest } from './routes/auth/models/AuthRequest';
+import { IsPublic } from './decorators/is-public.decorator';
 import { ApiTags } from '@nestjs/swagger';
-import { RegisterUserDto } from './dto/register-user.dto';
-import { LoginAuthDto } from './dto/login-auth.dto';
+import { RegisterUserDto } from './routes/auth/dto/register-user.dto';
+import { LoginAuthDto } from './routes/auth/dto/login-auth.dto';
 
 @IsPublic()
 @Controller()
-export class AuthController {
+export class AppController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiTags('login')
@@ -44,6 +44,6 @@ export class AuthController {
       throw new BadRequestException('Token is required');
     }
     await this.authService.activateAccount(token);
-    return 'Account activated successfully';
+    return 'Account activated successfully'; // tratar melhor essa mensagem
   }
 }
