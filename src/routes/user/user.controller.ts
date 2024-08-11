@@ -6,6 +6,8 @@ import {
   Patch,
   Post,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -27,6 +29,7 @@ export class UserController {
 
   @Roles(Role.ADMIN, Role.SUPERADMIN, Role.SUPERVISOR)
   @Post('')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
