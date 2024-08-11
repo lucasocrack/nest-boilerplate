@@ -48,6 +48,8 @@ export class UserController {
     return this.userService.readOne(id);
   }
 
+  @Roles(Role.ADMIN, Role.SUPERADMIN)
+  @ExcludeRoles(Role.CLIENT)
   @Patch(':id')
   async updateUser(@Body() data: UpdateUserDto, @ParamId() id: string) {
     return this.userService.updatePartial(id, data);
@@ -58,6 +60,8 @@ export class UserController {
     return this.userService.updatePartial(user.id, data);
   }
 
+  @Roles(Role.ADMIN, Role.SUPERADMIN)
+  @ExcludeRoles(Role.CLIENT)
   @Delete(':id')
   async deleteUser(@ParamId() id: string) {
     return this.userService.delete(id);
