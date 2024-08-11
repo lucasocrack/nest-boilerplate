@@ -10,13 +10,13 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { AuthService } from './routes/auth/auth.service';
+import { AuthService } from './services/auth/auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { AuthRequest } from './routes/auth/models/AuthRequest';
+import { AuthRequest } from './services/auth/models/AuthRequest';
 import { IsPublic } from './decorators/is-public.decorator';
 import { ApiTags } from '@nestjs/swagger';
-import { RegisterUserDto } from './routes/auth/dto/register-user.dto';
-import { LoginAuthDto } from './routes/auth/dto/login-auth.dto';
+import { RegisterUserDto } from './services/auth/dto/register-user.dto';
+import { LoginAuthDto } from './services/auth/dto/login-auth.dto';
 
 @IsPublic()
 @Controller()
