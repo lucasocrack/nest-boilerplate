@@ -6,4 +6,5 @@ export class User {
   username: string;
   password: string;
   role?: Role;
+  isActive: boolean;
 }

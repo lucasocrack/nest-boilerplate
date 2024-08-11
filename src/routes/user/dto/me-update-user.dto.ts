@@ -30,5 +30,5 @@ export class MeUpdateUserDto extends User {
 
   @IsString()
   @IsOptional()
-  cpf: string;
+  cpfCnpj: string;
 }

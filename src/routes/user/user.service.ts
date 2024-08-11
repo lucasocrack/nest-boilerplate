@@ -88,7 +88,7 @@ export class UserService {
     return this.prisma.user.findFirst({ where: { username } });
   }
 
-  async findOneByCpf(cpf: string) {
-    return this.prisma.user.findFirst({ where: { cpf } });
+  async findOneByCpfCnpj(cpfCnpj: string) {
+    return this.prisma.user.findFirst({ where: { cpfCnpj } });
   }
 }

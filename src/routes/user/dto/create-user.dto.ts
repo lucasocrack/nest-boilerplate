@@ -35,5 +35,5 @@ export class CreateUserDto {
 
   @IsString()
   @IsOptional()
-  cpf: string;
+  cpfCnpj: string;
 }

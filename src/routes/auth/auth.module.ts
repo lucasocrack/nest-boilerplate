@@ -9,6 +9,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { LoginValidationMiddleware } from './middlewares/ogin-validation.middleware';
 import { PrismaModule } from '../../services/prisma/prisma.module';
 import { EmailModule } from '../../services/email/email.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { EmailModule } from '../../services/email/email.module';
     }),
     PrismaModule,
     EmailModule,
+    ConfigModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy],

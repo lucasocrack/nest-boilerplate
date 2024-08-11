@@ -1,9 +1,12 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -33,5 +36,14 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   register(@Req() req: AuthRequest, @Body() registerUserDto: RegisterUserDto) {
     return this.authService.register(registerUserDto);
+  }
+
+  @Get('activate')
+  async activateAccount(@Query('token') token: string): Promise<string> {
+    if (!token) {
+      throw new BadRequestException('Token is required');
+    }
+    await this.authService.activateAccount(token);
+    return 'Account activated successfully';
   }
 }
