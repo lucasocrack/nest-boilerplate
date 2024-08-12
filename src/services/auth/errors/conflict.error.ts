@@ -18,7 +18,7 @@ export class UsernameConflictError extends ConflictError {
   }
 }
 
-export class CpfConflictError extends ConflictError {
+export class CpfCnpjConflictError extends ConflictError {
   constructor() {
     super('CPF is already in use.');
   }

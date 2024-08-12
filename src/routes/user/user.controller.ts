@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Post,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ApiTags } from '@nestjs/swagger';
@@ -19,6 +29,7 @@ export class UserController {
 
   @Roles(Role.ADMIN, Role.SUPERADMIN, Role.SUPERVISOR)
   @Post('')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
@@ -40,6 +51,8 @@ export class UserController {
     return this.userService.readOne(id);
   }
 
+  @Roles(Role.ADMIN, Role.SUPERADMIN)
+  @ExcludeRoles(Role.CLIENT)
   @Patch(':id')
   async updateUser(@Body() data: UpdateUserDto, @ParamId() id: string) {
     return this.userService.updatePartial(id, data);
@@ -50,6 +63,8 @@ export class UserController {
     return this.userService.updatePartial(user.id, data);
   }
 
+  @Roles(Role.ADMIN, Role.SUPERADMIN)
+  @ExcludeRoles(Role.CLIENT)
   @Delete(':id')
   async deleteUser(@ParamId() id: string) {
     return this.userService.delete(id);

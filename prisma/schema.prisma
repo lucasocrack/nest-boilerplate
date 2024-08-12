@@ -30,11 +30,12 @@ model User {
   id        String    @id @default(cuid())
   email     String    @unique @db.VarChar(80)
   username  String    @unique @db.VarChar()
-  cpf       String?   @db.VarChar(11)
-  password  String    @db.VarChar(255)
+  cpfCnpj   String?   @db.VarChar(14)
+  password  String    @db.VarChar(128)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
+  isActive  Boolean   @default(false)
   role      Role      @default(CLIENT)
   personId  Int?      @unique
   person    Person?   @relation(fields: [personId], references: [id])
@@ -60,9 +61,8 @@ model Person {
   name        String     @db.VarChar(80)
   fantasyName String?    @db.VarChar(80)
   type        PersonType
-  cpf         String?    @db.VarChar(11)
-  cnpj        String?    @db.VarChar(14)
-  ie          String?    @db.VarChar(9)
+  cpfCnpj     String?    @db.VarChar(14)
+  cpfIe       String?    @db.VarChar(9)
   email       String?    @db.VarChar(40)
   phone1      String?    @db.VarChar(12)
   phone2      String?    @db.VarChar(12)

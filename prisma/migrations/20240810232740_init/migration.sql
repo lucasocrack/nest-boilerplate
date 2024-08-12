@@ -1,20 +1,42 @@
 -- CreateEnum
+CREATE TYPE "Role" AS ENUM ('CLIENT', 'ADMIN', 'EMPLOYEE', 'FINANCIAL', 'SALESPERSON', 'TECHNICIAN', 'SOCIALMEDIA', 'SUPERVISOR', 'SUPERADMIN');
+
+-- CreateEnum
 CREATE TYPE "PersonType" AS ENUM ('INDIVIDUAL', 'COMPANY', 'RURAL_PRODUCER');
 
 -- CreateEnum
 CREATE TYPE "Weekday" AS ENUM ('MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY');
 
 -- CreateTable
+CREATE TABLE "config" (
+    "id" SERIAL NOT NULL,
+    "name" VARCHAR(120) NOT NULL,
+    "email" VARCHAR(60) NOT NULL,
+    "mobile" VARCHAR(20) NOT NULL,
+    "phone1" VARCHAR(20),
+    "phone2" VARCHAR(20),
+    "place" VARCHAR(150) NOT NULL,
+    "number" VARCHAR(10) NOT NULL,
+    "complement" VARCHAR(50),
+    "neighborhood" VARCHAR(80) NOT NULL,
+    "city" VARCHAR(60) NOT NULL,
+    "state" VARCHAR(2) NOT NULL,
+    "zipCode" VARCHAR(10) NOT NULL,
+
+    CONSTRAINT "config_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "user" (
     "id" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "username" TEXT NOT NULL,
-    "cpf" TEXT,
-    "password" TEXT NOT NULL,
+    "email" VARCHAR(80) NOT NULL,
+    "username" VARCHAR NOT NULL,
+    "cpfCnpj" VARCHAR(14),
+    "password" VARCHAR(128) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),
-    "role" INTEGER NOT NULL DEFAULT 1,
+    "role" "Role" NOT NULL DEFAULT 'CLIENT',
     "personId" INTEGER,
 
     CONSTRAINT "user_pkey" PRIMARY KEY ("id")
@@ -23,18 +45,17 @@ CREATE TABLE "user" (
 -- CreateTable
 CREATE TABLE "person" (
     "id" SERIAL NOT NULL,
-    "name" TEXT NOT NULL,
-    "fantasyName" TEXT,
+    "name" VARCHAR(80) NOT NULL,
+    "fantasyName" VARCHAR(80),
     "type" "PersonType" NOT NULL,
-    "cpf" TEXT,
-    "cnpj" TEXT,
-    "ie" TEXT,
-    "email" TEXT,
-    "phone1" TEXT,
-    "phone2" TEXT,
+    "cpfCnpj" VARCHAR(14),
+    "cpfIe" VARCHAR(9),
+    "email" VARCHAR(40),
+    "phone1" VARCHAR(12),
+    "phone2" VARCHAR(12),
     "birthDate" TIMESTAMP(3),
     "notes" TEXT,
-    "delinquent" BOOLEAN NOT NULL DEFAULT false,
+    "defaulter" BOOLEAN NOT NULL DEFAULT false,
     "photo" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -46,36 +67,19 @@ CREATE TABLE "person" (
 -- CreateTable
 CREATE TABLE "address" (
     "id" SERIAL NOT NULL,
-    "place" TEXT NOT NULL,
-    "number" TEXT NOT NULL,
-    "neighborhood" TEXT NOT NULL,
-    "city" TEXT NOT NULL,
-    "state" TEXT NOT NULL,
-    "zipCode" TEXT NOT NULL,
+    "place" VARCHAR(140) NOT NULL,
+    "number" VARCHAR(10) NOT NULL,
+    "complement" VARCHAR(50) NOT NULL,
+    "neighborhood" VARCHAR(60) NOT NULL,
+    "city" VARCHAR(60) NOT NULL,
+    "state" VARCHAR(2) NOT NULL,
+    "zipCode" VARCHAR(10) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),
     "personId" INTEGER NOT NULL,
 
     CONSTRAINT "address_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "config" (
-    "id" SERIAL NOT NULL,
-    "name" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "mobile" TEXT NOT NULL,
-    "phone1" TEXT,
-    "phone2" TEXT,
-    "place" TEXT NOT NULL,
-    "number" TEXT NOT NULL,
-    "neighborhood" TEXT NOT NULL,
-    "city" TEXT NOT NULL,
-    "state" TEXT NOT NULL,
-    "zipCode" TEXT NOT NULL,
-
-    CONSTRAINT "config_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -94,16 +98,18 @@ CREATE TABLE "config_working_hours" (
 -- CreateTable
 CREATE TABLE "posts" (
     "id" SERIAL NOT NULL,
-    "title" TEXT NOT NULL,
+    "title" VARCHAR(150) NOT NULL,
     "content" TEXT NOT NULL,
     "published" BOOLEAN NOT NULL DEFAULT false,
     "date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "productTitle" VARCHAR(150),
     "price" DOUBLE PRECISION,
     "productDescription" TEXT,
-    "linkAffiliate" TEXT,
+    "productCategory" VARCHAR(32),
+    "linkAffiliate" VARCHAR(255),
+    "tags" VARCHAR(255) NOT NULL,
     "authorId" TEXT NOT NULL,
-    "tags" TEXT NOT NULL,
-    "categoryId" INTEGER NOT NULL,
+    "categoryPost" INTEGER NOT NULL,
 
     CONSTRAINT "posts_pkey" PRIMARY KEY ("id")
 );
@@ -111,7 +117,7 @@ CREATE TABLE "posts" (
 -- CreateTable
 CREATE TABLE "categorypost" (
     "id" SERIAL NOT NULL,
-    "name" TEXT NOT NULL,
+    "name" VARCHAR(50) NOT NULL,
 
     CONSTRAINT "categorypost_pkey" PRIMARY KEY ("id")
 );
@@ -135,7 +141,7 @@ ALTER TABLE "address" ADD CONSTRAINT "address_personId_fkey" FOREIGN KEY ("perso
 ALTER TABLE "config_working_hours" ADD CONSTRAINT "config_working_hours_configId_fkey" FOREIGN KEY ("configId") REFERENCES "config"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "posts" ADD CONSTRAINT "posts_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "categorypost"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "posts" ADD CONSTRAINT "posts_categoryPost_fkey" FOREIGN KEY ("categoryPost") REFERENCES "categorypost"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "posts" ADD CONSTRAINT "posts_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
