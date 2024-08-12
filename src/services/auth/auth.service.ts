@@ -145,7 +145,10 @@ export class AuthService {
 
   private generateActivationLink(userId: string): string {
     const payload = { sub: userId };
-    const token = this.jwtService.sign(payload, { expiresIn: '1h' });
+    const tokenExpiration = this.configService.get<string>(
+      'ACTIVATION_TOKEN_EXPIRATION_TIME',
+    );
+    const token = this.jwtService.sign(payload, { expiresIn: tokenExpiration });
     const domain = this.configService.get<string>('DOMAIN');
     return `${domain}/activate?token=${token}`;
   }

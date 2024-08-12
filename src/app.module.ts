@@ -8,9 +8,18 @@ import { PostModule } from './routes/post/post.module';
 import { EmailModule } from './services/email/email.module';
 import { AppController } from './app.controller';
 import { InactiveUserModule } from './services/inactive-user/inactive-user.module';
+import { GoogleAuthModule } from './routes/google-auth/google-auth.module';
 
 @Module({
-  imports: [PrismaModule, UserModule, AuthModule, PostModule, EmailModule, InactiveUserModule],
+  imports: [
+    PrismaModule,
+    UserModule,
+    AuthModule,
+    PostModule,
+    EmailModule,
+    InactiveUserModule,
+    GoogleAuthModule,
+  ],
   controllers: [AppController],
   providers: [
     {
