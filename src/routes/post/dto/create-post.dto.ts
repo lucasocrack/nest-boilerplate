@@ -48,5 +48,4 @@ export class CreatePostDto {
   @IsString()
   @IsOptional()
   tags: string;
-
 }

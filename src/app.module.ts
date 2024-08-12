@@ -19,6 +19,7 @@ import { GoogleAuthModule } from './routes/google-auth/google-auth.module';
     EmailModule,
     InactiveUserModule,
     GoogleAuthModule,
+    PostModule,
   ],
   controllers: [AppController],
   providers: [

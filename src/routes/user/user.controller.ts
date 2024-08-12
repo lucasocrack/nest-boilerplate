@@ -63,7 +63,7 @@ export class UserController {
     return this.userService.updatePartial(user.id, data);
   }
 
-  @Roles(Role.ADMIN, Role.SUPERADMIN)
+  @Roles(Role.SUPERADMIN)
   @ExcludeRoles(Role.CLIENT)
   @Delete(':id')
   async deleteUser(@ParamId() id: string) {
