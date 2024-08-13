@@ -67,4 +67,26 @@ export class EmailService {
       html,
     });
   }
+
+  async sendResetPasswordEmail(
+    to: string,
+    context: { name: string; resetLink: string; logoUrl?: string },
+  ): Promise<void> {
+    context.logoUrl = process.env.LOGO_URL;
+
+    const templatePath = path.join(
+      process.env.EMAIL_LAYOUTS_DIR,
+      'reset-password.hbs',
+    );
+    const templateString = fs.readFileSync(templatePath, 'utf-8');
+    const compiledTemplate = handlebars.compile(templateString);
+    const html = compiledTemplate(context);
+
+    await this.mailer.sendMail({
+      from: process.env.EMAIL_USER,
+      to,
+      subject: 'Password Reset',
+      html,
+    });
+  }
 }

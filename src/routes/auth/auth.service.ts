@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { UserService } from '../../routes/user/user.service';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
 import { UnauthorizedError } from './errors/unauthorized.error';
 import { User } from '../../entities/user.entity';
@@ -7,10 +7,12 @@ import { UserPayload } from './models/UserPayload';
 import { JwtService } from '@nestjs/jwt';
 import { UserToken } from './models/UserToken';
 import { RegisterUserDto } from './dto/register-user.dto';
-import { PrismaService } from '../prisma/prisma.service';
-import { EmailService } from '../email/email.service';
+import { PrismaService } from '../../services/prisma/prisma.service';
+import { EmailService } from '../../services/email/email.service';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { ConfigService } from '@nestjs/config';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -84,6 +86,56 @@ export class AuthService {
     return { ...createdUser, password: undefined };
   }
 
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+    const { email } = forgotPasswordDto;
+    const user = await this.userService.findOneByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException('Email not found');
+    }
+
+    const payload = { sub: user.id };
+    const tokenExpiration = this.configService.get<string>(
+      'RESET_PASSWORD_TOKEN_EXPIRATION_TIME',
+    );
+    if (!tokenExpiration) {
+      throw new Error('RESET_PASSWORD_TOKEN_EXPIRATION_TIME is not set');
+    }
+    const token = this.jwtService.sign(payload, { expiresIn: tokenExpiration });
+
+    const resetLink = `${this.configService.get<string>('DOMAIN')}/reset-password?token=${token}`;
+
+    await this.emailService.sendResetPasswordEmail(email, {
+      name: user.username,
+      resetLink,
+    });
+
+    return { message: 'Password reset email sent' };
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const { token, newPassword } = resetPasswordDto;
+    let payload: any;
+    try {
+      payload = this.jwtService.verify(token);
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
+
+    const userId = payload.sub;
+    const hashedPassword = await this.hashPassword(newPassword);
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    return { message: 'Password reset successfully' };
+  }
+
+  private async hashPassword(password: string): Promise<string> {
+    return bcrypt.hash(password, 10);
+  }
+
   async activateAccount(token: string): Promise<void> {
     let payload: any;
     try {
@@ -118,10 +170,6 @@ export class AuthService {
     hashedPassword: string,
   ): Promise<boolean> {
     return bcrypt.compare(password, hashedPassword);
-  }
-
-  private async hashPassword(password: string): Promise<string> {
-    return bcrypt.hash(password, 10);
   }
 
   private async validateUniqueEmail(email: string) {
