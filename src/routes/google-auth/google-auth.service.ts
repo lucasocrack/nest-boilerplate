@@ -23,7 +23,6 @@ export class GoogleAuthService {
         password: user.password,
         isActive: user.isActive,
         createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
       },
     });
     return newUser;

@@ -37,20 +37,26 @@ export class AuthService {
 
   async validateUser(identifier: string, password: string) {
     const user = await this.userService.findOneByEmailOrUsername(identifier);
-    if (
-      user &&
-      user.deletedAt === null &&
-      user.isActive &&
-      (await this.isPasswordValid(password, user.password))
-    ) {
-      return { ...user, password: undefined };
+    if (user && user.deletedAt === null) {
+      if (!user.isActive) {
+        const activationLink = this.generateActivationLink(user.id);
+        await this.emailService.sendActivationEmail(user.email, {
+          name: user.username,
+          activationLink,
+        });
+        throw new UnauthorizedError(
+          'User account is not activated. An activation email has been sent.',
+          401,
+        );
+      }
+      if (await this.isPasswordValid(password, user.password)) {
+        return { ...user, password: undefined };
+      }
     }
     throw new UnauthorizedError(
       user && user.deletedAt !== null
         ? 'User account is deleted.'
-        : user && !user.isActive
-          ? 'User account is not activated.'
-          : 'Email address or password provided is incorrect.',
+        : 'Email address or password provided is incorrect.',
       user && user.deletedAt !== null ? 403 : 401,
     );
   }

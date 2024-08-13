@@ -48,4 +48,23 @@ export class EmailService {
       html,
     });
   }
+
+  async sendActivationEmail(to: string, context: any): Promise<void> {
+    context.logoUrl = process.env.LOGO_URL;
+
+    const templatePath = path.join(
+      process.env.EMAIL_LAYOUTS_DIR,
+      'account-activation.hbs',
+    );
+    const templateString = fs.readFileSync(templatePath, 'utf-8');
+    const compiledTemplate = handlebars.compile(templateString);
+    const html = compiledTemplate(context);
+
+    await this.mailer.sendMail({
+      from: process.env.EMAIL_USER,
+      to,
+      subject: 'Account Activation',
+      html,
+    });
+  }
 }

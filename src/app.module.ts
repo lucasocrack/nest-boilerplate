@@ -7,7 +7,6 @@ import { APP_GUARD } from '@nestjs/core';
 import { PostModule } from './routes/post/post.module';
 import { EmailModule } from './services/email/email.module';
 import { AppController } from './app.controller';
-import { InactiveUserModule } from './services/inactive-user/inactive-user.module';
 import { GoogleAuthModule } from './routes/google-auth/google-auth.module';
 
 @Module({
@@ -17,7 +16,6 @@ import { GoogleAuthModule } from './routes/google-auth/google-auth.module';
     AuthModule,
     PostModule,
     EmailModule,
-    InactiveUserModule,
     GoogleAuthModule,
     PostModule,
   ],

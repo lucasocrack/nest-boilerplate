@@ -6,5 +6,4 @@ export class CreateUserDto {
   isActive: boolean = true;
   role: string = 'CLIENT';
   createdAt: Date;
-  updatedAt: Date;
 }
