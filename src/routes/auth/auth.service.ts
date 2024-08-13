@@ -13,22 +13,32 @@ import { LoginAuthDto } from './dto/login-auth.dto';
 import { ConfigService } from '@nestjs/config';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ValidationUtils } from './utils/validation.utils';
+import { TokenUtils } from './utils/token.utils';
+import { EmailUtils } from './utils/email.utils';
 
 @Injectable()
 export class AuthService {
+  private readonly validationUtils: ValidationUtils;
+  private readonly tokenUtils: TokenUtils;
+  private readonly emailUtils: EmailUtils;
+
   constructor(
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
     private readonly prisma: PrismaService,
     private readonly emailService: EmailService,
     private readonly configService: ConfigService,
-  ) {}
+  ) {
+    this.validationUtils = new ValidationUtils(this.userService);
+    this.tokenUtils = new TokenUtils(this.jwtService, this.configService);
+    this.emailUtils = new EmailUtils(this.emailService, this.configService, this.tokenUtils);
+  }
 
   async login(loginAuthDto: LoginAuthDto): Promise<UserToken> {
     const { identifier, password } = loginAuthDto;
     const user = await this.validateUser(identifier, password);
     const payload = this.createUserPayload(user);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: userPassword, ...userWithoutPassword } = user;
 
     return {
@@ -41,11 +51,7 @@ export class AuthService {
     const user = await this.userService.findOneByEmailOrUsername(identifier);
     if (user && user.deletedAt === null) {
       if (!user.isActive) {
-        const activationLink = this.generateActivationLink(user.id);
-        await this.emailService.sendActivationEmail(user.email, {
-          name: user.username,
-          activationLink,
-        });
+        await this.emailUtils.sendActivationEmail(user);
         throw new UnauthorizedError(
           'User account is not activated. An activation email has been sent.',
           401,
@@ -66,9 +72,9 @@ export class AuthService {
   async register(registerUserDto: RegisterUserDto) {
     const { email, username, cpfCnpj, password, role } = registerUserDto;
 
-    await this.validateUniqueEmail(email);
-    await this.validateUniqueUsername(username);
-    await this.validateUniqueCpfCnpj(cpfCnpj);
+    await this.validationUtils.validateUniqueEmail(email);
+    await this.validationUtils.validateUniqueUsername(username);
+    await this.validationUtils.validateUniqueCpfCnpj(cpfCnpj);
 
     const hashedPassword = await this.hashPassword(password);
 
@@ -76,12 +82,7 @@ export class AuthService {
       data: { email, username, cpfCnpj, password: hashedPassword, role },
     });
 
-    const activationLink = this.generateActivationLink(createdUser.id);
-
-    await this.emailService.sendRegistrationEmail(email, {
-      name: username,
-      activationLink,
-    });
+    await this.emailUtils.sendActivationEmail(createdUser);
 
     return { ...createdUser, password: undefined };
   }
@@ -93,21 +94,7 @@ export class AuthService {
       throw new UnauthorizedException('Email not found');
     }
 
-    const payload = { sub: user.id };
-    const tokenExpiration = this.configService.get<string>(
-      'RESET_PASSWORD_TOKEN_EXPIRATION_TIME',
-    );
-    if (!tokenExpiration) {
-      throw new Error('RESET_PASSWORD_TOKEN_EXPIRATION_TIME is not set');
-    }
-    const token = this.jwtService.sign(payload, { expiresIn: tokenExpiration });
-
-    const resetLink = `${this.configService.get<string>('DOMAIN')}/reset-password?token=${token}`;
-
-    await this.emailService.sendResetPasswordEmail(email, {
-      name: user.username,
-      resetLink,
-    });
+    await this.emailUtils.sendResetPasswordEmail(user);
 
     return { message: 'Password reset email sent' };
   }
@@ -170,40 +157,5 @@ export class AuthService {
     hashedPassword: string,
   ): Promise<boolean> {
     return bcrypt.compare(password, hashedPassword);
-  }
-
-  private async validateUniqueEmail(email: string) {
-    const user = await this.userService.findOneByEmail(email);
-    if (user) {
-      throw new UnauthorizedError('Email ja esta em uso.', 400);
-    }
-  }
-
-  private async validateUniqueUsername(username: string) {
-    const user = await this.userService.findOneByUsername(username);
-    if (user) {
-      throw new UnauthorizedError('Username já esta em uso.', 400);
-    }
-  }
-
-  private async validateUniqueCpfCnpj(cpfCnpj: string) {
-    if (!cpfCnpj) {
-      return;
-    }
-
-    const user = await this.userService.findOneByCpfCnpj(cpfCnpj);
-    if (user) {
-      throw new UnauthorizedError('CPF/CNPJ já está em uso.', 400);
-    }
-  }
-
-  private generateActivationLink(userId: string): string {
-    const payload = { sub: userId };
-    const tokenExpiration = this.configService.get<string>(
-      'ACTIVATION_TOKEN_EXPIRATION_TIME',
-    );
-    const token = this.jwtService.sign(payload, { expiresIn: tokenExpiration });
-    const domain = this.configService.get<string>('DOMAIN');
-    return `${domain}/activate?token=${token}`;
   }
 }
