@@ -20,12 +20,12 @@ import { LoginAuthDto } from './dto/login-auth.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
+@ApiTags('Auth')
 @IsPublic()
 @Controller()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @ApiTags('login')
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
@@ -33,21 +33,18 @@ export class AuthController {
     return this.authService.login(loginAuthDto);
   }
 
-  @ApiTags('Register')
   @Post('register')
   @HttpCode(HttpStatus.OK)
   register(@Req() req: AuthRequest, @Body() registerUserDto: RegisterUserDto) {
     return this.authService.register(registerUserDto);
   }
 
-  @ApiTags('Forgot Password')
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     return this.authService.forgotPassword(forgotPasswordDto);
   }
 
-  @ApiTags('Reset Password')
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {

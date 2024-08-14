@@ -21,7 +21,7 @@ import { Role } from '@prisma/client';
 import { AuthGuard } from '@nestjs/passport';
 import { ExcludeRoles } from '../../decorators/exclude-roles.decorator';
 
-@ApiTags('user')
+@ApiTags('User')
 @UseGuards(AuthGuard('jwt'))
 @Controller('user')
 export class UserController {
