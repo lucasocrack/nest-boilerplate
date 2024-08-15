@@ -21,7 +21,7 @@ import { Role } from '@prisma/client';
 import { AuthGuard } from '@nestjs/passport';
 import { ExcludeRoles } from '../../decorators/exclude-roles.decorator';
 
-@ApiTags('user')
+@ApiTags('User')
 @UseGuards(AuthGuard('jwt'))
 @Controller('user')
 export class UserController {
@@ -63,7 +63,7 @@ export class UserController {
     return this.userService.updatePartial(user.id, data);
   }
 
-  @Roles(Role.ADMIN, Role.SUPERADMIN)
+  @Roles(Role.SUPERADMIN)
   @ExcludeRoles(Role.CLIENT)
   @Delete(':id')
   async deleteUser(@ParamId() id: string) {

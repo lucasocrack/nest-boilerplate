@@ -7,25 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Config {
-  id           Int                 @id @default(autoincrement())
-  name         String              @db.VarChar(120)
-  email        String              @db.VarChar(60)
-  mobile       String              @db.VarChar(20)
-  phone1       String?             @db.VarChar(20)
-  phone2       String?             @db.VarChar(20)
-  place        String              @db.VarChar(150)
-  number       String              @db.VarChar(10)
-  complement   String?             @db.VarChar(50)
-  neighborhood String              @db.VarChar(80)
-  city         String              @db.VarChar(60)
-  state        String              @db.VarChar(2)
-  zipCode      String              @db.VarChar(10)
-  workingHours ConfigWorkingHour[]
-
-  @@map("config")
-}
-
 model User {
   id        String    @id @default(cuid())
   email     String    @unique @db.VarChar(80)
@@ -103,29 +84,6 @@ model Address {
   @@map("address")
 }
 
-model ConfigWorkingHour {
-  id         Int       @id @default(autoincrement())
-  day        Weekday
-  open       DateTime
-  close      DateTime
-  lunchStart DateTime?
-  lunchEnd   DateTime?
-  configId   Int
-  config     Config    @relation(fields: [configId], references: [id])
-
-  @@map("config_working_hours")
-}
-
-enum Weekday {
-  MONDAY
-  TUESDAY
-  WEDNESDAY
-  THURSDAY
-  FRIDAY
-  SATURDAY
-  SUNDAY
-}
-
 model Post {
   id                 Int          @id @default(autoincrement())
   title              String       @db.VarChar(150)
@@ -152,4 +110,46 @@ model CategoryPost {
   posts Post[]
 
   @@map("categorypost")
+}
+
+model Config {
+  id           Int                 @id @default(autoincrement())
+  name         String              @db.VarChar(120)
+  email        String              @db.VarChar(60)
+  mobile       String              @db.VarChar(20)
+  phone1       String?             @db.VarChar(20)
+  phone2       String?             @db.VarChar(20)
+  place        String              @db.VarChar(150)
+  number       String              @db.VarChar(10)
+  complement   String?             @db.VarChar(50)
+  neighborhood String              @db.VarChar(80)
+  city         String              @db.VarChar(60)
+  state        String              @db.VarChar(2)
+  zipCode      String              @db.VarChar(10)
+  workingHours ConfigWorkingHour[]
+
+  @@map("config")
+}
+
+model ConfigWorkingHour {
+  id         Int       @id @default(autoincrement())
+  day        Weekday
+  open       DateTime
+  close      DateTime
+  lunchStart DateTime?
+  lunchEnd   DateTime?
+  configId   Int
+  config     Config    @relation(fields: [configId], references: [id])
+
+  @@map("config_working_hours")
+}
+
+enum Weekday {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
 }

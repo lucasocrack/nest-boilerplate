@@ -3,7 +3,6 @@ import * as nodemailer from 'nodemailer';
 import * as hbs from 'nodemailer-express-handlebars';
 import { EmailService } from './email.service';
 import { EmailController } from './email.controller';
-import { PasswordResetService } from './password-reset.service';
 
 @Module({
   imports: [],
@@ -40,7 +39,6 @@ import { PasswordResetService } from './password-reset.service';
       },
     },
     EmailService,
-    PasswordResetService,
   ],
   exports: [EmailService],
 })

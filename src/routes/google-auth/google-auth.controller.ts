@@ -22,7 +22,6 @@ export class GoogleAuthController {
       isActive: true,
       role: 'CLIENT',
       createdAt: new Date(),
-      updatedAt: new Date(),
     };
     const user = await this.googleAuthService.registerUser(userDto);
     const jwt = await this.googleAuthService.generateJwt(user);

@@ -17,7 +17,7 @@ export class RegisterUserDto {
 
   @IsString()
   @ApiProperty()
-  @MinLength(3)
+  @MinLength(4)
   @MaxLength(20)
   @Matches(/.*/, {
     message: 'senha muito fraca',
