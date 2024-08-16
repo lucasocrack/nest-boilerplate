@@ -37,4 +37,8 @@ export class RegisterUserDto {
   @ApiProperty({ enum: Role })
   @IsOptional()
   role?: Role;
+
+  @IsString()
+  @ApiProperty({ type: 'boolean' })
+  terms: boolean;
 }

@@ -16,6 +16,7 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ValidationUtils } from './utils/validation.utils';
 import { TokenUtils } from './utils/token.utils';
 import { EmailUtils } from './utils/email.utils';
+import { ActivateAccountDto } from './dto/activate-account.dto';
 
 @Injectable()
 export class AuthService {
@@ -32,7 +33,11 @@ export class AuthService {
   ) {
     this.validationUtils = new ValidationUtils(this.userService);
     this.tokenUtils = new TokenUtils(this.jwtService, this.configService);
-    this.emailUtils = new EmailUtils(this.emailService, this.configService, this.tokenUtils);
+    this.emailUtils = new EmailUtils(
+      this.emailService,
+      this.configService,
+      this.tokenUtils,
+    );
   }
 
   async login(loginAuthDto: LoginAuthDto): Promise<UserToken> {
@@ -123,7 +128,8 @@ export class AuthService {
     return bcrypt.hash(password, 10);
   }
 
-  async activateAccount(token: string): Promise<void> {
+  async activateAccount(activateAccountDto: ActivateAccountDto): Promise<void> {
+    const { token, ip } = activateAccountDto;
     let payload: any;
     try {
       payload = this.jwtService.verify(token);
@@ -135,7 +141,11 @@ export class AuthService {
 
     const user = await this.prisma.user.update({
       where: { id: userId },
-      data: { isActive: true },
+      data: {
+        isActive: true,
+        activatedAt: new Date(),
+        activateIp: ip,
+      },
     });
 
     if (!user) {

@@ -8,19 +8,22 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  email     String    @unique @db.VarChar(80)
-  username  String    @unique @db.VarChar()
-  cpfCnpj   String?   @db.VarChar(14)
-  password  String    @db.VarChar(128)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-  isActive  Boolean   @default(false)
-  role      Role      @default(CLIENT)
-  personId  Int?      @unique
-  person    Person?   @relation(fields: [personId], references: [id])
-  posts     Post[]
+  id          String    @id @default(cuid())
+  email       String    @unique @db.VarChar(80)
+  username    String    @unique @db.VarChar()
+  cpfCnpj     String?   @db.VarChar(14)
+  password    String    @db.VarChar(128)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  isActive    Boolean   @default(false)
+  activatedAt DateTime?
+  activateIp  String?   @db.VarChar(45)
+  terms       Boolean   @default(false)
+  role        Role      @default(CLIENT)
+  personId    Int?      @unique
+  person      Person?   @relation(fields: [personId], references: [id])
+  posts       Post[]
 
   @@map("user")
 }

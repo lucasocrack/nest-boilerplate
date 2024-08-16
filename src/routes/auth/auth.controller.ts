@@ -19,6 +19,7 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ActivateAccountDto } from './dto/activate-account.dto';
 
 @ApiTags('Auth')
 @IsPublic()
@@ -52,11 +53,17 @@ export class AuthController {
   }
 
   @Get('activate')
-  async activateAccount(@Query('token') token: string): Promise<string> {
+  async activateAccount(@Query('token') token: string, @Query('ip') ip: string): Promise<string> {
     if (!token) {
       throw new BadRequestException('Token is required');
     }
-    await this.authService.activateAccount(token);
-    return 'Account activated successfully'; // tratar melhor essa mensagem
+    if (!ip) {
+      throw new BadRequestException('IP is required');
+    }
+    const activateAccountDto = new ActivateAccountDto();
+    activateAccountDto.token = token;
+    activateAccountDto.ip = ip;
+    await this.authService.activateAccount(activateAccountDto);
+    return 'Account activated successfully';
   }
 }
