@@ -55,18 +55,14 @@ export class AuthController {
   @Get('activate')
   async activateAccount(
     @Query('token') token: string,
-    @Query('ip') ip: string,
+    @Req() req: AuthRequest,
   ): Promise<string> {
     if (!token) {
       throw new BadRequestException('Token is required');
     }
-    if (!ip) {
-      throw new BadRequestException('IP is required');
-    }
     const activateAccountDto = new ActivateAccountDto();
     activateAccountDto.token = token;
-    activateAccountDto.ip = ip;
-    await this.authService.activateAccount(activateAccountDto);
+    await this.authService.activateAccount(activateAccountDto, req);
     return 'Account activated successfully';
   }
 }

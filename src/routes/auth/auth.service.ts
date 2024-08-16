@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
 import { UnauthorizedError } from './errors/unauthorized.error';
@@ -80,6 +84,10 @@ export class AuthService {
     const ip = (req.headers['x-forwarded-for'] ||
       req.socket.remoteAddress) as string;
 
+    if (!ip) {
+      throw new BadRequestException('IP is required');
+    }
+
     await this.validationUtils.validateUniqueEmail(email);
     await this.validationUtils.validateUniqueUsername(username);
     await this.validationUtils.validateUniqueCpfCnpj(cpfCnpj);
@@ -137,8 +145,18 @@ export class AuthService {
     return bcrypt.hash(password, 10);
   }
 
-  async activateAccount(activateAccountDto: ActivateAccountDto): Promise<void> {
-    const { token, ip } = activateAccountDto;
+  async activateAccount(
+    activateAccountDto: ActivateAccountDto,
+    req: AuthRequest,
+  ): Promise<void> {
+    const { token } = activateAccountDto;
+    const ip = (req.headers['x-forwarded-for'] ||
+      req.socket.remoteAddress) as string;
+
+    if (!ip) {
+      throw new BadRequestException('IP is required');
+    }
+
     let payload: any;
     try {
       payload = this.jwtService.verify(token);
