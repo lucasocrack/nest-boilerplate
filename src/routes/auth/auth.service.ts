@@ -17,6 +17,7 @@ import { ValidationUtils } from './utils/validation.utils';
 import { TokenUtils } from './utils/token.utils';
 import { EmailUtils } from './utils/email.utils';
 import { ActivateAccountDto } from './dto/activate-account.dto';
+import { AuthRequest } from './models/AuthRequest';
 
 @Injectable()
 export class AuthService {
@@ -74,8 +75,10 @@ export class AuthService {
     );
   }
 
-  async register(registerUserDto: RegisterUserDto) {
-    const { email, username, cpfCnpj, password, role } = registerUserDto;
+  async register(registerUserDto: RegisterUserDto, req: AuthRequest) {
+    const { email, username, cpfCnpj, password } = registerUserDto;
+    const ip = (req.headers['x-forwarded-for'] ||
+      req.socket.remoteAddress) as string;
 
     await this.validationUtils.validateUniqueEmail(email);
     await this.validationUtils.validateUniqueUsername(username);
@@ -84,7 +87,13 @@ export class AuthService {
     const hashedPassword = await this.hashPassword(password);
 
     const createdUser = await this.prisma.user.create({
-      data: { email, username, cpfCnpj, password: hashedPassword, role },
+      data: {
+        email,
+        username,
+        cpfCnpj,
+        password: hashedPassword,
+        termsIp: ip,
+      },
     });
 
     await this.emailUtils.sendActivationEmail(createdUser);
@@ -144,7 +153,7 @@ export class AuthService {
       data: {
         isActive: true,
         activatedAt: new Date(),
-        activateIp: ip,
+        termsIp: ip,
       },
     });
 

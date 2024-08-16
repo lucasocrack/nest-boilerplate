@@ -1,14 +1,13 @@
 import {
+  IsBoolean,
   IsEmail,
   IsOptional,
   IsString,
   Matches,
   MaxLength,
   MinLength,
-  IsEnum,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
 
 export class RegisterUserDto {
   @IsEmail()
@@ -20,7 +19,7 @@ export class RegisterUserDto {
   @MinLength(4)
   @MaxLength(20)
   @Matches(/.*/, {
-    message: 'senha muito fraca',
+    message: 'password is too weak',
   })
   password: string;
 
@@ -33,12 +32,7 @@ export class RegisterUserDto {
   @ApiProperty()
   cpfCnpj?: string;
 
-  @IsEnum(Role)
-  @ApiProperty({ enum: Role })
-  @IsOptional()
-  role?: Role;
-
-  @IsString()
+  @IsBoolean()
   @ApiProperty({ type: 'boolean' })
   terms: boolean;
 }

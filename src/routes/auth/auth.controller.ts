@@ -37,7 +37,7 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.OK)
   register(@Req() req: AuthRequest, @Body() registerUserDto: RegisterUserDto) {
-    return this.authService.register(registerUserDto);
+    return this.authService.register(registerUserDto, req);
   }
 
   @Post('forgot-password')
@@ -53,7 +53,10 @@ export class AuthController {
   }
 
   @Get('activate')
-  async activateAccount(@Query('token') token: string, @Query('ip') ip: string): Promise<string> {
+  async activateAccount(
+    @Query('token') token: string,
+    @Query('ip') ip: string,
+  ): Promise<string> {
     if (!token) {
       throw new BadRequestException('Token is required');
     }
