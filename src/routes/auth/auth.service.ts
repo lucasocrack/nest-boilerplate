@@ -22,6 +22,8 @@ import { TokenUtils } from './utils/token.utils';
 import { EmailUtils } from './utils/email.utils';
 import { ActivateAccountDto } from './dto/activate-account.dto';
 import { AuthRequest } from './models/AuthRequest';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class AuthService {
@@ -30,6 +32,7 @@ export class AuthService {
   private readonly emailUtils: EmailUtils;
 
   constructor(
+    @InjectQueue('email') private readonly emailQueue: Queue,
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
     private readonly prisma: PrismaService,
@@ -104,7 +107,7 @@ export class AuthService {
       },
     });
 
-    await this.emailUtils.sendActivationEmail(createdUser);
+    await this.emailQueue.add('sendActivationEmail', { user: createdUser });
 
     return { ...createdUser, password: undefined };
   }

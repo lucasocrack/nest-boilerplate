@@ -6,14 +6,24 @@ meta {
 
 post {
   url: {{host}}/register
-  body: formUrlEncoded
+  body: json
   auth: none
 }
 
+body:json {
+  {
+    "email": "bhlucascampos@gmail.com",
+    "password": "123456",
+    "username": "lucas",
+    "terms": true
+  }
+}
+
 body:form-urlencoded {
-  username: teste
+  username: lucas
   password: 123456
-  email: teste@teste.com
+  email: bhlucascampos@gmail.com
+  terms: true
 }
 
 body:multipart-form {

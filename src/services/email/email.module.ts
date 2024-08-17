@@ -3,9 +3,14 @@ import * as nodemailer from 'nodemailer';
 import * as hbs from 'nodemailer-express-handlebars';
 import { EmailService } from './email.service';
 import { EmailController } from './email.controller';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
-  imports: [],
+  imports: [
+    BullModule.registerQueue({
+      name: 'email',
+    }),
+  ],
   controllers: [EmailController],
   providers: [
     {
@@ -40,6 +45,6 @@ import { EmailController } from './email.controller';
     },
     EmailService,
   ],
-  exports: [EmailService],
+  exports: [EmailService, 'MAILER', BullModule],
 })
 export class EmailModule {}

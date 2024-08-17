@@ -82,11 +82,20 @@ export class EmailService {
     const compiledTemplate = handlebars.compile(templateString);
     const html = compiledTemplate(context);
 
-    await this.mailer.sendMail({
-      from: process.env.EMAIL_USER,
-      to,
-      subject: 'Password Reset',
-      html,
-    });
+    console.log(`Sending email to: ${to}`);
+
+    await this.mailer
+      .sendMail({
+        from: process.env.EMAIL_USER,
+        to,
+        subject: 'Password Reset',
+        html,
+      })
+      .then(() => {
+        console.log(`Email sent to: ${to}`);
+      })
+      .catch((error) => {
+        console.error(`Error sending email to: ${to}`, error);
+      });
   }
 }
