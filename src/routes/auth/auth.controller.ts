@@ -20,6 +20,7 @@ import { LoginAuthDto } from './dto/login-auth.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ActivateAccountDto } from './dto/activate-account.dto';
+import { ResendActivationEmailDto } from './dto/resend-activation-email.dto';
 
 @ApiTags('Auth')
 @IsPublic()
@@ -64,5 +65,13 @@ export class AuthController {
     activateAccountDto.token = token;
     await this.authService.activateAccount(activateAccountDto, req);
     return 'Account activated successfully';
+  }
+
+  @Post('resend-activation')
+  @HttpCode(HttpStatus.OK)
+  async resendActivation(
+    @Body() resendActivationDto: ResendActivationEmailDto,
+  ) {
+    return this.authService.resendActivationEmail(resendActivationDto);
   }
 }
