@@ -11,6 +11,10 @@ export class EmailUtils {
   ) {}
 
   async sendActivationEmail(user: User) {
+    if (!user || !user.id || !user.email || !user.username) {
+      throw new Error('User information is incomplete');
+    }
+
     const activationLink = this.tokenUtils.generateActivationLink(user.id);
     await this.emailService.sendActivationEmail(user.email, {
       name: user.username,

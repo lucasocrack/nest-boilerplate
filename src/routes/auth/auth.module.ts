@@ -4,12 +4,13 @@ import { UserModule } from '../user/user.module';
 import { LocalStrategy } from './strategies/local.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { LoginValidationMiddleware } from './middlewares/ogin-validation.middleware';
+import { LoginValidationMiddleware } from './middlewares/login-validation.middleware';
 import { PrismaModule } from '../../services/prisma/prisma.module';
 import { EmailModule } from '../../services/email/email.module';
 import { ConfigModule } from '@nestjs/config';
 import { JwtConfigModule } from '../../services/jwt/jwt-config.module';
 import { AuthController } from './auth.controller';
+import { TokenUtils } from './utils/token.utils';
 
 @Module({
   imports: [
@@ -21,8 +22,8 @@ import { AuthController } from './auth.controller';
     ConfigModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
-  exports: [AuthService],
+  providers: [AuthService, LocalStrategy, JwtStrategy, TokenUtils],
+  exports: [AuthService, TokenUtils],
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

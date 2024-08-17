@@ -13,6 +13,7 @@ import { EmailService } from './services/email/email.service';
 
 @Module({
   imports: [
+    EmailModule,
     PrismaModule,
     UserModule,
     AuthModule,

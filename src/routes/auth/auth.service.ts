@@ -41,7 +41,7 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {
     this.validationUtils = new ValidationUtils(this.userService);
-    this.tokenUtils = new TokenUtils(this.jwtService, this.configService);
+    this.tokenUtils = new TokenUtils(this.configService, this.jwtService);
     this.emailUtils = new EmailUtils(
       this.emailService,
       this.configService,
