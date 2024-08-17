@@ -19,6 +19,7 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ActivateAccountDto } from './dto/activate-account.dto';
 
 @ApiTags('Auth')
 @IsPublic()
@@ -36,7 +37,7 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.OK)
   register(@Req() req: AuthRequest, @Body() registerUserDto: RegisterUserDto) {
-    return this.authService.register(registerUserDto);
+    return this.authService.register(registerUserDto, req);
   }
 
   @Post('forgot-password')
@@ -52,11 +53,16 @@ export class AuthController {
   }
 
   @Get('activate')
-  async activateAccount(@Query('token') token: string): Promise<string> {
+  async activateAccount(
+    @Query('token') token: string,
+    @Req() req: AuthRequest,
+  ): Promise<string> {
     if (!token) {
       throw new BadRequestException('Token is required');
     }
-    await this.authService.activateAccount(token);
-    return 'Account activated successfully'; // tratar melhor essa mensagem
+    const activateAccountDto = new ActivateAccountDto();
+    activateAccountDto.token = token;
+    await this.authService.activateAccount(activateAccountDto, req);
+    return 'Account activated successfully';
   }
 }

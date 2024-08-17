@@ -7,6 +7,9 @@ import { APP_GUARD } from '@nestjs/core';
 import { PostModule } from './routes/post/post.module';
 import { EmailModule } from './services/email/email.module';
 import { GoogleAuthModule } from './routes/google-auth/google-auth.module';
+import { BullModule } from '@nestjs/bullmq';
+import { EmailProcessor } from './services/email/email.processor';
+import { EmailService } from './services/email/email.service';
 
 @Module({
   imports: [
@@ -17,8 +20,19 @@ import { GoogleAuthModule } from './routes/google-auth/google-auth.module';
     EmailModule,
     GoogleAuthModule,
     PostModule,
+    BullModule.forRoot({
+      connection: {
+        host: 'localhost',
+        port: 6379,
+      },
+    }),
+    BullModule.registerQueue({
+      name: 'email',
+    }),
   ],
   providers: [
+    EmailProcessor,
+    EmailService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

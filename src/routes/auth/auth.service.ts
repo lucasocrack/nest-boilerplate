@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
 import { UnauthorizedError } from './errors/unauthorized.error';
@@ -16,6 +20,10 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ValidationUtils } from './utils/validation.utils';
 import { TokenUtils } from './utils/token.utils';
 import { EmailUtils } from './utils/email.utils';
+import { ActivateAccountDto } from './dto/activate-account.dto';
+import { AuthRequest } from './models/AuthRequest';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class AuthService {
@@ -24,6 +32,7 @@ export class AuthService {
   private readonly emailUtils: EmailUtils;
 
   constructor(
+    @InjectQueue('email') private readonly emailQueue: Queue,
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
     private readonly prisma: PrismaService,
@@ -32,7 +41,11 @@ export class AuthService {
   ) {
     this.validationUtils = new ValidationUtils(this.userService);
     this.tokenUtils = new TokenUtils(this.jwtService, this.configService);
-    this.emailUtils = new EmailUtils(this.emailService, this.configService, this.tokenUtils);
+    this.emailUtils = new EmailUtils(
+      this.emailService,
+      this.configService,
+      this.tokenUtils,
+    );
   }
 
   async login(loginAuthDto: LoginAuthDto): Promise<UserToken> {
@@ -69,8 +82,14 @@ export class AuthService {
     );
   }
 
-  async register(registerUserDto: RegisterUserDto) {
-    const { email, username, cpfCnpj, password, role } = registerUserDto;
+  async register(registerUserDto: RegisterUserDto, req: AuthRequest) {
+    const { email, username, cpfCnpj, password } = registerUserDto;
+    const ip = (req.headers['x-forwarded-for'] ||
+      req.socket.remoteAddress) as string;
+
+    if (!ip) {
+      throw new BadRequestException('IP is required');
+    }
 
     await this.validationUtils.validateUniqueEmail(email);
     await this.validationUtils.validateUniqueUsername(username);
@@ -79,10 +98,16 @@ export class AuthService {
     const hashedPassword = await this.hashPassword(password);
 
     const createdUser = await this.prisma.user.create({
-      data: { email, username, cpfCnpj, password: hashedPassword, role },
+      data: {
+        email,
+        username,
+        cpfCnpj,
+        password: hashedPassword,
+        termsIp: ip,
+      },
     });
 
-    await this.emailUtils.sendActivationEmail(createdUser);
+    await this.emailQueue.add('sendActivationEmail', { user: createdUser });
 
     return { ...createdUser, password: undefined };
   }
@@ -123,7 +148,18 @@ export class AuthService {
     return bcrypt.hash(password, 10);
   }
 
-  async activateAccount(token: string): Promise<void> {
+  async activateAccount(
+    activateAccountDto: ActivateAccountDto,
+    req: AuthRequest,
+  ): Promise<void> {
+    const { token } = activateAccountDto;
+    const ip = (req.headers['x-forwarded-for'] ||
+      req.socket.remoteAddress) as string;
+
+    if (!ip) {
+      throw new BadRequestException('IP is required');
+    }
+
     let payload: any;
     try {
       payload = this.jwtService.verify(token);
@@ -135,7 +171,11 @@ export class AuthService {
 
     const user = await this.prisma.user.update({
       where: { id: userId },
-      data: { isActive: true },
+      data: {
+        isActive: true,
+        activatedAt: new Date(),
+        termsIp: ip,
+      },
     });
 
     if (!user) {
