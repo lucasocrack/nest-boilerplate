@@ -14,7 +14,7 @@ export class TokenUtils {
     );
     const token = this.jwtService.sign(payload, { expiresIn: tokenExpiration });
     const domain = this.configService.get<string>('DOMAIN');
-    return `${domain}/activate?token=${token}`;
+    return `${domain}/authentication/confirm-email/${token}`;
   }
 
   generateResetPasswordToken(userId: string): string {
