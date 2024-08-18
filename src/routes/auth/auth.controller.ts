@@ -57,14 +57,14 @@ export class AuthController {
   async activateAccount(
     @Query('token') token: string,
     @Req() req: AuthRequest,
-  ): Promise<string> {
+  ) {
     if (!token) {
       throw new BadRequestException('Token is required');
     }
     const activateAccountDto = new ActivateAccountDto();
     activateAccountDto.token = token;
     await this.authService.activateAccount(activateAccountDto, req);
-    return 'Account activated successfully';
+    return { message: 'Account activated successfully' };
   }
 
   @Post('resend-activation')

@@ -23,7 +23,7 @@ export class EmailUtils {
   }
 
   async sendResetPasswordEmail(user: User) {
-    const resetLink = `${this.configService.get<string>('DOMAIN')}/reset-password?token=${this.tokenUtils.generateResetPasswordToken(user.id)}`;
+    const resetLink = `${this.configService.get<string>('DOMAIN')}/authentication/reset-password/${this.tokenUtils.generateResetPasswordToken(user.id)}`;
     await this.emailService.sendResetPasswordEmail(user.email, {
       name: user.username,
       resetLink,
