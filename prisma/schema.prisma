@@ -23,7 +23,6 @@ model User {
   role        Role      @default(CLIENT)
   personId    Int?      @unique
   person      Person?   @relation(fields: [personId], references: [id])
-  posts       Post[]
 
   @@map("user")
 }
