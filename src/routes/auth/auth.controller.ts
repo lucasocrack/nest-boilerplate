@@ -20,6 +20,7 @@ import { LoginAuthDto } from './dto/login-auth.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ActivateAccountDto } from './dto/activate-account.dto';
+import { ResendActivationEmailDto } from './dto/resend-activation-email.dto';
 
 @ApiTags('Auth')
 @IsPublic()
@@ -56,13 +57,21 @@ export class AuthController {
   async activateAccount(
     @Query('token') token: string,
     @Req() req: AuthRequest,
-  ): Promise<string> {
+  ) {
     if (!token) {
       throw new BadRequestException('Token is required');
     }
     const activateAccountDto = new ActivateAccountDto();
     activateAccountDto.token = token;
     await this.authService.activateAccount(activateAccountDto, req);
-    return 'Account activated successfully';
+    return { message: 'Account activated successfully' };
+  }
+
+  @Post('resend-activation')
+  @HttpCode(HttpStatus.OK)
+  async resendActivation(
+    @Body() resendActivationDto: ResendActivationEmailDto,
+  ) {
+    return this.authService.resendActivationEmail(resendActivationDto);
   }
 }

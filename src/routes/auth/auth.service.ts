@@ -24,6 +24,7 @@ import { ActivateAccountDto } from './dto/activate-account.dto';
 import { AuthRequest } from './models/AuthRequest';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { ResendActivationEmailDto } from './dto/resend-activation-email.dto';
 
 @Injectable()
 export class AuthService {
@@ -40,7 +41,7 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {
     this.validationUtils = new ValidationUtils(this.userService);
-    this.tokenUtils = new TokenUtils(this.jwtService, this.configService);
+    this.tokenUtils = new TokenUtils(this.configService, this.jwtService);
     this.emailUtils = new EmailUtils(
       this.emailService,
       this.configService,
@@ -142,6 +143,30 @@ export class AuthService {
     });
 
     return { message: 'Password reset successfully' };
+  }
+
+  async resendActivationEmail(
+    resendActivationEmailDto: ResendActivationEmailDto,
+  ) {
+    const { email } = resendActivationEmailDto;
+    const user = await this.userService.findOneByEmail(email);
+
+    if (!user) {
+      return {
+        status: 200,
+        message:
+          'If the email is registered, an activation email has been sent.',
+      };
+    }
+
+    if (!user.isActive) {
+      await this.emailUtils.sendActivationEmail(user);
+    }
+
+    return {
+      status: 200,
+      message: 'If the email is registered, an activation email has been sent.',
+    };
   }
 
   private async hashPassword(password: string): Promise<string> {

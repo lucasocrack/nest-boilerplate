@@ -87,34 +87,6 @@ model Address {
   @@map("address")
 }
 
-model Post {
-  id                 Int          @id @default(autoincrement())
-  title              String       @db.VarChar(150)
-  content            String
-  published          Boolean      @default(false)
-  date               DateTime     @default(now())
-  productTitle       String?      @db.VarChar(150)
-  price              Float?
-  productDescription String?
-  productCategory    String?      @db.VarChar(32)
-  linkAffiliate      String?      @db.VarChar(255)
-  tags               String       @db.VarChar(255)
-  authorId           String
-  categoryPost       Int
-  category           CategoryPost @relation(fields: [categoryPost], references: [id])
-  author             User         @relation(fields: [authorId], references: [id])
-
-  @@map("posts")
-}
-
-model CategoryPost {
-  id    Int    @id @default(autoincrement())
-  name  String @db.VarChar(50)
-  posts Post[]
-
-  @@map("categorypost")
-}
-
 model Config {
   id           Int                 @id @default(autoincrement())
   name         String              @db.VarChar(120)
