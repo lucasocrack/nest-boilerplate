@@ -9,6 +9,7 @@ import { GoogleAuthModule } from './routes/google-auth/google-auth.module';
 import { BullModule } from '@nestjs/bullmq';
 import { EmailProcessor } from './services/email/email.processor';
 import { EmailService } from './services/email/email.service';
+import { BlogModule } from './routes/blog/blog.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { EmailService } from './services/email/email.service';
     BullModule.registerQueue({
       name: 'email',
     }),
+    BlogModule,
   ],
   providers: [
     EmailProcessor,
@@ -36,5 +38,6 @@ import { EmailService } from './services/email/email.service';
       useClass: JwtAuthGuard,
     },
   ],
+  controllers: [],
 })
 export class AppModule {}
