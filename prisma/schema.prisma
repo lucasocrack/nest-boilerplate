@@ -10,7 +10,7 @@ datasource db {
 model User {
   id          String    @id @default(cuid())
   email       String    @unique @db.VarChar(80)
-  username    String    @unique @db.VarChar()
+  username    String    @unique @db.VarChar(255)
   cpfCnpj     String?   @db.VarChar(14)
   password    String    @db.VarChar(128)
   createdAt   DateTime  @default(now())
