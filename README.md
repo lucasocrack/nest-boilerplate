@@ -50,6 +50,20 @@ Criado e mantido por [lucascampos42](https://github.com/lucascampos42).
     npx prisma migrate dev
     ```
 
+### Populando o Banco de Dados (Seeding)
+
+Este projeto inclui um script de seed para popular o banco de dados com dados iniciais. Atualmente, ele cria um usuário administrador padrão.
+
+Para rodar o script de seed, execute o seguinte comando:
+
+```bash
+npm run seed
+```
+
+O usuário administrador será criado com as seguintes credenciais:
+- **E-mail:** `admin@admin.com`
+- **Senha:** `12345678`
+
 ## Rodando a Aplicação
 
 ### Com NPM
