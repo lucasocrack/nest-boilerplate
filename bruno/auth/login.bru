@@ -1,5 +1,5 @@
 meta {
-  name: Login
+  name: login
   type: http
   seq: 2
 }
@@ -11,14 +11,9 @@ post {
 
 body:json {
   {
-    "username": "{{username}}",
-    "password": "{{password}}"
-  }
-}
-
-script {
-  const jsonData = res.getBody();
-  if(jsonData && jsonData.access_token) {
-    bru.setVar('jwt_token', jsonData.access_token);
+    "username": "bruno",
+    "name": "Bruno",
+    "email": "bruno@example.com",
+    "password": "password123"
   }
 }

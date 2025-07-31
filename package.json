@@ -1,8 +1,8 @@
 {
   "name": "nest-boilerplate",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Express NestJS boilerplate with JWT authentication, Prisma ORM, and TypeScript.",
+  "author": "Lucas Campos",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
