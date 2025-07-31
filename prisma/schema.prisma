@@ -30,8 +30,8 @@ model User {
   // --- Campos de Segurança ---
   password             String
   role                 Role      @default(CLIENTE)
-  lastLogin            DateTime? // Adicionado para auditoria
-  passwordResetToken   String? // Adicionado para "esqueci a senha"
+  lastLogin            DateTime?
+  passwordResetToken   String?
   passwordResetExpires DateTime? // Adicionado para "esqueci a senha"
 
   // --- Campos de Controle ---
@@ -44,8 +44,8 @@ model User {
 }
 
 model Log {
-  logId     Int       @id @default(autoincrement())
-  timestamp DateTime  @default(now())
+  logId     Int      @id @default(autoincrement())
+  timestamp DateTime @default(now())
   route     String
   method    String
   userId    Int?
@@ -53,4 +53,3 @@ model Log {
 
   user User? @relation(fields: [userId], references: [userId])
 }
-
