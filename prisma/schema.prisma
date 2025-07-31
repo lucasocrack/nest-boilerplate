@@ -1,6 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  provider      = "prisma-client-js"
+  output        = "../generated/prisma"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -29,8 +30,8 @@ model User {
   // --- Campos de Segurança ---
   password             String
   role                 Role      @default(CLIENTE)
-  lastLogin            DateTime? // Adicionado para auditoria
-  passwordResetToken   String? // Adicionado para "esqueci a senha"
+  lastLogin            DateTime?
+  passwordResetToken   String?
   passwordResetExpires DateTime? // Adicionado para "esqueci a senha"
 
   // --- Campos de Controle ---
@@ -38,5 +39,17 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
+
+  logs Log[]
 }
 
+model Log {
+  logId     Int      @id @default(autoincrement())
+  timestamp DateTime @default(now())
+  route     String
+  method    String
+  userId    Int?
+  details   Json?
+
+  user User? @relation(fields: [userId], references: [userId])
+}

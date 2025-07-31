@@ -1,0 +1,13 @@
+meta {
+  name: Get All Users
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:3099/users
+}
+
+headers {
+  Authorization: Bearer {{jwt_token}}
+}

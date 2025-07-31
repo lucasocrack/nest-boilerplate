@@ -1,0 +1,13 @@
+meta {
+  name: Delete User
+  type: http
+  seq: 4
+}
+
+delete {
+  url: http://localhost:3099/users/1
+}
+
+headers {
+  Authorization: Bearer {{jwt_token}}
+}
