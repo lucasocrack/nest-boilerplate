@@ -38,5 +38,18 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
+
+  logs Log[]
+}
+
+model Log {
+  logId     Int       @id @default(autoincrement())
+  timestamp DateTime  @default(now())
+  route     String
+  method    String
+  userId    Int?
+  details   Json?
+
+  user User? @relation(fields: [userId], references: [userId])
 }
 

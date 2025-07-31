@@ -15,3 +15,10 @@ body:json {
     "password": "password123"
   }
 }
+
+script {
+  const jsonData = res.getBody();
+  if(jsonData && jsonData.access_token) {
+    bru.setVar('jwt_token', jsonData.access_token);
+  }
+}

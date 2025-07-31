@@ -9,6 +9,10 @@ patch {
   body: json
 }
 
+headers {
+  Authorization: Bearer {{jwt_token}}
+}
+
 body:json {
   {
     "name": "Bruno Updated"
