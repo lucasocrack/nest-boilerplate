@@ -18,7 +18,7 @@ export class LoggerMiddleware implements NestMiddleware {
       this.logService.createLog({
         route: originalUrl,
         method,
-        userId: user ? (user as any).sub : null,
+        user: user ? { connect: { userId: (user as any).userId } } : undefined,
         details: {
           body,
           params,
