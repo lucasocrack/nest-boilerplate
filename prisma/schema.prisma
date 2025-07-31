@@ -1,6 +1,5 @@
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -40,6 +39,8 @@ model User {
   deletedAt DateTime?
 
   logs Log[]
+
+  @@map("users")
 }
 
 model Log {
@@ -51,4 +52,6 @@ model Log {
   details   Json?
 
   user User? @relation(fields: [userId], references: [userId])
+
+  @@map("logs")
 }
