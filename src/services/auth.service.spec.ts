@@ -67,9 +67,14 @@ describe('AuthService', () => {
       const result = await service.signIn('testuser', 'password');
 
       expect(result).toEqual({ access_token: 'test_token' });
-      expect(mockUserService.findOneByUsername).toHaveBeenCalledWith('testuser');
+      expect(mockUserService.findOneByUsername).toHaveBeenCalledWith(
+        'testuser',
+      );
       expect(bcrypt.compare).toHaveBeenCalledWith('password', 'hashedpassword');
-      expect(mockJwtService.signAsync).toHaveBeenCalledWith({ sub: 1, username: 'testuser' });
+      expect(mockJwtService.signAsync).toHaveBeenCalledWith({
+        sub: 1,
+        username: 'testuser',
+      });
     });
 
     it('should throw an UnauthorizedException for invalid password', async () => {
@@ -95,13 +100,17 @@ describe('AuthService', () => {
       mockUserService.findOneByUsername.mockResolvedValue(user);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-      await expect(service.signIn('testuser', 'wrongpassword')).rejects.toThrow(UnauthorizedException);
+      await expect(service.signIn('testuser', 'wrongpassword')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should throw an UnauthorizedException for non-existent user', async () => {
       mockUserService.findOneByUsername.mockResolvedValue(null);
 
-      await expect(service.signIn('unknownuser', 'password')).rejects.toThrow(UnauthorizedException);
+      await expect(service.signIn('unknownuser', 'password')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 });

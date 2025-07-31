@@ -1,14 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from './prisma.service';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { PrismaClient, User } from '@prisma/client';
 import { CreateUserDto } from '../application/dto/create-auth.dto';
-import { User } from '../../generated/prisma';
 
 @Injectable()
-export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+export class PrismaService extends PrismaClient implements OnModuleInit {
+  async onModuleInit() {
+    await this.$connect();
+  }
 
   async createUser(data: CreateUserDto): Promise<User> {
-    return this.prisma.user.create({
+    return await this.user.create({
       data: {
         ...data,
         cpf: data.cpf ?? null,
@@ -21,26 +22,28 @@ export class UserService {
   }
 
   async findOneByUsername(username: string): Promise<User | null> {
-    return this.prisma.user.findUnique({ where: { username } });
+    return await this.user.findUnique({ where: { username } });
   }
 
   async findAll(): Promise<User[]> {
-    return this.prisma.user.findMany({ where: { deletedAt: null } });
+    return await this.user.findMany({ where: { deletedAt: null } });
   }
 
   async findOneById(id: number): Promise<User | null> {
-    return this.prisma.user.findFirst({ where: { userId: id, deletedAt: null } });
+    return await this.user.findFirst({
+      where: { userId: id, deletedAt: null },
+    });
   }
 
   async update(id: number, data: Partial<User>): Promise<User> {
-    return this.prisma.user.update({
+    return await this.user.update({
       where: { userId: id },
       data,
     });
   }
 
   async remove(id: number): Promise<User> {
-    return this.prisma.user.update({
+    return await this.user.update({
       where: { userId: id },
       data: { deletedAt: new Date() },
     });

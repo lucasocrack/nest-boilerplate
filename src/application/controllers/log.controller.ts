@@ -3,7 +3,7 @@ import { LogService } from '../../services/log.service';
 import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { Roles } from '../../decorators/roles.decorator';
-import { Role } from '../../../generated/prisma';
+import { Role } from '@prisma/client';
 
 @Controller('logs')
 @UseGuards(JwtAuthGuard, RolesGuard)
