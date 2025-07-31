@@ -1,0 +1,16 @@
+meta {
+  name: Update User
+  type: http
+  seq: 3
+}
+
+patch {
+  url: http://localhost:3099/users/1
+  body: json
+}
+
+body:json {
+  {
+    "name": "Bruno Updated"
+  }
+}
