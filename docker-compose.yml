@@ -9,7 +9,7 @@ services:
     depends_on:
       - db
     command: >
-      sh -c "npx prisma migrate deploy && node dist/main"
+      sh -c "npx prisma migrate dev --name init && npm run seed && node dist/main"
 
   db:
     image: postgres:13

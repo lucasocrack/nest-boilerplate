@@ -2,6 +2,15 @@
   "version": "1",
   "name": "template",
   "type": "collection",
+  "environments": [
+    {
+      "name": "docker",
+      "variables": [
+        { "name": "username", "value": "admin", "enabled": true },
+        { "name": "password", "value": "12345678", "enabled": true }
+      ]
+    }
+  ],
   "ignore": [
     "node_modules",
     ".git"
