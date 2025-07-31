@@ -20,7 +20,7 @@ Criado e mantido por [lucascampos42](https://github.com/lucascampos42).
 
 ### Pré-requisitos
 
-*   [Node.js](https://nodejs.org/en/) (v18 ou superior)
+*   [Node.js](https://nodejs.org/en/) (v20 ou superior)
 *   [Docker](https://www.docker.com/) (opcional, para rodar com Docker)
 *   [NPM](https://www.npmjs.com/)
 
