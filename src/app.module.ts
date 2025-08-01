@@ -1,16 +1,14 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AuthModule } from './application/modules/auth.module';
-import { UserModule } from './application/modules/user.module';
-import { PrismaService } from './services/prisma.service';
-import { LogModule } from './application/modules/log.module';
-import { LoggerMiddleware } from './application/middleware/log.middleware';
+import { AuthModule } from './application/auth/auth.module';
+import { UserModule } from './application/user/user.module';
+import { PrismaService } from './core/services/prisma.service';
+import { LogModule } from './application/log/log.module';
+import { LoggerMiddleware } from './application/log/middleware/log.middleware';
 
 @Module({
   imports: [AuthModule, UserModule, LogModule],
-  controllers: [AppController],
-  providers: [AppService, PrismaService],
+  controllers: [],
+  providers: [PrismaService],
   exports: [PrismaService],
 })
 export class AppModule implements NestModule {

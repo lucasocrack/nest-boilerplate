@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
-import { PrismaService } from './prisma.service';
-import { CreateUserDto } from '../application/dto/create-auth.dto';
+import { PrismaService } from '../../core/services/prisma.service';
+import { CreateUserDto } from '../auth/dto/create-auth.dto';
 import { User, Role } from '../../generated/prisma';
 
 // Mock PrismaService

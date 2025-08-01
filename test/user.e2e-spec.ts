@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { PrismaService } from '../src/services/prisma.service';
-import { CreateUserDto } from 'src/application/dto/create-auth.dto';
+import { PrismaService } from '../src/core/services/prisma.service';
+import { CreateUserDto } from 'src/application/auth/dto/create-auth.dto';
 import { User, Role } from '../generated/prisma';
 
 describe('UserController (e2e)', () => {

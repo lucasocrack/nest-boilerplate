@@ -1,8 +1,8 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { LogService } from '../../services/log.service';
-import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
-import { RolesGuard } from '../../guards/roles.guard';
-import { Roles } from '../../decorators/roles.decorator';
+import { LogService } from './log.service';
+import { JwtAuthGuard } from '../../core/guards/jwt-auth.guard';
+import { RolesGuard } from '../../core/guards/roles.guard';
+import { Roles } from '../../core/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 
 @Controller('logs')
