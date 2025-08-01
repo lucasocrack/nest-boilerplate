@@ -16,8 +16,8 @@ async function main() {
       username: 'admin',
       email: 'admin@admin.com',
       password: hashedPassword,
-      role: Role.ADMIN,
       active: true,
+      role: Role.ADMIN,
     },
   });
   console.log(`Created admin user with id: ${adminUser.userId}`);

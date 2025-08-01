@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../auth/dto/create-auth.dto';
 import { PrismaService } from '../../core/services/prisma.service';
-import { User } from '@prisma/client';
+import { User, Role } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -14,7 +14,7 @@ export class UserService {
         cpf: data.cpf ?? null,
         telefone: data.telefone ?? null,
         avatarUrl: data.avatarUrl ?? null,
-        role: data.role ?? 'CLIENTE',
+        role: data.role ?? Role.CLIENTE,
         active: data.active ?? false,
       },
     });

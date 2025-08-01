@@ -4,7 +4,7 @@ import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { User, Role } from '../../generated/prisma';
+import { User, Role } from '@prisma/client';
 
 jest.mock('bcrypt');
 
@@ -15,6 +15,7 @@ describe('AuthService', () => {
 
   const mockUserService = {
     findOneByUsername: jest.fn(),
+  update: jest.fn(),
   };
 
   const mockJwtService = {
@@ -52,6 +53,7 @@ describe('AuthService', () => {
         avatarUrl: null,
         role: Role.CLIENTE,
         active: true,
+        divida: false,
         lastLogin: null,
         passwordResetToken: null,
         passwordResetExpires: null,
@@ -89,6 +91,7 @@ describe('AuthService', () => {
         avatarUrl: null,
         role: Role.CLIENTE,
         active: true,
+        divida: false,
         lastLogin: null,
         passwordResetToken: null,
         passwordResetExpires: null,
