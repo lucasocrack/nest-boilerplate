@@ -1,0 +1,234 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>nest-boilerplate documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
+	   <link rel="stylesheet" href="./styles/style.css">
+        <link rel="stylesheet" href="./styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="./" class="navbar-brand">nest-boilerplate documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content getting-started">
+                   <div class="content-data">
+
+<h1>NestJS Prisma Boilerplate</h1>
+<p>Este é um projeto boilerplate para iniciar aplicações com <a href="https://nestjs.com/">NestJS</a> e <a href="https://www.prisma.io/">Prisma</a>. Ele vem com uma série de funcionalidades pré-configuradas para acelerar o seu desenvolvimento.</p>
+<p>Criado e mantido por <a href="https://github.com/lucascampos42">lucascampos42</a>.</p>
+<h2>Funcionalidades</h2>
+<ul>
+<li><strong>Framework:</strong> <a href="https://nestjs.com/">NestJS</a> - Um framework Node.js progressivo para construir aplicações server-side eficientes e escaláveis.</li>
+<li><strong>ORM:</strong> <a href="https://www.prisma.io/">Prisma</a> - ORM de próxima geração para Node.js e TypeScript.</li>
+<li><strong>Autenticação:</strong> Autenticação completa com JWT (login e registro).</li>
+<li><strong>Autorização:</strong> Controle de acesso baseado em papéis (Role-Based Access Control - RBAC) com guards.</li>
+<li><strong>Logs de Ações do Usuário:</strong> Middleware para registrar automaticamente as ações dos usuários em uma tabela de log no banco de dados.</li>
+<li><strong>Docker:</strong> Configuração completa com <code>Dockerfile</code> e <code>docker-compose.yml</code> para um ambiente de desenvolvimento e produção containerizado.</li>
+<li><strong>Testes:</strong> Estrutura de testes com Jest para testes unitários e e2e.</li>
+<li><strong>Validação:</strong> Validação de DTOs com <code>class-validator</code>.</li>
+<li><strong>Cliente de API:</strong> Coleção do <a href="https://www.usebruno.com/">Bruno</a> para testar a API.</li>
+</ul>
+<h2>Como Começar</h2>
+<h3>Pré-requisitos</h3>
+<ul>
+<li><a href="https://nodejs.org/en/">Node.js</a> (v20 ou superior)</li>
+<li><a href="https://www.docker.com/">Docker</a> (opcional, para rodar com Docker)</li>
+<li><a href="https://www.npmjs.com/">NPM</a></li>
+</ul>
+<h3>Instalação</h3>
+<ol>
+<li>Clone o repositório:<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">git clone &lt;URL_DO_REPOSITORIO&gt;</code></pre></div></li>
+<li>Instale as dependências:<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">npm install</code></pre></div></li>
+</ol>
+<h3>Configuração do Banco de Dados</h3>
+<ol>
+<li>Copie o arquivo <code>.env.example</code> para <code>.env</code>:<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">cp .env.example .env</code></pre></div></li>
+<li>Adicione a sua URL de conexão do PostgreSQL no arquivo <code>.env</code>:<b>Example :</b><div><pre class="line-numbers"><code class="language-none">DATABASE_URL=&quot;postgresql://USER:PASSWORD&#64;HOST:PORT/DATABASE?schema=public&quot;</code></pre></div></li>
+<li>Rode as migrações do Prisma para criar as tabelas no banco de dados:<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">npx prisma migrate dev</code></pre></div></li>
+</ol>
+<h3>Populando o Banco de Dados (Seeding)</h3>
+<p>Este projeto inclui um script de seed para popular o banco de dados com dados iniciais. Atualmente, ele cria um usuário administrador padrão.</p>
+<p>Para rodar o script de seed, execute o seguinte comando:</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">npm run seed</code></pre></div><p>O usuário administrador será criado com as seguintes credenciais:</p>
+<ul>
+<li><strong>E-mail:</strong> <code>admin@admin.com</code></li>
+<li><strong>Senha:</strong> <code>12345678</code></li>
+</ul>
+<h2>Rodando a Aplicação</h2>
+<h3>Com NPM</h3>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-bash"># Modo de desenvolvimento
+$ npm run start:dev</code></pre></div><h3>Com Docker</h3>
+<ol>
+<li>Construa a imagem Docker:<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">docker-compose build</code></pre></div></li>
+<li>Inicie os containers:<b>Example :</b><div><pre class="line-numbers"><code class="language-bash">docker-compose up</code></pre></div></li>
+</ol>
+<p>A aplicação estará disponível em <code>http://localhost:3099</code>.</p>
+<h2>Rodando os Testes</h2>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-bash"># Testes unitários
+$ npm run test
+
+# Testes end-to-end (e2e)
+# Certifique-se de ter um banco de dados de teste rodando
+$ npm run test:e2e</code></pre></div><h2>Licença</h2>
+<p>Este projeto é licenciado sob a licença MIT - veja o arquivo <a href="LICENSE">LICENSE</a> para mais detalhes.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 0;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'getting-started';
+            var COMPODOC_CURRENT_PAGE_URL = 'index.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="./js/libs/custom-elements.min.js"></script>
+       <script src="./js/libs/lit-html.js"></script>
+
+       <script src="./js/menu-wc.js" defer></script>
+       <script nomodule src="./js/menu-wc_es5.js" defer></script>
+
+       <script src="./js/libs/bootstrap-native.js"></script>
+
+       <script src="./js/libs/es6-shim.min.js"></script>
+       <script src="./js/libs/EventDispatcher.js"></script>
+       <script src="./js/libs/promise.min.js"></script>
+
+       <script src="./js/compodoc.js"></script>
+
+       <script src="./js/tabs.js"></script>
+       <script src="./js/menu.js"></script>
+       <script src="./js/libs/clipboard.min.js"></script>
+       <script src="./js/libs/prism.js"></script>
+       <script src="./js/sourceCode.js"></script>
+          <script src="./js/search/search.js"></script>
+          <script src="./js/search/lunr.min.js"></script>
+          <script src="./js/search/search-lunr.js"></script>
+          <script src="./js/search/search_index.js"></script>
+       <script src="./js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>
