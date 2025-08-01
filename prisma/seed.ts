@@ -8,24 +8,6 @@ async function main() {
   const saltOrRounds = 10;
   const hashedPassword = await bcrypt.hash('12345678', saltOrRounds);
 
-  const roles = [
-    'CLIENTE',
-    'ADMIN',
-    'GERENTE',
-    'FUNCIONARIO',
-    'FINANCEIRO',
-  ];
-
-  for (const role of roles) {
-    await prisma.role.upsert({
-      where: { name: role },
-      update: {},
-      create: {
-        name: role,
-      },
-    });
-  }
-
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@admin.com' },
     update: {},
@@ -35,9 +17,7 @@ async function main() {
       email: 'admin@admin.com',
       password: hashedPassword,
       active: true,
-      roles: {
-        connect: { name: 'ADMIN' },
-      },
+      role: Role.ADMIN,
     },
   });
   console.log(`Created admin user with id: ${adminUser.userId}`);

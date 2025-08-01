@@ -4,7 +4,6 @@ import { PrismaService } from '../../core/services/prisma.service';
 import { CreateUserDto } from '../auth/dto/create-auth.dto';
 import { User, Role } from '@prisma/client';
 
-// Mock PrismaService
 const mockPrismaService = {
   user: {
     create: jest.fn(),

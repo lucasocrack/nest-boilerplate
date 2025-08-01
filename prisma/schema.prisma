@@ -16,6 +16,7 @@ model User {
   cpf       String? @unique
   telefone  String?
   avatarUrl String?
+  role      Role    @default(CLIENTE)
 
   // --- Campos de Segurança ---
   password             String?
@@ -30,18 +31,17 @@ model User {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  logs  Log[]
-  role  Role      @default(CLIENTE)
+  logs Log[]
 
   @@map("users")
 }
 
 enum Role {
   CLIENTE
-  ADMIN
-  GERENTE
   FUNCIONARIO
-  FINANCEIRO
+  GERENTE
+  ADMIN
+  SUPERADMIN
 }
 
 model Log {
