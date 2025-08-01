@@ -5,7 +5,6 @@ import { UserModule } from '../user/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from '../../core/guards/jwt.strategy';
-import { MailModule } from 'src/core/services/mail/mail.module';
 
 @Module({
   imports: [
@@ -15,7 +14,6 @@ import { MailModule } from 'src/core/services/mail/mail.module';
       secret: 'yourSecretKey', // TODO: use environment variables
       signOptions: { expiresIn: '60m' },
     }),
-    MailModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
