@@ -27,6 +27,7 @@ export class AuthController {
     const result = await this.userService.createUser({
       ...createUserDto,
       password: hashedPassword,
+      active: true,
     });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...user } = result;

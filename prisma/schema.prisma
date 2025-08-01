@@ -31,18 +31,17 @@ model User {
   deletedAt DateTime?
 
   logs  Log[]
-  roles Role[]
+  role  Role      @default(CLIENTE)
 
   @@map("users")
 }
 
-model Role {
-  id   Int    @id @default(autoincrement())
-  name String @unique
-
-  users User[]
-
-  @@map("roles")
+enum Role {
+  CLIENTE
+  ADMIN
+  GERENTE
+  FUNCIONARIO
+  FINANCEIRO
 }
 
 model Log {
