@@ -6,6 +6,7 @@ import { LogModule } from './application/log/log.module';
 import { LoggerMiddleware } from './application/log/middleware/log.middleware';
 import { HomeModule } from './application/home/home.module';
 import { ConfigModule } from '@nestjs/config';
+import { EmailService } from './core/services/email/email.service';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { ConfigModule } from '@nestjs/config';
     HomeModule,
   ],
   controllers: [],
-  providers: [PrismaService],
+  providers: [PrismaService, EmailService],
   exports: [PrismaService],
 })
 export class AppModule implements NestModule {
