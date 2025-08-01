@@ -7,14 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  CLIENTE
-  ADMIN
-  GERENTE
-  FUNCIONARIO
-  FINANCEIRO
-}
-
 model User {
   // --- Campos de Identificação ---
   userId    Int     @id @default(autoincrement())
@@ -26,21 +18,31 @@ model User {
   avatarUrl String?
 
   // --- Campos de Segurança ---
-  password             String
-  role                 Role      @default(CLIENTE)
+  password             String?
   lastLogin            DateTime?
   passwordResetToken   String?
   passwordResetExpires DateTime? // Adicionado para "esqueci a senha"
 
   // --- Campos de Controle ---
   active    Boolean   @default(false)
+  divida    Boolean   @default(false)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  logs Log[]
+  logs  Log[]
+  roles Role[]
 
   @@map("users")
+}
+
+model Role {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  users User[]
+
+  @@map("roles")
 }
 
 model Log {
