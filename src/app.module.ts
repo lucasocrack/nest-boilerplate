@@ -4,9 +4,19 @@ import { UserModule } from './application/user/user.module';
 import { PrismaService } from './core/services/prisma.service';
 import { LogModule } from './application/log/log.module';
 import { LoggerMiddleware } from './application/log/middleware/log.middleware';
+import { HomeModule } from './application/home/home.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [AuthModule, UserModule, LogModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    AuthModule,
+    UserModule,
+    LogModule,
+    HomeModule,
+  ],
   controllers: [],
   providers: [PrismaService],
   exports: [PrismaService],
