@@ -5,14 +5,16 @@ import { UserModule } from '../user/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from '../../core/guards/jwt.strategy';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     UserModule,
     PassportModule,
     JwtModule.register({
-      secret: 'yourSecretKey', // TODO: use environment variables
-      signOptions: { expiresIn: '60m' },
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: process.env.JWT_EXPIRATION },
     }),
   ],
   controllers: [AuthController],
