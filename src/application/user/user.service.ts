@@ -2,17 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../auth/dto/create-auth.dto';
 import { PrismaService } from '../../core/services/prisma.service';
 import { User } from '@prisma/client';
-import { EmailService } from '../../core/services/email/email.service';
 
 @Injectable()
 export class UserService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly emailService: EmailService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async createUser(data: CreateUserDto): Promise<User> {
-    const user = await this.prisma.user.create({
+    return this.prisma.user.create({
       data: {
         ...data,
         cpf: data.cpf ?? null,
@@ -22,16 +18,6 @@ export class UserService {
         active: data.active ?? false,
       },
     });
-
-    const company = process.env.COMPANY_NAME;
-    await this.emailService.sendMail(
-      user.email,
-      'Conta criada com sucesso',
-      'account-created',
-      { name: user.name, company }
-    );
-
-    return user;
   }
 
   async findOneByUsername(username: string): Promise<User | null> {

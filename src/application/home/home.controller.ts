@@ -10,5 +10,4 @@ export class HomeController {
   getHome(@Res() res: Response) {
     res.send(this.homeService.getHome());
   }
-
 }

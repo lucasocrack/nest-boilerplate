@@ -97,21 +97,6 @@ $ npm run test
 $ npm run test:e2e
 ```
 
-## Documentação do Código
-
-Este projeto utiliza o [Compodoc](https://compodoc.app/) para gerar documentação automática dos módulos, serviços e controladores.
-
-### Como Gerar a Documentação
-
-```bash
-# Gerar documentação estática
-npx compodoc -p tsconfig.json
-
-# ou 
-$ npm run compodoc
-
-```
-
 ## Licença
 
 Este projeto é licenciado sob a licença MIT - veja o arquivo [LICENSE](LICENSE) para mais detalhes.

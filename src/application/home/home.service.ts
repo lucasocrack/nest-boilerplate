@@ -13,6 +13,7 @@ export class HomeService {
             <h1>Welcome to the API</h1>
             <p>You are running in development mode.</p>
             <ul>
+              <li><a href="/documentation">Compodoc</a></li>
               <li><a href="/api">Swagger</a></li>
             </ul>
           </body>
