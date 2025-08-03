@@ -5,8 +5,9 @@ meta {
 }
 
 post {
-  url: http://localhost:3099/auth/register
+  url: {{host}}/auth/register
   body: json
+  auth: none
 }
 
 body:json {

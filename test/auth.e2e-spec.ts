@@ -67,7 +67,10 @@ describe('AuthController (e2e)', () => {
       // Now, login
       return request(app.getHttpServer())
         .post('/auth/login')
-        .send({ username: createUserDto.username, password: createUserDto.password })
+        .send({
+          username: createUserDto.username,
+          password: createUserDto.password,
+        })
         .expect(200)
         .then((res) => {
           expect(res.body).toBeDefined();

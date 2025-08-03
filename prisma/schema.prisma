@@ -21,7 +21,7 @@ model User {
   // --- Campos de Segurança ---
   password             String?
   lastLogin            DateTime?
-  tokenVersion         Int       @default(0)
+  tokenVersion         Int       @default(1)
   refreshToken         String?
   passwordResetToken   String?
   passwordResetExpires DateTime? // Adicionado para "esqueci a senha"
