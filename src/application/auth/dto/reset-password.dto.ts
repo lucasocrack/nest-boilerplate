@@ -12,6 +12,8 @@ export class ResetPasswordDto {
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(8, { message: 'A confirmação da senha deve ter pelo menos 8 caracteres' })
+  @MinLength(8, {
+    message: 'A confirmação da senha deve ter pelo menos 8 caracteres',
+  })
   passwordConfirmation: string;
 }

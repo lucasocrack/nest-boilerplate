@@ -33,6 +33,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.0",
     "@prisma/client": "^6.13.0",
+    "@scalar/nestjs-api-reference": "^0.5.12",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.2.1",
     "passport": "^0.7.0",
