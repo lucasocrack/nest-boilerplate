@@ -4,7 +4,7 @@ import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/core/services/prisma.service';
 import { CreateUserDto } from 'src/application/auth/dto/create-auth.dto';
-import { User, Role } from '../generated/prisma';
+import { User, Role } from '@prisma/client';
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;

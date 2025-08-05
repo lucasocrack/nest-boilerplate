@@ -78,4 +78,75 @@ describe('AuthController (e2e)', () => {
         });
     });
   });
+
+  describe('/auth/forgot-password (POST)', () => {
+    it('should send a password reset token', async () => {
+      const createUserDto: CreateUserDto = {
+        username: 'forgotpassworduser',
+        name: 'Forgot Password User',
+        email: 'forgotpassword@example.com',
+        password: 'password123',
+      };
+
+      await request(app.getHttpServer())
+        .post('/auth/register')
+        .send(createUserDto)
+        .expect(201);
+
+      return request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({ email: createUserDto.email })
+        .expect(200)
+        .then((res) => {
+          expect(res.body).toBeDefined();
+          expect(res.body.token).toBeDefined();
+        });
+    });
+  });
+
+  describe('/auth/reset-password (POST)', () => {
+    it('should reset the password', async () => {
+      const createUserDto: CreateUserDto = {
+        username: 'resetpassworduser',
+        name: 'Reset Password User',
+        email: 'resetpassword@example.com',
+        password: 'password123',
+      };
+
+      await request(app.getHttpServer())
+        .post('/auth/register')
+        .send(createUserDto)
+        .expect(201);
+
+      const forgotPasswordResponse = await request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({ email: createUserDto.email })
+        .expect(200);
+
+      const resetToken = forgotPasswordResponse.body.token;
+      const newPassword = 'newpassword456';
+
+      await request(app.getHttpServer())
+        .post('/auth/reset-password')
+        .send({
+          token: resetToken,
+          password: newPassword,
+          passwordConfirmation: newPassword,
+        })
+        .expect(200);
+
+      // Try to login with the new password
+      return request(app.getHttpServer())
+        .post('/auth/login')
+        .send({
+          username: createUserDto.username,
+          password: newPassword,
+        })
+        .expect(200)
+        .then((res) => {
+          expect(res.body).toBeDefined();
+          expect(res.body.access_token).toBeDefined();
+        });
+    });
+  });
 });

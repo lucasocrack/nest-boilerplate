@@ -24,6 +24,16 @@ export class UserService {
     return this.prisma.user.findUnique({ where: { username } });
   }
 
+  async findOneByEmail(email: string): Promise<User | null> {
+    return this.prisma.user.findUnique({ where: { email } });
+  }
+
+  async findOneByPasswordResetToken(token: string): Promise<User | null> {
+    return this.prisma.user.findFirst({
+      where: { passwordResetToken: token },
+    });
+  }
+
   async findAll(): Promise<User[]> {
     return this.prisma.user.findMany({ where: { deletedAt: null } });
   }
