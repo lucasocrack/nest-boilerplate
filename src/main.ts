@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { Logger } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { apiReference } from '@scalar/nestjs-api-reference';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -17,9 +18,15 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
 
-  // Servir Swagger UI em /api
-  SwaggerModule.setup('api', app, document);
-
+  // Add Scalar middleware
+  app.use(
+    '/reference',
+    apiReference({
+      spec: {
+        content: document,
+      },
+    }),
+  );
 
   await app.listen(port);
   Logger.log(`Application is running on: http://localhost:${port}`);
