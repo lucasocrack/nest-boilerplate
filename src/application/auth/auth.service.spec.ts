@@ -50,7 +50,7 @@ describe('AuthService', () => {
   describe('signIn', () => {
     it('should return an access token for valid credentials', async () => {
       const user: User = {
-        userId: 1,
+        userId: '1',
         username: 'testuser',
         password: 'hashedpassword',
         name: 'Test User',
@@ -83,7 +83,7 @@ describe('AuthService', () => {
       );
       expect(bcrypt.compare).toHaveBeenCalledWith('password', 'hashedpassword');
       expect(mockJwtService.signAsync).toHaveBeenCalledWith({
-        sub: 1,
+        sub: '1',
         username: 'testuser',
         tokenVersion: 1,
       });
@@ -91,7 +91,7 @@ describe('AuthService', () => {
 
     it('should throw an UnauthorizedException for invalid password', async () => {
       const user: User = {
-        userId: 1,
+        userId: '1',
         username: 'testuser',
         password: 'hashedpassword',
         name: 'Test User',

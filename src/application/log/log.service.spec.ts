@@ -60,7 +60,7 @@ describe('LogService', () => {
     it('should return an array of logs', async () => {
       const logs: Log[] = [
         { logId: 1, timestamp: new Date(), route: '/test1', method: 'GET', userId: null, details: null },
-        { logId: 2, timestamp: new Date(), route: '/test2', method: 'POST', userId: 1, details: { body: { key: 'value' } } },
+        { logId: 2, timestamp: new Date(), route: '/test2', method: 'POST', userId: '1', details: { body: { key: 'value' } } },
       ];
       mockPrismaService.log.findMany.mockResolvedValue(logs);
 
