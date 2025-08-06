@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { User, Role } from '@prisma/client';
+import { MailService } from 'src/core/mail/mail.service';
 
 jest.mock('bcrypt');
 
@@ -15,11 +16,16 @@ describe('AuthService', () => {
 
   const mockUserService = {
     findOneByUsername: jest.fn(),
-  update: jest.fn(),
+    update: jest.fn(),
+    createUser: jest.fn(),
   };
 
   const mockJwtService = {
     signAsync: jest.fn(),
+  };
+
+  const mockMailService = {
+    sendUserConfirmation: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -28,6 +34,7 @@ describe('AuthService', () => {
         AuthService,
         { provide: UserService, useValue: mockUserService },
         { provide: JwtService, useValue: mockJwtService },
+        { provide: MailService, useValue: mockMailService },
       ],
     }).compile();
 
@@ -55,6 +62,8 @@ describe('AuthService', () => {
         active: true,
         divida: false,
         lastLogin: null,
+        tokenVersion: 1,
+        refreshToken: null,
         passwordResetToken: null,
         passwordResetExpires: null,
         createdAt: new Date(),
@@ -76,6 +85,7 @@ describe('AuthService', () => {
       expect(mockJwtService.signAsync).toHaveBeenCalledWith({
         sub: 1,
         username: 'testuser',
+        tokenVersion: 1,
       });
     });
 
@@ -93,6 +103,8 @@ describe('AuthService', () => {
         active: true,
         divida: false,
         lastLogin: null,
+        tokenVersion: 1,
+        refreshToken: null,
         passwordResetToken: null,
         passwordResetExpires: null,
         createdAt: new Date(),

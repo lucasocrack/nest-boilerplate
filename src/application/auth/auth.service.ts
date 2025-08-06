@@ -7,16 +7,40 @@ import {
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { CreateUserDto } from './dto/create-auth.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import * as crypto from 'crypto';
+import { User } from '@prisma/client';
+import { MailService } from 'src/core/mail/mail.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
+    private mailService: MailService,
   ) {}
+
+  async register(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
+    const saltOrRounds = 10;
+    const hashedPassword = await bcrypt.hash(
+      createUserDto.password,
+      saltOrRounds,
+    );
+    const result = await this.userService.createUser({
+      ...createUserDto,
+      password: hashedPassword,
+      active: true,
+    });
+
+    if (createUserDto.sendEmail) {
+      await this.mailService.sendUserConfirmation(result);
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...user } = result;
+    return user;
+  }
 
   async signIn(
     username: string,

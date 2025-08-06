@@ -41,4 +41,8 @@ export class CreateUserDto {
   @IsOptional()
   @IsBoolean()
   active?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  sendEmail?: boolean;
 }
