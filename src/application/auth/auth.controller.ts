@@ -3,15 +3,10 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-auth.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { UserService } from '../user/user.service';
-import * as bcrypt from 'bcrypt';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly userService: UserService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
@@ -21,19 +16,7 @@ export class AuthController {
 
   @Post('register')
   async signUp(@Body() createUserDto: CreateUserDto) {
-    const saltOrRounds = 10;
-    const hashedPassword = await bcrypt.hash(
-      createUserDto.password,
-      saltOrRounds,
-    );
-    const result = await this.userService.createUser({
-      ...createUserDto,
-      password: hashedPassword,
-      active: true,
-    });
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...user } = result;
-    return user;
+    return this.authService.register(createUserDto);
   }
 
   @Post('forgot-password')
