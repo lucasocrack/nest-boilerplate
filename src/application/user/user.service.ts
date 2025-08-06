@@ -38,20 +38,20 @@ export class UserService {
     return this.prisma.user.findMany({ where: { deletedAt: null } });
   }
 
-  async findOneById(id: number): Promise<User | null> {
+  async findOneById(id: string): Promise<User | null> {
     return this.prisma.user.findFirst({
-      where: { userId: id, deletedAt: null },
+      where: { userId: string, deletedAt: null },
     });
   }
 
   async update(id: number, data: Partial<User>): Promise<User> {
     return this.prisma.user.update({
-      where: { userId: id },
+      where: { userId: string },
       data,
     });
   }
 
-  async remove(id: number): Promise<User> {
+  async remove(id: string): Promise<User> {
     return this.prisma.user.update({
       where: { userId: id },
       data: { deletedAt: new Date() },

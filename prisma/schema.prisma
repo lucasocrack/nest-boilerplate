@@ -8,8 +8,7 @@ datasource db {
 }
 
 model User {
-  // --- Campos de Identificação ---
-  userId    Int     @id @default(autoincrement())
+  userId    String  @id @default(cuid())
   username  String  @unique
   name      String
   email     String  @unique
@@ -51,7 +50,7 @@ model Log {
   timestamp DateTime @default(now())
   route     String
   method    String
-  userId    Int?
+  userId    String?
   details   Json?
 
   user User? @relation(fields: [userId], references: [userId])
