@@ -23,7 +23,7 @@ model User {
   tokenVersion         Int       @default(1)
   refreshToken         String?
   passwordResetToken   String?
-  passwordResetExpires DateTime? // Adicionado para "esqueci a senha"
+  passwordResetExpires DateTime? // Adicionado para "esqueci AuthRequest.ts senha"
 
   // --- Campos de Controle ---
   active    Boolean   @default(false)

@@ -13,6 +13,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import * as crypto from 'crypto';
 import { User } from '@prisma/client';
 import { MailService } from 'src/core/mail/mail.service';
+import { PrismaService } from '../../core/config/prisma.service';
 
 @Injectable()
 export class AuthService {
@@ -20,9 +21,12 @@ export class AuthService {
     private userService: UserService,
     private jwtService: JwtService,
     private mailService: MailService,
+    private readonly prisma: PrismaService,
   ) {}
 
-  async register(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
+  async register(
+    createUserDto: CreateUserDto,
+  ): Promise<Omit<User, 'password'>> {
     const saltOrRounds = 10;
     const hashedPassword = await bcrypt.hash(
       createUserDto.password,
@@ -115,10 +119,7 @@ export class AuthService {
       throw new BadRequestException('Token de redefinição de senha inválido.');
     }
 
-    if (
-      !user.passwordResetExpires ||
-      user.passwordResetExpires < new Date()
-    ) {
+    if (!user.passwordResetExpires || user.passwordResetExpires < new Date()) {
       throw new BadRequestException('Token de redefinição de senha expirado.');
     }
 
@@ -130,6 +131,15 @@ export class AuthService {
       passwordResetToken: null,
       passwordResetExpires: null,
       tokenVersion: user.tokenVersion + 1,
+    });
+  }
+
+  async logout(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { userId },
+      data: {
+        tokenVersion: { increment: 1 },
+      },
     });
   }
 }

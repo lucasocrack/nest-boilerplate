@@ -121,11 +121,11 @@ document.addEventListener('DOMContentLoaded', function () {
             if (d.kind === 'module') {
                 if (d.module) {
                     _name +=
-                        '<tspan x="0" dy="1.4em"><a href="./modules/' +
+                        '<tspan x="0" dy="1.4em"><AuthRequest.ts href="./modules/' +
                         d.module +
                         '.html">' +
                         d.module +
-                        '</a></tspan>';
+                        '</AuthRequest.ts></tspan>';
                     if (d.name) {
                         _name += '<tspan x="0" dy="1.4em">' + d.name + '</tspan>';
                     }
@@ -135,11 +135,11 @@ document.addEventListener('DOMContentLoaded', function () {
             } else if (d.kind === 'component') {
                 _name += '<tspan x="0" dy="1.4em">' + d.path + '</tspan>';
                 _name +=
-                    '<tspan x="0" dy="1.4em"><a href="./components/' +
+                    '<tspan x="0" dy="1.4em"><AuthRequest.ts href="./components/' +
                     d.component +
                     '.html">' +
                     d.component +
-                    '</a></tspan>';
+                    '</AuthRequest.ts></tspan>';
                 if (d.outlet) {
                     _name += '<tspan x="0" dy="1.4em">&lt;outlet&gt; : ' + d.outlet + '</tspan>';
                 }
@@ -147,20 +147,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 _name += '<tspan x="0" dy="1.4em">/' + d.path + '</tspan>';
                 if (d.component) {
                     _name +=
-                        '<tspan x="0" dy="1.4em"><a href="./components/' +
+                        '<tspan x="0" dy="1.4em"><AuthRequest.ts href="./components/' +
                         d.component +
                         '.html">' +
                         d.component +
-                        '</a></tspan>';
+                        '</AuthRequest.ts></tspan>';
                 }
                 if (d.loadChildren) {
                     var moduleName = foundLazyModuleWithPath(d.loadChildren);
                     _name +=
-                        '<tspan x="0" dy="1.4em"><a href="./modules/' +
+                        '<tspan x="0" dy="1.4em"><AuthRequest.ts href="./modules/' +
                         moduleName +
                         '.html">' +
                         moduleName +
-                        '</a></tspan>';
+                        '</AuthRequest.ts></tspan>';
                 }
                 if (d.canActivate) {
                     _name += '<tspan x="0" dy="1.4em">&#10003; canActivate</tspan>';

@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         // Toggle also the master parent menu
                         var linkContextId = activeLink.getAttribute('data-context-id');
                         var toggler = activeMenu.querySelector(
-                            '.chapter.' + linkContextId + ' a .menu-toggler'
+                            '.chapter.' + linkContextId + ' AuthRequest.ts .menu-toggler'
                         );
                         if (toggler) {
                             toggler.click();

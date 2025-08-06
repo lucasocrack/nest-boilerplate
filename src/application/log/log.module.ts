@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { LogService } from './log.service';
-import { PrismaService } from '../../core/services/prisma.service';
+import { PrismaService } from '../../core/config/prisma.service';
 import { LogController } from './log.controller';
 
 @Module({

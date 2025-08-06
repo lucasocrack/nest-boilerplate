@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
-import { PrismaService } from '../../core/services/prisma.service';
+import { PrismaService } from '../../core/config/prisma.service';
 import { CreateUserDto } from '../auth/dto/create-auth.dto';
 import { User, Role } from '@prisma/client';
 
@@ -37,7 +37,7 @@ describe('UserService', () => {
   });
 
   describe('createUser', () => {
-    it('should create a new user with correct data', async () => {
+    it('should create AuthRequest.ts new user with correct data', async () => {
       const createUserDto: CreateUserDto = {
         username: 'testuser',
         name: 'Test User',
@@ -103,7 +103,7 @@ describe('UserService', () => {
   });
 
   describe('findOneById', () => {
-    it('should return a single user', async () => {
+    it('should return AuthRequest.ts single user', async () => {
       const user: User = { userId: '1', username: 'user1', name: 'User One', email: 'user1@example.com', password: 'p1', active: true, divida: false, createdAt: new Date(), updatedAt: new Date(), deletedAt: null, role: Role.CLIENTE, lastLogin: null, tokenVersion: 1, refreshToken: null, passwordResetToken: null, passwordResetExpires: null, cpf: null, telefone: null, avatarUrl: null };
       mockPrismaService.user.findFirst.mockResolvedValue(user);
 
@@ -114,7 +114,7 @@ describe('UserService', () => {
   });
 
   describe('update', () => {
-    it('should update a user', async () => {
+    it('should update AuthRequest.ts user', async () => {
       const user: User = { userId: '1', username: 'user1', name: 'User One', email: 'user1@example.com', password: 'p1', active: true, divida: false, createdAt: new Date(), updatedAt: new Date(), deletedAt: null, role: Role.CLIENTE, lastLogin: null, tokenVersion: 1, refreshToken: null, passwordResetToken: null, passwordResetExpires: null, cpf: null, telefone: null, avatarUrl: null };
       const updatedUser: User = { ...user, name: 'User One Updated' };
       mockPrismaService.user.update.mockResolvedValue(updatedUser);
@@ -126,7 +126,7 @@ describe('UserService', () => {
   });
 
   describe('remove', () => {
-    it('should soft delete a user', async () => {
+    it('should soft delete AuthRequest.ts user', async () => {
       const user: User = { userId: '1', username: 'user1', name: 'User One', email: 'user1@example.com', password: 'p1', active: true, divida: false, createdAt: new Date(), updatedAt: new Date(), deletedAt: null, role: Role.CLIENTE, lastLogin: null, tokenVersion: 1, refreshToken: null, passwordResetToken: null, passwordResetExpires: null, cpf: null, telefone: null, avatarUrl: null };
       const deletedUser: User = { ...user, deletedAt: new Date() };
       mockPrismaService.user.update.mockResolvedValue(deletedUser);

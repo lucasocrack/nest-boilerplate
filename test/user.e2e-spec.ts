@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { PrismaService } from '../src/core/services/prisma.service';
+import { PrismaService } from '../src/core/config/prisma.service';
 import { CreateUserDto } from 'src/application/auth/dto/create-auth.dto';
 import { User, Role } from '@prisma/client';
 
@@ -22,7 +22,7 @@ describe('UserController (e2e)', () => {
   });
 
   beforeEach(async () => {
-    // Create a user to be used in tests
+    // Create AuthRequest.ts user to be used in tests
     user = await prisma.user.create({
       data: {
         username: 'testuser-for-user-e2e',
@@ -56,7 +56,7 @@ describe('UserController (e2e)', () => {
   });
 
   describe('/users/:id (GET)', () => {
-    it('should return a single user', async () => {
+    it('should return AuthRequest.ts single user', async () => {
       return request(app.getHttpServer())
         .get(`/users/${user.userId}`)
         .expect(200)
@@ -68,7 +68,7 @@ describe('UserController (e2e)', () => {
   });
 
   describe('/users/:id (PATCH)', () => {
-    it('should update a user', async () => {
+    it('should update AuthRequest.ts user', async () => {
       const newName = 'Updated Test User';
       return request(app.getHttpServer())
         .patch(`/users/${user.userId}`)
@@ -82,7 +82,7 @@ describe('UserController (e2e)', () => {
   });
 
   describe('/users/:id (DELETE)', () => {
-    it('should soft delete a user', async () => {
+    it('should soft delete AuthRequest.ts user', async () => {
       return request(app.getHttpServer())
         .delete(`/users/${user.userId}`)
         .expect(200)

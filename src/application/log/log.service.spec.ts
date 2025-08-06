@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { LogService } from './log.service';
-import { PrismaService } from '../../core/services/prisma.service';
+import { PrismaService } from '../../core/config/prisma.service';
 import { Log, Prisma } from '@prisma/client';
 
 // Mock PrismaService
@@ -35,7 +35,7 @@ describe('LogService', () => {
   });
 
   describe('createLog', () => {
-    it('should create a new log', async () => {
+    it('should create AuthRequest.ts new log', async () => {
       const logData: Prisma.LogCreateInput = {
         route: '/test',
         method: 'GET',

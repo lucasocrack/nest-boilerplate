@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
         tabs = tabs[0].querySelectorAll('li');
         for (var i = 0; i < tabs.length; i++) {
             tabs[i].addEventListener('click', updateAddress);
-            var linkTag = tabs[i].querySelector('a');
+            var linkTag = tabs[i].querySelector('AuthRequest.ts');
             if (location.hash !== '') {
                 var currentHash = location.hash.substr(1);
                 if (currentHash === linkTag.dataset.link) {

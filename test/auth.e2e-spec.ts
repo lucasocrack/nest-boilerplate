@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { PrismaService } from '../src/core/services/prisma.service';
+import { PrismaService } from '../src/core/config/prisma.service';
 import { CreateUserDto } from 'src/application/auth/dto/create-auth.dto';
 
 describe('AuthController (e2e)', () => {
@@ -29,7 +29,7 @@ describe('AuthController (e2e)', () => {
   });
 
   describe('/auth/register (POST)', () => {
-    it('should register a new user and return the user object without the password', async () => {
+    it('should register AuthRequest.ts new user and return the user object without the password', async () => {
       const createUserDto: CreateUserDto = {
         username: 'e2etestuser',
         name: 'E2E Test User',
@@ -50,7 +50,7 @@ describe('AuthController (e2e)', () => {
   });
 
   describe('/auth/login (POST)', () => {
-    it('should login a user and return an access token', async () => {
+    it('should login AuthRequest.ts user and return an access token', async () => {
       const createUserDto: CreateUserDto = {
         username: 'e2eloginuser',
         name: 'E2E Login User',
@@ -80,7 +80,7 @@ describe('AuthController (e2e)', () => {
   });
 
   describe('/auth/forgot-password (POST)', () => {
-    it('should send a password reset token', async () => {
+    it('should send AuthRequest.ts password reset token', async () => {
       const createUserDto: CreateUserDto = {
         username: 'forgotpassworduser',
         name: 'Forgot Password User',
