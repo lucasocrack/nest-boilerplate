@@ -32,7 +32,7 @@ import { join } from 'path';
       inject: [ConfigService],
     }),
   ],
-  providers: [MailService]
+  providers: [MailService],
   exports: [MailService],
 })
 export class MailModule {}
