@@ -100,38 +100,31 @@ export class AuthService {
     };
   }
 
-  async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<void> {
+  async resetPassword(
+    resetPasswordDto: ResetPasswordDto,
+  ): Promise<{ message: string }> {
     const { token, password, passwordConfirmation } = resetPasswordDto;
 
     if (password !== passwordConfirmation) {
       throw new BadRequestException('As senhas não conferem.');
     }
 
-    const passwordResetToken = crypto
-      .createHash('sha256')
-      .update(token)
-      .digest('hex');
-
-    const user =
-      await this.userService.findOneByPasswordResetToken(passwordResetToken);
-
-    if (!user) {
-      throw new BadRequestException('Token de redefinição de senha inválido.');
+    let payload: { sub: string };
+    try {
+      payload = this.jwtService.verify<{ sub: string }>(token);
+    } catch {
+      throw new UnauthorizedException('Token inválido ou expirado.');
     }
 
-    if (!user.passwordResetExpires || user.passwordResetExpires < new Date()) {
-      throw new BadRequestException('Token de redefinição de senha expirado.');
-    }
+    const userId = payload.sub;
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const saltOrRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltOrRounds);
-
-    await this.userService.update(user.userId, {
-      password: hashedPassword,
-      passwordResetToken: null,
-      passwordResetExpires: null,
-      tokenVersion: user.tokenVersion + 1,
+    await this.prisma.user.update({
+      where: { userId },
+      data: { password: hashedPassword },
     });
+
+    return { message: 'Redefinição de senha com sucesso' };
   }
 
   async logout(userId: string): Promise<void> {
@@ -141,5 +134,27 @@ export class AuthService {
         tokenVersion: { increment: 1 },
       },
     });
+  }
+
+  async validateUser(identifier: string, password: string) {
+    const user = await this.userService.findOneByEmail(identifier);
+    if (user && user.deletedAt === null) {
+      if (!user.active) {
+        await this.mailService.sendUserConfirmation(user);
+        throw new UnauthorizedException('A conta do usuário não está ativada. Um e-mail de ativação foi enviado.');
+      }
+      if (!user.password) {
+        throw new UnauthorizedException('Senha não definida para este usuário.');
+      }
+      const isValid = await bcrypt.compare(password, user.password);
+      if (isValid) {
+        return { ...user, password: undefined };
+      }
+    }
+    throw new UnauthorizedException(
+      user && user.deletedAt !== null
+        ? 'A conta do usuário foi excluída.'
+        : 'A identificação e ou a senha fornecidos estão incorretos.',
+    );
   }
 }
