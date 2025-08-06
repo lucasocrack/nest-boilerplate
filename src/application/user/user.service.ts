@@ -40,13 +40,13 @@ export class UserService {
 
   async findOneById(id: string): Promise<User | null> {
     return this.prisma.user.findFirst({
-      where: { userId: string, deletedAt: null },
+      where: { userId: id, deletedAt: null },
     });
   }
 
-  async update(id: number, data: Partial<User>): Promise<User> {
+  async update(id: string, data: Partial<User>): Promise<User> {
     return this.prisma.user.update({
-      where: { userId: string },
+      where: { userId: id },
       data,
     });
   }
