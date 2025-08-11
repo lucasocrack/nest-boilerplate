@@ -13,7 +13,7 @@ async function main() {
     update: {},
     create: {
       name: 'Admin',
-      username: 'admin',
+      userName: 'admin',
       email: 'admin@admin.com',
       password: hashedPassword,
       active: true,

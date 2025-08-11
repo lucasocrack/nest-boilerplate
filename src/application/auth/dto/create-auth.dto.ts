@@ -10,7 +10,7 @@ import { Role } from '@prisma/client';
 
 export class CreateUserDto {
   @IsString()
-  username: string;
+  userName: string;
 
   @IsString()
   name: string;

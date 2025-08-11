@@ -64,7 +64,7 @@ export class AuthService {
     await this.userService.update(user.userId, { lastLogin: new Date() });
     const payload = {
       sub: user.userId,
-      username: user.username,
+      username: user.userName,
       tokenVersion: user.tokenVersion,
     };
     return {

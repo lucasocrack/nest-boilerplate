@@ -51,7 +51,7 @@ describe('AuthService', () => {
     it('should return an access token for valid credentials', async () => {
       const user: User = {
         userId: '1',
-        username: 'testuser',
+        userName: 'testuser',
         password: 'hashedpassword',
         name: 'Test User',
         email: 'test@example.com',
@@ -92,7 +92,7 @@ describe('AuthService', () => {
     it('should throw an UnauthorizedException for invalid password', async () => {
       const user: User = {
         userId: '1',
-        username: 'testuser',
+        userName: 'testuser',
         password: 'hashedpassword',
         name: 'Test User',
         email: 'test@example.com',
