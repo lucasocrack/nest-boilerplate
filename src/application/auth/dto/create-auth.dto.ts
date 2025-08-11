@@ -5,12 +5,18 @@ import {
   IsString,
   MinLength,
   IsBoolean,
+  Matches,
 } from 'class-validator';
 import { Role } from '@prisma/client';
+import { IsCpf } from '../../../core/validators/cpf.validator';
 
 export class CreateUserDto {
   @IsString()
-  username: string;
+  @MinLength(3, { message: 'Nome de usuário deve ter pelo menos 3 caracteres' })
+  @Matches(/^[a-zA-Z0-9_]+$/, {
+    message: 'Nome de usuário deve conter apenas letras, números e underscore',
+  })
+  userName: string;
 
   @IsString()
   name: string;
@@ -20,6 +26,7 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsString()
+  @IsCpf({ message: 'CPF inválido' })
   cpf?: string;
 
   @IsOptional()

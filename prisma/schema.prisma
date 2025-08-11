@@ -9,7 +9,7 @@ datasource db {
 
 model User {
   userId    String  @id @default(cuid())
-  username  String  @unique
+  userName  String  @unique
   name      String
   email     String  @unique
   cpf       String? @unique
@@ -24,6 +24,8 @@ model User {
   refreshToken         String?
   passwordResetToken   String?
   passwordResetExpires DateTime? // Adicionado para "esqueci AuthRequest.ts senha"
+  activationToken      String?   // Token para ativação da conta
+  activationTokenExpires DateTime? // Expiração do token de ativação
 
   // --- Campos de Controle ---
   active    Boolean   @default(false)

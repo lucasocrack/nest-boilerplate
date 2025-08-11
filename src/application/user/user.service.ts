@@ -21,12 +21,35 @@ export class UserService {
   }
 
 
-  async findOneByUsername(username: string): Promise<User | null> {
-    return this.prisma.user.findUnique({ where: { username } });
+  async findOneByUsername(userName: string): Promise<User | null> {
+    return this.prisma.user.findUnique({ where: { userName } });
   }
 
   async findOneByEmail(email: string): Promise<User | null> {
     return this.prisma.user.findUnique({ where: { email } });
+  }
+
+  async findOneByCpf(cpf: string): Promise<User | null> {
+    if (!cpf) return null;
+    return this.prisma.user.findUnique({ where: { cpf } });
+  }
+
+  async checkUserExists(data: { userName?: string; email?: string; cpf?: string }): Promise<{
+    userNameExists: boolean;
+    emailExists: boolean;
+    cpfExists: boolean;
+  }> {
+    const [userNameExists, emailExists, cpfExists] = await Promise.all([
+      data.userName ? this.findOneByUsername(data.userName) : null,
+      data.email ? this.findOneByEmail(data.email) : null,
+      data.cpf ? this.findOneByCpf(data.cpf) : null,
+    ]);
+
+    return {
+      userNameExists: !!userNameExists,
+      emailExists: !!emailExists,
+      cpfExists: !!cpfExists,
+    };
   }
 
   async findOneByPasswordResetToken(token: string): Promise<User | null> {
