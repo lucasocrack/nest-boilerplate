@@ -34,4 +34,35 @@ export class MailService {
       throw error;
     }
   }
+
+  async sendActivationEmail(user: User, activationToken: string): Promise<void> {
+    try {
+      const { email, name } = user;
+      const activationUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/activate?token=${activationToken}`;
+      
+      this.logger.log(`Enviando email de ativação para: ${email}`);
+      
+      await this.mailerService.sendMail({
+        to: email,
+        subject: 'Ative sua conta - Bem-vindo!',
+        template: './activation',
+        context: {
+          name: name,
+          activationUrl: activationUrl,
+          token: activationToken,
+        },
+      });
+      
+      this.logger.log(`Email de ativação enviado com sucesso para: ${email}`);
+    } catch (error) {
+      this.logger.error(`Erro ao enviar email de ativação para ${user.email}:`, error.message);
+      // Em desenvolvimento, não falha a aplicação por erro de email
+      if (process.env.NODE_ENV === 'development') {
+        this.logger.warn('🚀 Modo desenvolvimento: Email de ativação seria enviado em produção');
+        this.logger.log(`🔗 URL de ativação: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/activate?token=${activationToken}`);
+        return;
+      }
+      throw error;
+    }
+  }
 }
