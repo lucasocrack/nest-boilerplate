@@ -20,7 +20,6 @@ export class UserService {
     });
   }
 
-
   async findOneByUsername(userName: string): Promise<User | null> {
     return this.prisma.user.findUnique({ where: { userName } });
   }
@@ -62,6 +61,33 @@ export class UserService {
     return this.prisma.user.findMany({ where: { deletedAt: null } });
   }
 
+  async findAllPaged(params: { page: number; limit: number; role?: Role; search?: string; userName?: string; email?: string }): Promise<{ data: User[]; total: number; page: number; limit: number; }> {
+    const { page, limit, role, search, userName, email } = params;
+    const where: any = { deletedAt: null };
+    if (role) where.role = role;
+    if (userName) where.userName = { contains: userName, mode: 'insensitive' };
+    if (email) where.email = { contains: email, mode: 'insensitive' };
+    if (search) {
+      where.OR = [
+        { userName: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const [total, data] = await this.prisma.$transaction([
+      this.prisma.user.count({ where }),
+      this.prisma.user.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+    ]);
+
+    return { data, total, page, limit };
+  }
+
   async findOneById(id: string): Promise<User | null> {
     return this.prisma.user.findFirst({
       where: { userId: id, deletedAt: null },
@@ -78,7 +104,28 @@ export class UserService {
   async remove(id: string): Promise<User> {
     return this.prisma.user.update({
       where: { userId: id },
-      data: { deletedAt: new Date() },
+      data: { deletedAt: new Date(), active: false },
+    });
+  }
+
+  async blockUser(id: string, blockedUntil?: Date): Promise<User> {
+    return this.prisma.user.update({
+      where: { userId: id },
+      data: { blocked: true, blockedUntil: blockedUntil ?? null },
+    });
+  }
+
+  async unblockUser(id: string): Promise<User> {
+    return this.prisma.user.update({
+      where: { userId: id },
+      data: { blocked: false, blockedUntil: null },
+    });
+  }
+
+  async restoreUser(id: string): Promise<User> {
+    return this.prisma.user.update({
+      where: { userId: id },
+      data: { deletedAt: null, active: true },
     });
   }
 }

@@ -35,8 +35,12 @@ export class AuthService {
   }
 
   private getRefreshTokenExpiry(): string {
-    // Ex: '7d' via env REFRESH_TOKEN_TTL
-    return this.configService.get<string>('REFRESH_TOKEN_TTL') || '7d';
+    // Ex: '7d' via env JWT_REFRESH_TTL (fallback para REFRESH_TOKEN_TTL)
+    return (
+      this.configService.get<string>('JWT_REFRESH_TTL') ||
+      this.configService.get<string>('REFRESH_TOKEN_TTL') ||
+      '7d'
+    );
   }
 
   private async signAccessToken(user: User): Promise<string> {
@@ -144,8 +148,20 @@ export class AuthService {
     pass: string,
   ): Promise<{ access_token: string; refresh_token: string }> {
     const user = await this.userService.findOneByUsername(username);
-    if (!user || !user.active) {
+    if (!user) {
       throw new UnauthorizedException('Credenciais inválidas.');
+    }
+    // bloqueio e deleção
+    if (user.deletedAt) {
+      throw new UnauthorizedException('Conta excluída.');
+    }
+    if (!user.active) {
+      throw new UnauthorizedException('Conta inativa.');
+    }
+    if (user.blocked) {
+      if (!user.blockedUntil || user.blockedUntil > new Date()) {
+        throw new UnauthorizedException('Conta temporariamente bloqueada.');
+      }
     }
     if (!user.password) {
       throw new UnauthorizedException('Credenciais inválidas.');
