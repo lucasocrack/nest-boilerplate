@@ -4,7 +4,6 @@ import {
   Body,
   HttpCode,
   HttpStatus,
-  UseGuards,
   Req,
   UnauthorizedException,
   Get,
@@ -19,6 +18,7 @@ import { ResendActivationDto } from './dto/resend-activation.dto';
 import { JwtAuthGuard } from '../../core/guards/jwt-auth.guard';
 import { IsPublic } from '../../core/decorators/is-public.decorator';
 import { AuthRequest } from './models/AuthRequest';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -65,7 +65,12 @@ export class AuthController {
     return this.authService.resendActivationEmail(resendDto.email);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @IsPublic()
+  @Post('refresh')
+  async refresh(@Body() body: RefreshTokenDto) {
+    return this.authService.refreshToken(body.refreshToken);
+  }
+
   @Get('me')
   async getProfile(@Req() req: AuthRequest) {
     if (!req.user) {
@@ -74,7 +79,6 @@ export class AuthController {
     return req.user;
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('logout')
   async logout(@Req() req: AuthRequest): Promise<{ message: string }> {
     const authHeader = req.headers.authorization;

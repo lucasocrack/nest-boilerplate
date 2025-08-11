@@ -1,0 +1,10 @@
+{
+  "github.copilot.chat.byok.ollamaEndpoint": "http://localhost:11434",
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "terminal.integrated.profiles.linux": {
+    "bash": {
+      "path": "/bin/bash",
+      "args": ["-l"]
+    }
+  }
+}

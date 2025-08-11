@@ -34,6 +34,45 @@ export class AuthService {
     return new Date(Date.now() + hoursToExpire * 60 * 60 * 1000);
   }
 
+  private getRefreshTokenExpiry(): string {
+    // Ex: '7d' via env REFRESH_TOKEN_TTL
+    return this.configService.get<string>('REFRESH_TOKEN_TTL') || '7d';
+  }
+
+  private async signAccessToken(user: User): Promise<string> {
+    const payload = {
+      sub: user.userId,
+      username: user.userName,
+      tokenVersion: user.tokenVersion,
+    };
+    return this.jwtService.signAsync(payload);
+  }
+
+  private async signRefreshToken(user: User): Promise<string> {
+    const payload = {
+      sub: user.userId,
+      tv: user.tokenVersion,
+      type: 'refresh',
+    };
+    return this.jwtService.signAsync(payload, {
+      expiresIn: this.getRefreshTokenExpiry(),
+      secret: this.configService.get<string>('JWT_REFRESH_SECRET') || (process.env.JWT_SECRET || 'default-secret'),
+    });
+  }
+
+  async issueTokens(user: User) {
+    const access_token = await this.signAccessToken(user);
+    const refresh_token = await this.signRefreshToken(user);
+
+    // opcional: persistir hash do refreshToken
+    await this.prisma.user.update({
+      where: { userId: user.userId },
+      data: { refreshToken: refresh_token },
+    });
+
+    return { access_token, refresh_token };
+  }
+
   async register(
     createUserDto: CreateUserDto,
   ): Promise<Omit<User, 'password' | 'activationToken'> & { message: string }> {
@@ -77,7 +116,6 @@ export class AuthService {
       saltOrRounds,
     );
 
-    // Gerar token de ativação
     const activationToken = crypto.randomBytes(32).toString('hex');
     const activationTokenExpires = this.getActivationTokenExpiration();
 
@@ -85,13 +123,12 @@ export class AuthService {
       data: {
         ...createUserDto,
         password: hashedPassword,
-        active: false, // Usuário inativo por padrão
+        active: false,
         activationToken,
         activationTokenExpires,
       },
     });
 
-    // Sempre enviar email de ativação
     await this.mailService.sendActivationEmail(result, activationToken);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -105,7 +142,7 @@ export class AuthService {
   async signIn(
     username: string,
     pass: string,
-  ): Promise<{ access_token: string }> {
+  ): Promise<{ access_token: string; refresh_token: string }> {
     const user = await this.userService.findOneByUsername(username);
     if (!user || !user.active) {
       throw new UnauthorizedException('Credenciais inválidas.');
@@ -118,14 +155,26 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas.');
     }
     await this.userService.update(user.userId, { lastLogin: new Date() });
-    const payload = {
-      sub: user.userId,
-      username: user.userName,
-      tokenVersion: user.tokenVersion,
-    };
-    return {
-      access_token: await this.jwtService.signAsync(payload),
-    };
+    return this.issueTokens(user);
+  }
+
+  async refreshToken(token: string): Promise<{ access_token: string; refresh_token: string }> {
+    try {
+      const payload = await this.jwtService.verifyAsync<{ sub: string; tv: number; type: string }>(token, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET') || (process.env.JWT_SECRET || 'default-secret'),
+      });
+      if (payload.type !== 'refresh') {
+        throw new UnauthorizedException('Token inválido');
+      }
+      const user = await this.prisma.user.findUnique({ where: { userId: payload.sub } });
+      if (!user) throw new UnauthorizedException('Usuário não encontrado');
+      if (user.tokenVersion !== payload.tv) {
+        throw new UnauthorizedException('Refresh token expirado/invalidado');
+      }
+      return this.issueTokens(user);
+    } catch {
+      throw new UnauthorizedException('Refresh token inválido ou expirado');
+    }
   }
 
   async forgotPassword(
@@ -165,19 +214,32 @@ export class AuthService {
       throw new BadRequestException('As senhas não conferem.');
     }
 
-    let payload: { sub: string };
-    try {
-      payload = this.jwtService.verify<{ sub: string }>(token);
-    } catch {
+    // O token enviado é aleatório; validar comparando o hash sha256 salvo no banco
+    const passwordResetToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await this.prisma.user.findFirst({
+      where: {
+        passwordResetToken,
+        passwordResetExpires: { gte: new Date() },
+      },
+    });
+
+    if (!user) {
       throw new UnauthorizedException('Token inválido ou expirado.');
     }
 
-    const userId = payload.sub;
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await this.prisma.user.update({
-      where: { userId },
-      data: { password: hashedPassword },
+      where: { userId: user.userId },
+      data: {
+        password: hashedPassword,
+        passwordResetToken: null,
+        passwordResetExpires: null,
+        // invalidar refresh tokens existentes
+        tokenVersion: { increment: 1 },
+        refreshToken: null,
+      },
     });
 
     return { message: 'Redefinição de senha com sucesso' };
@@ -186,14 +248,13 @@ export class AuthService {
   async activateAccount(activateDto: ActivateAccountDto): Promise<{ message: string }> {
     const { token } = activateDto;
 
-    // Buscar usuário pelo token de ativação
     const user = await this.prisma.user.findFirst({
       where: {
         activationToken: token,
         activationTokenExpires: {
-          gte: new Date(), // Token não expirado
+          gte: new Date(),
         },
-        active: false, // Só ativar contas inativas
+        active: false,
       },
     });
 
@@ -201,7 +262,6 @@ export class AuthService {
       throw new BadRequestException('Token de ativação inválido ou expirado');
     }
 
-    // Ativar a conta e limpar o token
     await this.prisma.user.update({
       where: { userId: user.userId },
       data: {
@@ -255,6 +315,7 @@ export class AuthService {
       where: { userId },
       data: {
         tokenVersion: { increment: 1 },
+        refreshToken: null,
       },
     });
   }

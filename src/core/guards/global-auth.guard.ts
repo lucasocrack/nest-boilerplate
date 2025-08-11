@@ -7,12 +7,14 @@ import {
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { IS_PUBLIC_KEY } from '../decorators/is-public.decorator';
+import { PrismaService } from '../config/prisma.service';
 
 @Injectable()
 export class GlobalAuthGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     private jwtService: JwtService,
+    private prisma: PrismaService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -36,19 +38,42 @@ export class GlobalAuthGuard implements CanActivate {
         message: 'Token de acesso é obrigatório',
         error: 'Unauthorized',
         timestamp: new Date().toISOString(),
-      });
+      } as any);
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(token);
-      request.user = payload;
+      const payload = await this.jwtService.verifyAsync<{
+        sub: string;
+        username: string;
+        tokenVersion?: number;
+      }>(token);
+
+      // validar tokenVersion atual com o usuário
+      const user = await this.prisma.user.findUnique({
+        where: { userId: payload.sub },
+      });
+      if (!user) {
+        throw new UnauthorizedException('Usuário não encontrado');
+      }
+      if (
+        typeof payload.tokenVersion === 'number' &&
+        payload.tokenVersion !== user.tokenVersion
+      ) {
+        throw new UnauthorizedException('Token invalidado. Faça login novamente.');
+      }
+
+      request.user = {
+        userId: payload.sub,
+        userName: payload.username,
+        tokenVersion: user.tokenVersion,
+      };
     } catch (error) {
       throw new UnauthorizedException({
         statusCode: 401,
         message: 'Token de acesso inválido ou expirado',
         error: 'Unauthorized',
         timestamp: new Date().toISOString(),
-      });
+      } as any);
     }
 
     return true;

@@ -127,3 +127,19 @@ export class ExemploController {
 ### Rota não funcionando após mudanças
 - Verificar se `@IsPublic()` foi adicionado às rotas públicas
 - Verificar se import do decorator está correto
+
+## Fluxo de Refresh Token
+
+- Endpoint público: `POST /auth/refresh`
+- Request body:
+```
+{ "refreshToken": "<token>" }
+```
+- Retorno:
+```
+{ "access_token": "...", "refresh_token": "..." }
+```
+- Implementação:
+  - Assina refresh tokens com segredo próprio `JWT_REFRESH_SECRET` e TTL `REFRESH_TOKEN_TTL` (padrão: 7d)
+  - Valida `tokenVersion` para invalidar tokens no logout/rotate
+  - Incremento de `tokenVersion` e limpeza de `refreshToken` no logout
