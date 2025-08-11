@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  NotFoundException,
-  BadRequestException,
-  ConflictException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
@@ -18,6 +12,12 @@ import { User } from '@prisma/client';
 import { MailService } from 'src/core/mail/mail.service';
 import { PrismaService } from '../../core/config/prisma.service';
 import { ValidationUtils } from '../../core/utils/validation.utils';
+import {
+  UnauthorizedException,
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+} from '../../core/exceptions/custom-exceptions';
 
 @Injectable()
 export class AuthService {
@@ -68,10 +68,7 @@ export class AuthService {
     }
 
     if (errors.length > 0) {
-      throw new ConflictException({
-        message: 'Dados já existem no sistema',
-        errors: errors,
-      });
+      throw new ConflictException(`Dados já existem no sistema: ${errors.join(', ')}`);
     }
 
     const saltOrRounds = 10;
