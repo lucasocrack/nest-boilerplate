@@ -390,10 +390,32 @@ Todos os endpoints seguem este padrão de resposta:
 }
 ```
 
+### 🛠️ **ResponseHelper - Utilitário para Respostas Padronizadas**
+
+**Localização**: `src/core/utils/response-helper.ts`
+
+Utilitário que facilita a criação de respostas padronizadas.
+
+**📖 Documentação completa:** `docs/RESPONSE_HELPER.md`
+
+Métodos principais:
+- `ResponseHelper.success(data, statusCode?, customMessage?)` - Respostas de sucesso
+- `ResponseHelper.created(data, customMessage?)` - Recursos criados (201)
+- `ResponseHelper.noContent(customMessage?)` - Sem conteúdo (204)
+- `ResponseHelper.custom(statusCode, data?, customMessage?)` - Respostas personalizadas
+
+### 🔄 **Interceptors e Filters Ativos**
+
+1. **ResponseFormatInterceptor**: Formata automaticamente respostas de sucesso
+2. **GlobalExceptionFilter**: Formata automaticamente respostas de erro
+3. **Aplicação Automática**: Todas as rotas usam as mensagens padronizadas automaticamente
+
 ### 📝 **Boas Práticas para Desenvolvedores**
 
 1. **Consistência**: Sempre use os códigos apropriados para cada situação
 2. **Mensagens Claras**: As mensagens devem ser informativas e, quando apropriado, com um toque de humor
 3. **Logs Detalhados**: Erros 5xx devem sempre gerar logs detalhados para debugging
 4. **Rate Limiting**: Código 429 é automaticamente retornado pelo ThrottlerModule
-5. **Documentação**: Mantenha a documentação atualizada com novos endpoints e códigos
+5. **ResponseHelper**: Use o utilitário para respostas customizadas quando necessário
+6. **Documentação**: Mantenha a documentação atualizada com novos endpoints e códigos
+7. **Testes**: Verifique se as mensagens padronizadas aparecem corretamente nos testes

@@ -13,4 +13,17 @@ export class HomeController {
     res.send(this.homeService.getHome());
   }
 
+  @Get('test-api')
+  @IsPublic()
+  testApi() {
+    return {
+      message: 'API funcionando',
+      timestamp: new Date().toISOString(),
+      data: {
+        version: '1.0.0',
+        environment: process.env.NODE_ENV || 'development'
+      }
+    };
+  }
+
 }

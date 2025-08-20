@@ -8,9 +8,10 @@ import { HomeModule } from './application/home/home.module';
 import { ConfigModule } from '@nestjs/config';
 import { MailModule } from './core/mail/mail.module';
 import mailConfig from './core/mail/mail.config';
-import { APP_GUARD, APP_FILTER } from '@nestjs/core';
+import { APP_GUARD, APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { GlobalAuthGuard } from './core/guards/global-auth.guard';
 import { GlobalExceptionFilter } from './core/filters/global-exception.filter';
+import { ResponseFormatInterceptor } from './core/interceptors/response-format.interceptor';
 import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 
@@ -67,6 +68,10 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
     {
       provide: APP_FILTER,
       useClass: GlobalExceptionFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseFormatInterceptor,
     },
   ],
   exports: [PrismaService],
