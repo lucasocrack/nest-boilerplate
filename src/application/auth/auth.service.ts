@@ -9,7 +9,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ActivateAccountDto } from './dto/activate-account.dto';
 import * as crypto from 'crypto';
 import { User } from '@prisma/client';
-import { MailService } from 'src/core/mail/mail.service';
+import { MailService } from '../../core/mail/mail.service';
 import { PrismaService } from '../../core/config/prisma.service';
 import { ValidationUtils } from '../../core/utils/validation.utils';
 import {
@@ -143,7 +143,7 @@ export class AuthService {
     };
   }
 
-  private async handleFailedLogin(user: User): Promise<void> {
+  private async handleFailedLogin(user: User, loginDetails?: { ip: string; userAgent: string }): Promise<void> {
     const maxAttempts = 5;
     const lockoutDuration = 15 * 60 * 1000; // 15 minutos em millisegundos
     
@@ -153,11 +153,19 @@ export class AuthService {
       lastFailedLogin: new Date(),
     };
 
+    // Enviar alerta de múltiplas tentativas se estiver próximo do limite
+    if (newAttempts >= 3) {
+      await this.mailService.sendMultipleLoginAttemptsAlert(user, newAttempts);
+    }
+
     // Se atingiu o máximo de tentativas, bloquear a conta
     if (newAttempts >= maxAttempts) {
       updateData.blocked = true;
       updateData.blockedUntil = new Date(Date.now() + lockoutDuration);
       updateData.loginAttempts = 0; // Reset contador após bloqueio
+      
+      // Enviar alerta de conta bloqueada
+      await this.mailService.sendAccountBlockedAlert(user, '15 minutos');
     }
 
     await this.userService.update(user.userId, updateData);
@@ -181,6 +189,7 @@ export class AuthService {
   async signIn(
     username: string,
     pass: string,
+    loginDetails?: { ip: string; userAgent: string }
   ): Promise<{ access_token: string; refresh_token: string }> {
     const user = await this.userService.findOneByUsername(username);
     if (!user) {
@@ -220,7 +229,7 @@ export class AuthService {
     const isMatch = await bcrypt.compare(pass, user.password);
     if (!isMatch) {
       // Registrar tentativa de login falhada
-      await this.handleFailedLogin(user);
+      await this.handleFailedLogin(user, loginDetails);
       
       // Verificar se a conta foi bloqueada após esta tentativa
       const updatedUser = await this.userService.findOneByUsername(username);
@@ -233,9 +242,43 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas.');
     }
     
-    // Login bem-sucedido
+    // Login bem-sucedido - verificar se é suspeito
+    if (loginDetails && this.isSuspiciousLogin(user, loginDetails)) {
+      await this.mailService.sendSuspiciousLoginAlert(user, {
+        ...loginDetails,
+        timestamp: new Date()
+      });
+    }
+    
     await this.handleSuccessfulLogin(user);
     return this.issueTokens(user);
+  }
+
+  private isSuspiciousLogin(user: User, loginDetails: { ip: string; userAgent: string }): boolean {
+    // Critérios simples para detectar login suspeito:
+    // 1. Primeiro login do usuário
+    // 2. Login após muito tempo inativo (mais de 30 dias)
+    // 3. Mudança significativa no User-Agent
+    
+    if (!user.lastLogin) {
+      return false; // Primeiro login não é suspeito
+    }
+    
+    const daysSinceLastLogin = Math.floor(
+      (Date.now() - user.lastLogin.getTime()) / (1000 * 60 * 60 * 24)
+    );
+    
+    // Login após mais de 30 dias de inatividade
+    if (daysSinceLastLogin > 30) {
+      return true;
+    }
+    
+    // Aqui você pode adicionar mais lógica de detecção:
+    // - Verificar se o IP está em uma lista de IPs conhecidos
+    // - Verificar geolocalização do IP
+    // - Analisar padrões de User-Agent
+    
+    return false;
   }
 
   async refreshToken(token: string): Promise<{ access_token: string; refresh_token: string }> {

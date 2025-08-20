@@ -29,8 +29,12 @@ export class AuthController {
   @IsPublic()
   @AuthThrottle()
   @Post('login')
-  signIn(@Body() loginDto: LoginDto) {
-    return this.authService.signIn(loginDto.username, loginDto.password);
+  signIn(@Body() loginDto: LoginDto, @Req() req: any) {
+    const loginDetails = {
+      ip: req.ip || req.connection.remoteAddress || req.socket.remoteAddress || 'unknown',
+      userAgent: req.headers['user-agent'] || 'unknown'
+    };
+    return this.authService.signIn(loginDto.username, loginDto.password, loginDetails);
   }
 
   @Post('register')
