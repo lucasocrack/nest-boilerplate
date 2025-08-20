@@ -12,7 +12,7 @@ Criado e mantido por [lucascampos42](https://github.com/lucascampos42).
 *   **Autorização:** Controle de acesso baseado em papéis (Role-Based Access Control - RBAC) com guards.
 *   **Notificações de Segurança:** Sistema de alertas por e-mail para logins suspeitos, múltiplas tentativas de login e bloqueios de conta.
 *   **Logs de Ações do Usuário:** Middleware para registrar automaticamente as ações dos usuários em uma tabela de log no banco de dados.
-*   **Docker:** Configuração completa com `Dockerfile` e `docker-compose.yml` para um ambiente de desenvolvimento e produção containerizado.
+*   **Docker (Opcional):** Configuração completa para um ambiente de desenvolvimento e produção containerizado. Veja o guia [DOCKER.md](./DOCKER.md) para detalhes.
 *   **Testes:** Estrutura de testes com Jest para testes unitários e e2e.
 *   **Validação:** Validação de DTOs com `class-validator`.
 *   **Cliente de API:** Coleção do [Bruno](https://www.usebruno.com/) para testar a API.
@@ -74,7 +74,7 @@ O usuário administrador será criado com as seguintes credenciais:
 $ npm run start:dev
 ```
 
-### Com Docker
+### Com Docker (Opcional)
 
 1.  Construa a imagem Docker:
     ```bash
