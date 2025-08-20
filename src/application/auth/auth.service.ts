@@ -143,6 +143,41 @@ export class AuthService {
     };
   }
 
+  private async handleFailedLogin(user: User): Promise<void> {
+    const maxAttempts = 5;
+    const lockoutDuration = 15 * 60 * 1000; // 15 minutos em millisegundos
+    
+    const newAttempts = user.loginAttempts + 1;
+    const updateData: any = {
+      loginAttempts: newAttempts,
+      lastFailedLogin: new Date(),
+    };
+
+    // Se atingiu o máximo de tentativas, bloquear a conta
+    if (newAttempts >= maxAttempts) {
+      updateData.blocked = true;
+      updateData.blockedUntil = new Date(Date.now() + lockoutDuration);
+      updateData.loginAttempts = 0; // Reset contador após bloqueio
+    }
+
+    await this.userService.update(user.userId, updateData);
+  }
+
+  private async handleSuccessfulLogin(user: User): Promise<void> {
+    const updateData: any = {
+      lastLogin: new Date(),
+      loginAttempts: 0, // Reset contador de tentativas
+    };
+
+    // Se estava bloqueado temporariamente, desbloquear
+    if (user.blocked && user.blockedUntil && user.blockedUntil <= new Date()) {
+      updateData.blocked = false;
+      updateData.blockedUntil = null;
+    }
+
+    await this.userService.update(user.userId, updateData);
+  }
+
   async signIn(
     username: string,
     pass: string,
@@ -151,26 +186,55 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Credenciais inválidas.');
     }
-    // bloqueio e deleção
+    
+    // Verificar se a conta está excluída
     if (user.deletedAt) {
       throw new UnauthorizedException('Conta excluída.');
     }
+    
+    // Verificar se a conta está ativa
     if (!user.active) {
       throw new UnauthorizedException('Conta inativa.');
     }
+    
+    // Verificar se a conta está bloqueada
     if (user.blocked) {
-      if (!user.blockedUntil || user.blockedUntil > new Date()) {
-        throw new UnauthorizedException('Conta temporariamente bloqueada.');
+      // Se o bloqueio expirou, desbloquear automaticamente
+      if (user.blockedUntil && user.blockedUntil <= new Date()) {
+        await this.userService.update(user.userId, {
+          blocked: false,
+          blockedUntil: null,
+          loginAttempts: 0,
+        });
+      } else {
+        throw new UnauthorizedException(
+          `Conta temporariamente bloqueada devido a muitas tentativas de login. Tente novamente em alguns minutos.`
+        );
       }
     }
+    
     if (!user.password) {
       throw new UnauthorizedException('Credenciais inválidas.');
     }
+    
     const isMatch = await bcrypt.compare(pass, user.password);
     if (!isMatch) {
+      // Registrar tentativa de login falhada
+      await this.handleFailedLogin(user);
+      
+      // Verificar se a conta foi bloqueada após esta tentativa
+      const updatedUser = await this.userService.findOneByUsername(username);
+      if (updatedUser?.blocked) {
+        throw new UnauthorizedException(
+          'Muitas tentativas de login incorretas. Conta temporariamente bloqueada.'
+        );
+      }
+      
       throw new UnauthorizedException('Credenciais inválidas.');
     }
-    await this.userService.update(user.userId, { lastLogin: new Date() });
+    
+    // Login bem-sucedido
+    await this.handleSuccessfulLogin(user);
     return this.issueTokens(user);
   }
 

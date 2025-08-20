@@ -12,6 +12,7 @@ import { APP_GUARD, APP_FILTER } from '@nestjs/core';
 import { GlobalAuthGuard } from './core/guards/global-auth.guard';
 import { GlobalExceptionFilter } from './core/filters/global-exception.filter';
 import { JwtModule } from '@nestjs/jwt';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -19,6 +20,28 @@ import { JwtModule } from '@nestjs/jwt';
       isGlobal: true,
       load: [mailConfig],
     }),
+    ThrottlerModule.forRoot([
+      {
+        name: 'short',
+        ttl: 1000, // 1 segundo
+        limit: 3, // 3 requests por segundo
+      },
+      {
+        name: 'medium',
+        ttl: 10000, // 10 segundos
+        limit: 20, // 20 requests por 10 segundos
+      },
+      {
+        name: 'long',
+        ttl: 60000, // 1 minuto
+        limit: 100, // 100 requests por minuto
+      },
+      {
+        name: 'auth',
+        ttl: 60000, // 1 minuto
+        limit: 5, // 5 tentativas de login por minuto
+      },
+    ]),
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET || 'default-secret',
@@ -33,6 +56,10 @@ import { JwtModule } from '@nestjs/jwt';
   controllers: [],
   providers: [
     PrismaService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
     {
       provide: APP_GUARD,
       useClass: GlobalAuthGuard,
