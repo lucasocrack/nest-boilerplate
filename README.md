@@ -10,6 +10,7 @@ Criado e mantido por [lucascampos42](https://github.com/lucascampos42).
 *   **ORM:** [Prisma](https://www.prisma.io/) - ORM de próxima geração para Node.js e TypeScript.
 *   **Autenticação:** Autenticação completa com JWT (login e registro).
 *   **Autorização:** Controle de acesso baseado em papéis (Role-Based Access Control - RBAC) com guards.
+*   **Notificações de Segurança:** Sistema de alertas por e-mail para logins suspeitos, múltiplas tentativas de login e bloqueios de conta.
 *   **Logs de Ações do Usuário:** Middleware para registrar automaticamente as ações dos usuários em uma tabela de log no banco de dados.
 *   **Docker:** Configuração completa com `Dockerfile` e `docker-compose.yml` para um ambiente de desenvolvimento e produção containerizado.
 *   **Testes:** Estrutura de testes com Jest para testes unitários e e2e.
@@ -85,6 +86,29 @@ $ npm run start:dev
     ```
 
 A aplicação estará disponível em `http://localhost:3099`.
+
+## Notificações de Segurança
+
+O sistema inclui notificações automáticas por e-mail para eventos de segurança importantes:
+
+### Tipos de Alertas
+
+*   **Login Suspeito:** Detecta logins após longos períodos de inatividade (30+ dias)
+*   **Múltiplas Tentativas de Login:** Alerta a partir da 3ª tentativa de login falhada
+*   **Conta Bloqueada:** Notifica quando a conta é temporariamente bloqueada por excesso de tentativas
+
+### Configuração
+
+As notificações são controladas pela variável de ambiente `EMAIL_ENABLED` no arquivo `.env`:
+
+```env
+# Controla o envio de e-mails (ativação de conta e notificações de segurança)
+EMAIL_ENABLED=true
+```
+
+### Personalização
+
+Os templates de e-mail estão localizados em `src/core/mail/templates/` e podem ser customizados conforme necessário.
 
 ## Rodando os Testes
 
