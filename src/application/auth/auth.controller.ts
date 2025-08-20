@@ -19,6 +19,7 @@ import { JwtAuthGuard } from '../../core/guards/jwt-auth.guard';
 import { IsPublic } from '../../core/decorators/is-public.decorator';
 import { AuthRequest } from './models/AuthRequest';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { AuthThrottle } from '../../core/decorators/auth-throttle.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -26,13 +27,19 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @IsPublic()
+  @AuthThrottle()
   @Post('login')
-  signIn(@Body() loginDto: LoginDto) {
-    return this.authService.signIn(loginDto.username, loginDto.password);
+  signIn(@Body() loginDto: LoginDto, @Req() req: any) {
+    const loginDetails = {
+      ip: req.ip || req.connection.remoteAddress || req.socket.remoteAddress || 'unknown',
+      userAgent: req.headers['user-agent'] || 'unknown'
+    };
+    return this.authService.signIn(loginDto.username, loginDto.password, loginDetails);
   }
 
   @Post('register')
   @IsPublic()
+  @AuthThrottle()
   async signUp(@Body() createUserDto: CreateUserDto) {
     return this.authService.register(createUserDto);
   }
@@ -40,6 +47,7 @@ export class AuthController {
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   @IsPublic()
+  @AuthThrottle()
   forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     return this.authService.forgotPassword(forgotPasswordDto);
   }

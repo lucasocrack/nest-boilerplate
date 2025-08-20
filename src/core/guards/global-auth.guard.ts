@@ -66,6 +66,7 @@ export class GlobalAuthGuard implements CanActivate {
         userId: payload.sub,
         userName: payload.username,
         tokenVersion: user.tokenVersion,
+        role: user.role,
       };
     } catch (error) {
       throw new UnauthorizedException({

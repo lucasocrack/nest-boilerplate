@@ -28,11 +28,14 @@ model User {
   activationTokenExpires DateTime? // Expiração do token de ativação
 
   // --- Campos de Controle ---
-  active    Boolean   @default(false)
-  divida    Boolean   @default(false)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  active           Boolean   @default(false)
+  blocked          Boolean   @default(false)
+  blockedUntil     DateTime?
+  loginAttempts    Int       @default(0)
+  lastFailedLogin  DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
 
   logs Log[]
 
