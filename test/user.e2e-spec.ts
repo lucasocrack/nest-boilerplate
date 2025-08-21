@@ -25,7 +25,7 @@ describe('UserController (e2e)', () => {
     // Create AuthRequest.ts user to be used in tests
     user = await prisma.user.create({
       data: {
-        username: 'testuser-for-user-e2e',
+        userName: 'testuser-for-user-e2e',
         name: 'Test User',
         email: 'testuser-e2e@example.com',
         password: 'password123',
@@ -50,7 +50,7 @@ describe('UserController (e2e)', () => {
         .then((res) => {
           expect(res.body).toBeInstanceOf(Array);
           expect(res.body.length).toBe(1);
-          expect(res.body[0].username).toEqual(user.username);
+          expect(res.body[0].userName).toEqual(user.userName);
         });
     });
   });
@@ -62,7 +62,7 @@ describe('UserController (e2e)', () => {
         .expect(200)
         .then((res) => {
           expect(res.body).toBeDefined();
-          expect(res.body.username).toEqual(user.username);
+          expect(res.body.userName).toEqual(user.userName);
         });
     });
   });

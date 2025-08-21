@@ -2,10 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
-import { UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { UnauthorizedException } from '../../core/exceptions/custom-exceptions';
 import * as bcrypt from 'bcrypt';
 import { User, Role } from '@prisma/client';
-import { MailService } from 'src/core/mail/mail.service';
+import { MailService } from '../../core/mail/mail.service';
+import { PrismaService } from '../../core/config/prisma.service';
 
 jest.mock('bcrypt');
 
@@ -16,6 +18,7 @@ describe('AuthService', () => {
 
   const mockUserService = {
     findOneByUsername: jest.fn(),
+    findByIdentification: jest.fn(),
     update: jest.fn(),
     createUser: jest.fn(),
   };
@@ -28,6 +31,16 @@ describe('AuthService', () => {
     sendUserConfirmation: jest.fn(),
   };
 
+  const mockPrismaService = {
+    user: {
+      update: jest.fn(),
+    },
+  };
+
+  const mockConfigService = {
+    get: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -35,6 +48,8 @@ describe('AuthService', () => {
         { provide: UserService, useValue: mockUserService },
         { provide: JwtService, useValue: mockJwtService },
         { provide: MailService, useValue: mockMailService },
+        { provide: PrismaService, useValue: mockPrismaService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     }).compile();
 
@@ -60,7 +75,12 @@ describe('AuthService', () => {
         avatarUrl: null,
         role: Role.CLIENTE,
         active: true,
-        divida: false,
+        blocked: false,
+        blockedUntil: null,
+        loginAttempts: 0,
+        lastFailedLogin: null,
+        activationToken: null,
+        activationTokenExpires: null,
         lastLogin: null,
         tokenVersion: 1,
         refreshToken: null,
@@ -71,14 +91,14 @@ describe('AuthService', () => {
         deletedAt: null,
       };
 
-      mockUserService.findOneByUsername.mockResolvedValue(user);
+      mockUserService.findByIdentification.mockResolvedValue(user);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       mockJwtService.signAsync.mockResolvedValue('test_token');
 
       const result = await service.signIn('testuser', 'password');
 
-      expect(result).toEqual({ access_token: 'test_token' });
-      expect(mockUserService.findOneByUsername).toHaveBeenCalledWith(
+      expect(result).toEqual({ access_token: 'test_token', refresh_token: 'test_token' });
+      expect(mockUserService.findByIdentification).toHaveBeenCalledWith(
         'testuser',
       );
       expect(bcrypt.compare).toHaveBeenCalledWith('password', 'hashedpassword');
@@ -101,7 +121,12 @@ describe('AuthService', () => {
         avatarUrl: null,
         role: Role.CLIENTE,
         active: true,
-        divida: false,
+        blocked: false,
+        blockedUntil: null,
+        loginAttempts: 0,
+        lastFailedLogin: null,
+        activationToken: null,
+        activationTokenExpires: null,
         lastLogin: null,
         tokenVersion: 1,
         refreshToken: null,
@@ -112,7 +137,7 @@ describe('AuthService', () => {
         deletedAt: null,
       };
 
-      mockUserService.findOneByUsername.mockResolvedValue(user);
+      mockUserService.findByIdentification.mockResolvedValue(user);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
       await expect(service.signIn('testuser', 'wrongpassword')).rejects.toThrow(
@@ -121,7 +146,7 @@ describe('AuthService', () => {
     });
 
     it('should throw an UnauthorizedException for non-existent user', async () => {
-      mockUserService.findOneByUsername.mockResolvedValue(null);
+      mockUserService.findByIdentification.mockResolvedValue(null);
 
       await expect(service.signIn('unknownuser', 'password')).rejects.toThrow(
         UnauthorizedException,

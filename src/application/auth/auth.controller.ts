@@ -34,7 +34,7 @@ export class AuthController {
       ip: req.ip || req.connection.remoteAddress || req.socket.remoteAddress || 'unknown',
       userAgent: req.headers['user-agent'] || 'unknown'
     };
-    return this.authService.signIn(loginDto.username, loginDto.password, loginDetails);
+    return this.authService.signIn(loginDto.identification, loginDto.password, loginDetails);
   }
 
   @Post('register')

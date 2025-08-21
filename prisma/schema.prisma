@@ -9,7 +9,7 @@ datasource db {
 
 model User {
   userId    String  @id @default(cuid())
-  userName  String  @unique
+  userName  String?
   name      String
   email     String  @unique
   cpf       String? @unique

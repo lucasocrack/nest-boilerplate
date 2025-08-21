@@ -187,11 +187,11 @@ export class AuthService {
   }
 
   async signIn(
-    username: string,
+    identification: string,
     pass: string,
     loginDetails?: { ip: string; userAgent: string }
   ): Promise<{ access_token: string; refresh_token: string }> {
-    const user = await this.userService.findOneByUsername(username);
+    const user = await this.userService.findByIdentification(identification);
     if (!user) {
       throw new UnauthorizedException('Credenciais inválidas.');
     }
@@ -232,7 +232,7 @@ export class AuthService {
       await this.handleFailedLogin(user, loginDetails);
       
       // Verificar se a conta foi bloqueada após esta tentativa
-      const updatedUser = await this.userService.findOneByUsername(username);
+      const updatedUser = await this.userService.findByIdentification(identification);
       if (updatedUser?.blocked) {
         throw new UnauthorizedException(
           'Muitas tentativas de login incorretas. Conta temporariamente bloqueada.'

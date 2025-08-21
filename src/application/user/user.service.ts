@@ -21,7 +21,7 @@ export class UserService {
   }
 
   async findOneByUsername(userName: string): Promise<User | null> {
-    return this.prisma.user.findUnique({ where: { userName } });
+    return this.prisma.user.findFirst({ where: { userName } });
   }
 
   async findOneByEmail(email: string): Promise<User | null> {
@@ -31,6 +31,24 @@ export class UserService {
   async findOneByCpf(cpf: string): Promise<User | null> {
     if (!cpf) return null;
     return this.prisma.user.findUnique({ where: { cpf } });
+  }
+
+  async findByIdentification(identification: string): Promise<User | null> {
+    // Primeiro, verificar se é um email válido
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (emailRegex.test(identification)) {
+      // Se for um email, buscar por email
+      return this.findOneByEmail(identification);
+    } else {
+      // Se não for email, assumir que é CPF e normalizar
+      const normalizedCpf = identification.replace(/\D/g, '');
+      if (normalizedCpf.length === 11) {
+        return this.findOneByCpf(normalizedCpf);
+      }
+    }
+    
+    return null;
   }
 
   async checkUserExists(data: { userName?: string; email?: string; cpf?: string }): Promise<{

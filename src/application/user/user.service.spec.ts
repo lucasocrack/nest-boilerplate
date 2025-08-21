@@ -56,12 +56,17 @@ describe('UserService', () => {
         avatarUrl: null,
         role: Role.CLIENTE,
         active: false,
-        divida: false,
         lastLogin: null,
         tokenVersion: 1,
         refreshToken: null,
         passwordResetToken: null,
         passwordResetExpires: null,
+        activationToken: null,
+        activationTokenExpires: null,
+        blocked: false,
+        blockedUntil: null,
+        loginAttempts: 0,
+        lastFailedLogin: null,
         createdAt: new Date(),
         updatedAt: new Date(),
         deletedAt: null,
@@ -73,7 +78,7 @@ describe('UserService', () => {
 
       expect(mockPrismaService.user.create).toHaveBeenCalledWith({
         data: {
-          username: 'testuser',
+          userName: 'testuser',
           name: 'Test User',
           email: 'test@example.com',
           password: 'password123',
@@ -91,8 +96,8 @@ describe('UserService', () => {
   describe('findAll', () => {
     it('should return an array of users', async () => {
       const users: User[] = [
-        { userId: '1', userName: 'user1', name: 'User One', email: 'user1@example.com', password: 'p1', active: true, divida: false, createdAt: new Date(), updatedAt: new Date(), deletedAt: null, role: Role.CLIENTE, lastLogin: null, tokenVersion: 1, refreshToken: null, passwordResetToken: null, passwordResetExpires: null, cpf: null, telefone: null, avatarUrl: null },
-        { userId: '2', userName: 'user2', name: 'User Two', email: 'user2@example.com', password: 'p2', active: true, divida: false, createdAt: new Date(), updatedAt: new Date(), deletedAt: null, role: Role.CLIENTE, lastLogin: null, tokenVersion: 1, refreshToken: null, passwordResetToken: null, passwordResetExpires: null, cpf: null, telefone: null, avatarUrl: null },
+        { userId: '1', userName: 'user1', name: 'User One', email: 'user1@example.com', password: 'p1', active: true, createdAt: new Date(), updatedAt: new Date(), deletedAt: null, role: Role.CLIENTE, lastLogin: null, tokenVersion: 1, refreshToken: null, passwordResetToken: null, passwordResetExpires: null, activationToken: null, activationTokenExpires: null, blocked: false, blockedUntil: null, loginAttempts: 0, lastFailedLogin: null, cpf: null, telefone: null, avatarUrl: null },
+        { userId: '2', userName: 'user2', name: 'User Two', email: 'user2@example.com', password: 'p2', active: true, createdAt: new Date(), updatedAt: new Date(), deletedAt: null, role: Role.CLIENTE, lastLogin: null, tokenVersion: 1, refreshToken: null, passwordResetToken: null, passwordResetExpires: null, activationToken: null, activationTokenExpires: null, blocked: false, blockedUntil: null, loginAttempts: 0, lastFailedLogin: null, cpf: null, telefone: null, avatarUrl: null },
       ];
       mockPrismaService.user.findMany.mockResolvedValue(users);
 
@@ -104,7 +109,7 @@ describe('UserService', () => {
 
   describe('findOneById', () => {
     it('should return AuthRequest.ts single user', async () => {
-      const user: User = { userId: '1', userName: 'user1', name: 'User One', email: 'user1@example.com', password: 'p1', active: true, divida: false, createdAt: new Date(), updatedAt: new Date(), deletedAt: null, role: Role.CLIENTE, lastLogin: null, tokenVersion: 1, refreshToken: null, passwordResetToken: null, passwordResetExpires: null, cpf: null, telefone: null, avatarUrl: null };
+      const user: User = { userId: '1', userName: 'user1', name: 'User One', email: 'user1@example.com', password: 'p1', active: true, createdAt: new Date(), updatedAt: new Date(), deletedAt: null, role: Role.CLIENTE, lastLogin: null, tokenVersion: 1, refreshToken: null, passwordResetToken: null, passwordResetExpires: null, activationToken: null, activationTokenExpires: null, blocked: false, blockedUntil: null, loginAttempts: 0, lastFailedLogin: null, cpf: null, telefone: null, avatarUrl: null };
       mockPrismaService.user.findFirst.mockResolvedValue(user);
 
       const result = await service.findOneById('1');
@@ -115,7 +120,7 @@ describe('UserService', () => {
 
   describe('update', () => {
     it('should update AuthRequest.ts user', async () => {
-      const user: User = { userId: '1', userName: 'user1', name: 'User One', email: 'user1@example.com', password: 'p1', active: true, divida: false, createdAt: new Date(), updatedAt: new Date(), deletedAt: null, role: Role.CLIENTE, lastLogin: null, tokenVersion: 1, refreshToken: null, passwordResetToken: null, passwordResetExpires: null, cpf: null, telefone: null, avatarUrl: null };
+      const user: User = { userId: '1', userName: 'user1', name: 'User One', email: 'user1@example.com', password: 'p1', active: true, createdAt: new Date(), updatedAt: new Date(), deletedAt: null, role: Role.CLIENTE, lastLogin: null, tokenVersion: 1, refreshToken: null, passwordResetToken: null, passwordResetExpires: null, activationToken: null, activationTokenExpires: null, blocked: false, blockedUntil: null, loginAttempts: 0, lastFailedLogin: null, cpf: null, telefone: null, avatarUrl: null };
       const updatedUser: User = { ...user, name: 'User One Updated' };
       mockPrismaService.user.update.mockResolvedValue(updatedUser);
 
@@ -127,13 +132,13 @@ describe('UserService', () => {
 
   describe('remove', () => {
     it('should soft delete AuthRequest.ts user', async () => {
-      const user: User = { userId: '1', userName: 'user1', name: 'User One', email: 'user1@example.com', password: 'p1', active: true, divida: false, createdAt: new Date(), updatedAt: new Date(), deletedAt: null, role: Role.CLIENTE, lastLogin: null, tokenVersion: 1, refreshToken: null, passwordResetToken: null, passwordResetExpires: null, cpf: null, telefone: null, avatarUrl: null };
+      const user: User = { userId: '1', userName: 'user1', name: 'User One', email: 'user1@example.com', password: 'p1', active: true, createdAt: new Date(), updatedAt: new Date(), deletedAt: null, role: Role.CLIENTE, lastLogin: null, tokenVersion: 1, refreshToken: null, passwordResetToken: null, passwordResetExpires: null, activationToken: null, activationTokenExpires: null, blocked: false, blockedUntil: null, loginAttempts: 0, lastFailedLogin: null, cpf: null, telefone: null, avatarUrl: null };
       const deletedUser: User = { ...user, deletedAt: new Date() };
       mockPrismaService.user.update.mockResolvedValue(deletedUser);
 
       const result = await service.remove('1');
       expect(result).toEqual(deletedUser);
-      expect(mockPrismaService.user.update).toHaveBeenCalledWith({ where: { userId: '1' }, data: { deletedAt: expect.any(Date) } });
+      expect(mockPrismaService.user.update).toHaveBeenCalledWith({ where: { userId: '1' }, data: { deletedAt: expect.any(Date), active: false } });
     });
   });
 });

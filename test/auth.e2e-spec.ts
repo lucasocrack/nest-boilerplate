@@ -31,7 +31,7 @@ describe('AuthController (e2e)', () => {
   describe('/auth/register (POST)', () => {
     it('should register AuthRequest.ts new user and return the user object without the password', async () => {
       const createUserDto: CreateUserDto = {
-        username: 'e2etestuser',
+        userName: 'e2etestuser',
         name: 'E2E Test User',
         email: 'e2e@example.com',
         password: 'password123',
@@ -43,7 +43,7 @@ describe('AuthController (e2e)', () => {
         .expect(201)
         .then((res) => {
           expect(res.body).toBeDefined();
-          expect(res.body.username).toEqual(createUserDto.username);
+          expect(res.body.userName).toEqual(createUserDto.userName);
           expect(res.body.password).toBeUndefined();
         });
     });
@@ -52,7 +52,7 @@ describe('AuthController (e2e)', () => {
   describe('/auth/login (POST)', () => {
     it('should login AuthRequest.ts user and return an access token', async () => {
       const createUserDto: CreateUserDto = {
-        username: 'e2eloginuser',
+        userName: 'e2eloginuser',
         name: 'E2E Login User',
         email: 'e2elogin@example.com',
         password: 'password123',
@@ -68,7 +68,7 @@ describe('AuthController (e2e)', () => {
       return request(app.getHttpServer())
         .post('/auth/login')
         .send({
-          username: createUserDto.username,
+          identification: createUserDto.email,
           password: createUserDto.password,
         })
         .expect(200)
@@ -82,7 +82,7 @@ describe('AuthController (e2e)', () => {
   describe('/auth/forgot-password (POST)', () => {
     it('should send AuthRequest.ts password reset token', async () => {
       const createUserDto: CreateUserDto = {
-        username: 'forgotpassworduser',
+        userName: 'forgotpassworduser',
         name: 'Forgot Password User',
         email: 'forgotpassword@example.com',
         password: 'password123',
@@ -107,7 +107,7 @@ describe('AuthController (e2e)', () => {
   describe('/auth/reset-password (POST)', () => {
     it('should reset the password', async () => {
       const createUserDto: CreateUserDto = {
-        username: 'resetpassworduser',
+        userName: 'resetpassworduser',
         name: 'Reset Password User',
         email: 'resetpassword@example.com',
         password: 'password123',
@@ -139,7 +139,7 @@ describe('AuthController (e2e)', () => {
       return request(app.getHttpServer())
         .post('/auth/login')
         .send({
-          username: createUserDto.username,
+          identification: createUserDto.email,
           password: newPassword,
         })
         .expect(200)
