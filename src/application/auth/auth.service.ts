@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
@@ -10,8 +10,8 @@ import { ActivateAccountDto } from './dto/activate-account.dto';
 import * as crypto from 'crypto';
 import { User } from '@prisma/client';
 import { MailService } from '../../core/mail/mail.service';
-import { PrismaService } from '../../core/config/prisma.service';
 import { ValidationUtils } from '../../core/utils/validation.utils';
+import { IAuthRepository, AUTH_REPOSITORY_TOKEN } from './repositories/auth.repository.interface';
 import {
   UnauthorizedException,
   NotFoundException,
@@ -25,7 +25,7 @@ export class AuthService {
     private userService: UserService,
     private jwtService: JwtService,
     private mailService: MailService,
-    private readonly prisma: PrismaService,
+    @Inject(AUTH_REPOSITORY_TOKEN) private readonly authRepository: IAuthRepository,
     private readonly configService: ConfigService,
   ) {}
 
@@ -69,9 +69,8 @@ export class AuthService {
     const refresh_token = await this.signRefreshToken(user);
 
     // opcional: persistir hash do refreshToken
-    await this.prisma.user.update({
-      where: { userId: user.userId },
-      data: { refreshToken: refresh_token },
+    await this.authRepository.updateUserTokens(user.userId, {
+      refreshToken: refresh_token,
     });
 
     return { access_token, refresh_token };
@@ -123,14 +122,26 @@ export class AuthService {
     const activationToken = crypto.randomBytes(32).toString('hex');
     const activationTokenExpires = this.getActivationTokenExpiration();
 
-    const result = await this.prisma.user.create({
-      data: {
-        ...createUserDto,
-        password: hashedPassword,
-        active: false,
-        activationToken,
-        activationTokenExpires,
-      },
+    const result = await this.authRepository.createUser({
+      ...createUserDto,
+      cpf: createUserDto.cpf || null,
+      telefone: createUserDto.telefone || null,
+      avatarUrl: createUserDto.avatarUrl || null,
+      role: createUserDto.role || 'CLIENTE',
+      password: hashedPassword,
+      active: false,
+      activationToken,
+      activationTokenExpires,
+      lastLogin: null,
+      tokenVersion: 1,
+      refreshToken: null,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      blocked: false,
+      blockedUntil: null,
+      loginAttempts: 0,
+      lastFailedLogin: null,
+      deletedAt: null,
     });
 
     await this.mailService.sendActivationEmail(result, activationToken);
@@ -289,7 +300,7 @@ export class AuthService {
       if (payload.type !== 'refresh') {
         throw new UnauthorizedException('Token inválido');
       }
-      const user = await this.prisma.user.findUnique({ where: { userId: payload.sub } });
+      const user = await this.userService.findOneById(payload.sub);
       if (!user) throw new UnauthorizedException('Usuário não encontrado');
       if (user.tokenVersion !== payload.tv) {
         throw new UnauthorizedException('Refresh token expirado/invalidado');
@@ -340,12 +351,7 @@ export class AuthService {
     // O token enviado é aleatório; validar comparando o hash sha256 salvo no banco
     const passwordResetToken = crypto.createHash('sha256').update(token).digest('hex');
 
-    const user = await this.prisma.user.findFirst({
-      where: {
-        passwordResetToken,
-        passwordResetExpires: { gte: new Date() },
-      },
-    });
+    const user = await this.authRepository.findUserByPasswordResetToken(passwordResetToken);
 
     if (!user) {
       throw new UnauthorizedException('Token inválido ou expirado.');
@@ -353,17 +359,7 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await this.prisma.user.update({
-      where: { userId: user.userId },
-      data: {
-        password: hashedPassword,
-        passwordResetToken: null,
-        passwordResetExpires: null,
-        // invalidar refresh tokens existentes
-        tokenVersion: { increment: 1 },
-        refreshToken: null,
-      },
-    });
+    await this.authRepository.updateUserPassword(user.userId, hashedPassword);
 
     return { message: 'Redefinição de senha com sucesso' };
   }
@@ -371,37 +367,20 @@ export class AuthService {
   async activateAccount(activateDto: ActivateAccountDto): Promise<{ message: string }> {
     const { token } = activateDto;
 
-    const user = await this.prisma.user.findFirst({
-      where: {
-        activationToken: token,
-        activationTokenExpires: {
-          gte: new Date(),
-        },
-        active: false,
-      },
-    });
+    const user = await this.authRepository.findUserByActivationToken(token);
 
     if (!user) {
       throw new BadRequestException('Token de ativação inválido ou expirado');
     }
 
-    await this.prisma.user.update({
-      where: { userId: user.userId },
-      data: {
-        active: true,
-        activationToken: null,
-        activationTokenExpires: null,
-      },
-    });
+    await this.authRepository.activateUser(user.userId);
 
     return { message: 'Conta ativada com sucesso! Você já pode fazer login.' };
   }
 
   async resendActivationEmail(email: string): Promise<{ message: string }> {
     // Buscar usuário pelo email
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-    });
+    const user = await this.authRepository.findUserByEmail(email);
 
     if (!user) {
       throw new NotFoundException('Usuário não encontrado');
@@ -416,12 +395,9 @@ export class AuthService {
     const activationTokenExpires = this.getActivationTokenExpiration();
 
     // Atualizar o token no banco
-    await this.prisma.user.update({
-      where: { userId: user.userId },
-      data: {
-        activationToken,
-        activationTokenExpires,
-      },
+    await this.authRepository.updateUserTokens(user.userId, {
+      activationToken,
+      activationTokenExpires,
     });
 
     // Enviar email de ativação
@@ -434,13 +410,7 @@ export class AuthService {
   }
 
   async logout(userId: string): Promise<void> {
-    await this.prisma.user.update({
-      where: { userId },
-      data: {
-        tokenVersion: { increment: 1 },
-        refreshToken: null,
-      },
-    });
+    await this.authRepository.incrementTokenVersion(userId);
   }
 
   async validateUser(identifier: string, password: string) {

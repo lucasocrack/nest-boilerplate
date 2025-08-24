@@ -1,11 +1,12 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class LoginDto {
-  @IsNotEmpty({ message: 'Email ou CPF é obrigatório' })
   @IsString({ message: 'Email ou CPF deve ser uma string' })
+  @IsNotEmpty({ message: 'Email ou CPF é obrigatório' })
   identification: string;
 
-  @IsNotEmpty({ message: 'Password é obrigatório' })
-  @IsString({ message: 'Password deve ser uma string' })
+  @IsString({ message: 'Senha deve ser uma string' })
+  @IsNotEmpty({ message: 'Senha é obrigatória' })
+  @MinLength(1, { message: 'Senha não pode estar vazia' })
   password: string;
 }

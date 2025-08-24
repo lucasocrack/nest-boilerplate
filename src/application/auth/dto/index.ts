@@ -1,0 +1,10 @@
+// Exportações centralizadas dos DTOs de autenticação
+export { ActivateAccountDto } from './activate-account.dto';
+export { ChangePasswordDto } from './change-password.dto';
+export { CreateUserDto } from './create-auth.dto';
+export { ForgotPasswordDto } from './forgot-password.dto';
+export { LoginDto } from './login.dto';
+export { RefreshTokenDto } from './refresh-token.dto';
+export { ResendActivationDto } from './resend-activation.dto';
+export { ResetPasswordDto } from './reset-password.dto';
+export { UpdateUserDto } from './update-auth.dto';

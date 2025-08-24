@@ -37,6 +37,7 @@
     "@prisma/client": "^6.13.0",
     "@scalar/nestjs-api-reference": "^0.5.12",
     "bcrypt": "^6.0.0",
+    "class-transformer": "^0.5.1",
     "dotenv": "^17.2.1",
     "nodemailer": "^7.0.5",
     "passport": "^0.7.0",

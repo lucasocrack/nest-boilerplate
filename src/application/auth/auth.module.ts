@@ -8,6 +8,8 @@ import { JwtStrategy } from '../../core/guards/jwt.strategy';
 import { ConfigModule } from '@nestjs/config';
 import { MailModule } from '../../core/mail/mail.module';
 import { PrismaModule } from '../../core/config/prisma.module';
+import { AuthRepository } from './repositories/auth.repository';
+import { AUTH_REPOSITORY_TOKEN } from './repositories/auth.repository.interface';
 
 @Module({
   imports: [
@@ -17,11 +19,18 @@ import { PrismaModule } from '../../core/config/prisma.module';
     MailModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: process.env.JWT_EXPIRATION },
+      secret: process.env.JWT_SECRET || 'default-secret',
+      signOptions: { expiresIn: process.env.JWT_ACCESS_TTL || '15m' },
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    {
+      provide: AUTH_REPOSITORY_TOKEN,
+      useClass: AuthRepository,
+    },
+  ],
 })
 export class AuthModule {}

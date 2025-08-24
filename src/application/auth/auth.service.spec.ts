@@ -8,6 +8,7 @@ import * as bcrypt from 'bcrypt';
 import { User, Role } from '@prisma/client';
 import { MailService } from '../../core/mail/mail.service';
 import { PrismaService } from '../../core/config/prisma.service';
+import { CreateUserDto } from './dto/create-auth.dto';
 
 jest.mock('bcrypt');
 
@@ -21,6 +22,7 @@ describe('AuthService', () => {
     findByIdentification: jest.fn(),
     update: jest.fn(),
     createUser: jest.fn(),
+    checkUserExists: jest.fn(),
   };
 
   const mockJwtService = {
@@ -29,6 +31,7 @@ describe('AuthService', () => {
 
   const mockMailService = {
     sendUserConfirmation: jest.fn(),
+    sendActivationEmail: jest.fn(),
   };
 
   const mockPrismaService = {
@@ -41,6 +44,42 @@ describe('AuthService', () => {
     get: jest.fn(),
   };
 
+  const mockAuthRepository = {
+    createUser: jest.fn(),
+    findByEmail: jest.fn(),
+    findByUsername: jest.fn(),
+    findByIdentification: jest.fn(),
+    updateUser: jest.fn(),
+    updatePassword: jest.fn(),
+    updateActivationToken: jest.fn(),
+    updatePasswordResetToken: jest.fn(),
+    activateUser: jest.fn(),
+    incrementLoginAttempts: jest.fn(),
+    resetLoginAttempts: jest.fn(),
+    blockUser: jest.fn(),
+    updateLastLogin: jest.fn(),
+    updateRefreshToken: jest.fn(),
+    updateUserTokens: jest.fn(),
+  };
+
+  const mockUserRepository = {
+    create: jest.fn(),
+    findById: jest.fn(),
+    findByEmail: jest.fn(),
+    findByUsername: jest.fn(),
+    findByCpf: jest.fn(),
+    findByIdentification: jest.fn(),
+    findByPasswordResetToken: jest.fn(),
+    findAll: jest.fn(),
+    findAllPaged: jest.fn(),
+    update: jest.fn(),
+    blockUser: jest.fn(),
+    unblockUser: jest.fn(),
+    restoreUser: jest.fn(),
+    remove: jest.fn(),
+    checkUserExists: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -50,6 +89,7 @@ describe('AuthService', () => {
         { provide: MailService, useValue: mockMailService },
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: ConfigService, useValue: mockConfigService },
+        { provide: 'IAuthRepository', useValue: mockAuthRepository },
       ],
     }).compile();
 
@@ -60,6 +100,86 @@ describe('AuthService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('register', () => {
+    it('should create a new user and send confirmation email', async () => {
+      const createUserDto: CreateUserDto = {
+        userName: 'testuser',
+        name: 'Test User',
+        email: 'test@example.com',
+        password: 'password123',
+        cpf: '11144477735',
+        telefone: '11999999999',
+      };
+
+      const mockUserData = {
+        userName: 'testuser',
+        name: 'Test User',
+        email: 'test@example.com',
+        password: 'hashedPassword',
+        cpf: '11144477735',
+        telefone: '11999999999',
+        avatarUrl: null,
+        role: 'CLIENTE',
+        lastLogin: null,
+        refreshToken: null,
+        passwordResetToken: null,
+        passwordResetExpires: null,
+        activationToken: 'activation_token',
+        activationTokenExpires: expect.any(Date),
+        active: false,
+        blocked: false,
+        blockedUntil: null,
+        loginAttempts: 0,
+        lastFailedLogin: null,
+        deletedAt: null,
+      };
+
+      mockUserService.checkUserExists.mockResolvedValue({
+        userNameExists: false,
+        emailExists: false,
+        cpfExists: false,
+      });
+      mockAuthRepository.createUser.mockResolvedValue(mockUserData);
+      mockMailService.sendUserConfirmation.mockResolvedValue(undefined);
+      mockMailService.sendActivationEmail.mockResolvedValue(undefined);
+
+      const result = await service.register(createUserDto);
+
+      expect(result).toEqual({
+        userName: mockUserData.userName,
+        name: mockUserData.name,
+        email: mockUserData.email,
+        cpf: mockUserData.cpf,
+        telefone: mockUserData.telefone,
+        avatarUrl: mockUserData.avatarUrl,
+        role: mockUserData.role,
+        lastLogin: mockUserData.lastLogin,
+        refreshToken: mockUserData.refreshToken,
+        passwordResetToken: mockUserData.passwordResetToken,
+        passwordResetExpires: mockUserData.passwordResetExpires,
+        activationTokenExpires: expect.any(Date),
+        active: mockUserData.active,
+        blocked: mockUserData.blocked,
+        blockedUntil: mockUserData.blockedUntil,
+        loginAttempts: mockUserData.loginAttempts,
+        lastFailedLogin: mockUserData.lastFailedLogin,
+        deletedAt: mockUserData.deletedAt,
+        message: 'Usuário registrado com sucesso. Verifique seu email para ativar a conta.',
+      });
+      expect(mockAuthRepository.createUser).toHaveBeenCalledWith(expect.objectContaining({
+        userName: createUserDto.userName,
+        name: createUserDto.name,
+        email: createUserDto.email,
+        cpf: createUserDto.cpf,
+        telefone: createUserDto.telefone,
+      }));
+      expect(mockMailService.sendActivationEmail).toHaveBeenCalledWith(
+        mockUserData,
+        expect.any(String),
+      );
+    });
   });
 
   describe('signIn', () => {

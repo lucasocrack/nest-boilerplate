@@ -4,52 +4,69 @@ import {
   IsOptional,
   IsString,
   MinLength,
+  MaxLength,
   IsBoolean,
   Matches,
+  IsNotEmpty,
+  IsUrl,
 } from 'class-validator';
 import { Role } from '@prisma/client';
 import { IsCpf } from '../../../core/validators/cpf.validator';
 
 export class CreateUserDto {
-  @IsString()
+  @IsString({ message: 'Nome de usuário deve ser uma string' })
+  @IsNotEmpty({ message: 'Nome de usuário é obrigatório' })
   @MinLength(3, { message: 'Nome de usuário deve ter pelo menos 3 caracteres' })
+  @MaxLength(30, { message: 'Nome de usuário deve ter no máximo 30 caracteres' })
   @Matches(/^[a-zA-Z0-9_]+$/, {
     message: 'Nome de usuário deve conter apenas letras, números e underscore',
   })
   userName: string;
 
-  @IsString()
+  @IsString({ message: 'Nome deve ser uma string' })
+  @IsNotEmpty({ message: 'Nome é obrigatório' })
+  @MinLength(2, { message: 'Nome deve ter pelo menos 2 caracteres' })
+  @MaxLength(100, { message: 'Nome deve ter no máximo 100 caracteres' })
   name: string;
 
-  @IsEmail()
+  @IsEmail({}, { message: 'Email deve ter um formato válido' })
+  @IsNotEmpty({ message: 'Email é obrigatório' })
   email: string;
 
   @IsOptional()
-  @IsString()
+  @IsString({ message: 'CPF deve ser uma string' })
   @IsCpf({ message: 'CPF inválido' })
   cpf?: string;
 
   @IsOptional()
-  @IsString()
+  @IsString({ message: 'Telefone deve ser uma string' })
+  @Matches(/^\(?\d{2}\)?[\s-]?\d{4,5}[\s-]?\d{4}$/, {
+    message: 'Telefone deve ter um formato válido (ex: (11) 99999-9999)'
+  })
   telefone?: string;
 
   @IsOptional()
-  @IsString()
+  @IsString({ message: 'URL do avatar deve ser uma string' })
+  @IsUrl({}, { message: 'URL do avatar deve ser uma URL válida' })
   avatarUrl?: string;
 
-  @IsString()
-  @MinLength(6)
+  @IsString({ message: 'Senha deve ser uma string' })
+  @IsNotEmpty({ message: 'Senha é obrigatória' })
+  @MinLength(8, { message: 'Senha deve ter pelo menos 8 caracteres' })
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, {
+    message: 'A senha deve conter pelo menos: 1 letra minúscula, 1 maiúscula, 1 número e 1 caractere especial'
+  })
   password: string;
 
   @IsOptional()
-  @IsEnum(Role)
+  @IsEnum(Role, { message: 'Role deve ser um valor válido (USER, ADMIN, GERENTE)' })
   role?: Role;
 
   @IsOptional()
-  @IsBoolean()
+  @IsBoolean({ message: 'Active deve ser um valor booleano' })
   active?: boolean;
 
   @IsOptional()
-  @IsBoolean()
+  @IsBoolean({ message: 'SendEmail deve ser um valor booleano' })
   sendEmail?: boolean;
 }

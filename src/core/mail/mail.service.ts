@@ -1,12 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
+import { ConfigService } from '@nestjs/config';
 import { User } from '@prisma/client';
 
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
 
-  constructor(private readonly mailerService: MailerService) {}
+  constructor(
+    private readonly mailerService: MailerService,
+    private readonly configService: ConfigService,
+  ) {}
 
   private isEmailEnabled(): boolean {
     return process.env.EMAIL_ENABLED === 'true';
@@ -129,6 +133,70 @@ export class MailService {
         },
       },
       `Alerta de conta bloqueada enviado para: ${email}`
+    );
+  }
+
+  async sendWelcomeEmail(email: string, name: string): Promise<void> {
+    const frontendUrl = this.configService.get('FRONTEND_URL');
+    
+    await this.sendEmailIfEnabled(
+      {
+        to: email,
+        subject: 'Bem-vindo!',
+        template: 'welcome',
+        context: {
+          name,
+          loginUrl: `${frontendUrl}/auth/login`,
+        },
+      },
+      `Email de boas-vindas enviado para: ${email}`
+    );
+  }
+
+  async sendSecurityAlertEmail(email: string, name: string, alertType: string, details: any): Promise<void> {
+    await this.sendEmailIfEnabled(
+      {
+        to: email,
+        subject: `🔒 Alerta de Segurança: ${alertType}`,
+        template: './security-alert',
+        context: {
+          name,
+          alertType,
+          details,
+          timestamp: new Date().toLocaleString('pt-BR'),
+        },
+      },
+      `Alerta de segurança enviado para: ${email}`
+    );
+  }
+
+  async sendPasswordResetEmail(email: string, name: string, resetToken: string): Promise<void> {
+    const resetUrl = `${this.configService.get('FRONTEND_URL')}/auth/reset-password?token=${resetToken}`;
+    
+    await this.sendEmailIfEnabled(
+      {
+        to: email,
+        subject: 'Redefinição de Senha',
+        template: './password-reset',
+        context: {
+          name,
+          resetUrl,
+          token: resetToken,
+        },
+      },
+      `Email de redefinição de senha enviado para: ${email}`
+    );
+  }
+
+  async sendEmail(to: string, subject: string, template: string, context: any): Promise<void> {
+    await this.sendEmailIfEnabled(
+      {
+        to,
+        subject,
+        template,
+        context,
+      },
+      `Email genérico enviado para: ${to}`
     );
   }
 }

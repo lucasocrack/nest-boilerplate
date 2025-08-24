@@ -7,13 +7,15 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { JsonWebTokenError, TokenExpiredError, NotBeforeError } from 'jsonwebtoken';
 
 interface ErrorResponse {
   statusCode: number;
   message: string | string[];
   error: string;
   timestamp: string;
-  path?: string;
+  path: string;
+  details?: any;
 }
 
 @Catch()
@@ -50,56 +52,75 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Erro interno do servidor';
     let error = 'Internal Server Error';
-    let useStandardMessage = true; // Usar mensagens padronizadas por padrão
+    let details: any = undefined;
+    let useStandardMessage = false; // Preferir mensagens específicas
 
     // Log do erro para debugging
-    this.logger.error(exception);
+    this.logger.error(`Erro capturado pelo GlobalExceptionFilter:`, {
+      message: exception instanceof Error ? exception.message : 'Unknown error',
+      stack: exception instanceof Error ? exception.stack : undefined,
+      url: request.url,
+      method: request.method,
+    });
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
 
       if (typeof exceptionResponse === 'object') {
-        const response = exceptionResponse as any;
-        // Usar mensagem padrão se useStandardMessage for true, senão usar específica
-        if (useStandardMessage || !response.message || response.message === exception.name) {
-          message = this.getStandardMessage(status);
-        } else {
-          message = response.message;
-        }
-        error = response.error || exception.name;
+        const responseObj = exceptionResponse as any;
+        message = responseObj.message || this.getStandardMessage(status);
+        error = responseObj.error || exception.name;
+        details = responseObj.details;
       } else {
-        // Usar mensagem padrão se useStandardMessage for true
-        if (useStandardMessage || exceptionResponse === exception.name || !exceptionResponse) {
-          message = this.getStandardMessage(status);
-        } else {
-          message = exceptionResponse as string;
-        }
+        message = (exceptionResponse as string) || this.getStandardMessage(status);
         error = exception.name;
       }
-    } else if (exception instanceof Error) {
-      // Erros não HTTP (ex: erros de validação do Prisma)
-      message = exception.message;
-      error = exception.name;
-
-      // Tratar erros específicos do Prisma
-      if (exception.name === 'PrismaClientKnownRequestError') {
-        const prismaError = exception as any;
-        
-        if (prismaError.code === 'P2002') {
-          status = HttpStatus.CONFLICT;
-          message = 'Dados já existem no sistema';
-          error = 'Conflict';
-        } else if (prismaError.code === 'P2025') {
-          status = HttpStatus.NOT_FOUND;
-          message = 'Registro não encontrado';
-          error = 'Not Found';
-        }
+    } else if (exception instanceof JsonWebTokenError) {
+      // Tratar erros de JWT
+      status = HttpStatus.UNAUTHORIZED;
+      error = 'Unauthorized';
+      
+      if (exception instanceof TokenExpiredError) {
+        message = 'Token de acesso expirado';
+      } else if (exception instanceof NotBeforeError) {
+        message = 'Token ainda não é válido';
       } else {
-        // Para outros erros, usar mensagem padrão baseada no status
-        message = this.getStandardMessage(status);
+        message = 'Token de acesso inválido';
+      }
+    } else if (exception instanceof TypeError) {
+      // Erros de tipo (geralmente bugs no código)
+      status = HttpStatus.INTERNAL_SERVER_ERROR;
+      message = 'Erro interno do servidor';
+      error = 'Type Error';
+      useStandardMessage = true;
+    } else if (exception instanceof SyntaxError) {
+      // Erros de sintaxe (JSON malformado, etc.)
+      status = HttpStatus.BAD_REQUEST;
+      message = 'Formato de dados inválido';
+      error = 'Syntax Error';
+    } else if (exception instanceof Error) {
+      // Outros erros genéricos
+      message = exception.message || 'Erro desconhecido';
+      error = exception.name || 'Unknown Error';
+      
+      // Verificar se é um erro conhecido que deve ser tratado como 400
+      if (this.isBadRequestError(exception)) {
+        status = HttpStatus.BAD_REQUEST;
+        error = 'Bad Request';
+      } else {
         useStandardMessage = true;
       }
+    } else {
+      // Exceções que não são Error objects
+      message = 'Erro desconhecido';
+      error = 'Unknown Error';
+      useStandardMessage = true;
+    }
+
+    // Usar mensagem padrão se solicitado
+    if (useStandardMessage) {
+      message = this.getStandardMessage(status);
     }
 
     const errorResponse: ErrorResponse = {
@@ -108,8 +129,26 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       error,
       timestamp: new Date().toISOString(),
       path: request.url,
+      ...(details && { details })
     };
 
     response.status(status).json(errorResponse);
+  }
+
+  /**
+   * Verifica se o erro deve ser tratado como Bad Request
+   */
+  private isBadRequestError(exception: Error): boolean {
+    const badRequestPatterns = [
+      'ValidationError',
+      'CastError',
+      'MongoError',
+      'MulterError'
+    ];
+    
+    return badRequestPatterns.some(pattern => 
+      exception.name.includes(pattern) || 
+      exception.message.includes(pattern)
+    );
   }
 }
