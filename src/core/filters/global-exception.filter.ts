@@ -7,7 +7,11 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { JsonWebTokenError, TokenExpiredError, NotBeforeError } from 'jsonwebtoken';
+import {
+  JsonWebTokenError,
+  TokenExpiredError,
+  NotBeforeError,
+} from 'jsonwebtoken';
 
 interface ErrorResponse {
   statusCode: number;
@@ -40,8 +44,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       503: 'O serviço decidiu tirar férias',
       504: 'O servidor está te ignorando',
     };
-    
-    return statusMessages[statusCode] || 'Algo deu errado, mas não sabemos o quê';
+
+    return (
+      statusMessages[statusCode] || 'Algo deu errado, mas não sabemos o quê'
+    );
   }
 
   catch(exception: unknown, host: ArgumentsHost) {
@@ -73,14 +79,14 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         error = responseObj.error || exception.name;
         details = responseObj.details;
       } else {
-        message = (exceptionResponse as string) || this.getStandardMessage(status);
+        message = exceptionResponse || this.getStandardMessage(status);
         error = exception.name;
       }
     } else if (exception instanceof JsonWebTokenError) {
       // Tratar erros de JWT
       status = HttpStatus.UNAUTHORIZED;
       error = 'Unauthorized';
-      
+
       if (exception instanceof TokenExpiredError) {
         message = 'Token de acesso expirado';
       } else if (exception instanceof NotBeforeError) {
@@ -103,7 +109,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       // Outros erros genéricos
       message = exception.message || 'Erro desconhecido';
       error = exception.name || 'Unknown Error';
-      
+
       // Verificar se é um erro conhecido que deve ser tratado como 400
       if (this.isBadRequestError(exception)) {
         status = HttpStatus.BAD_REQUEST;
@@ -129,7 +135,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       error,
       timestamp: new Date().toISOString(),
       path: request.url,
-      ...(details && { details })
+      ...(details && { details }),
     };
 
     response.status(status).json(errorResponse);
@@ -143,12 +149,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       'ValidationError',
       'CastError',
       'MongoError',
-      'MulterError'
+      'MulterError',
     ];
-    
-    return badRequestPatterns.some(pattern => 
-      exception.name.includes(pattern) || 
-      exception.message.includes(pattern)
+
+    return badRequestPatterns.some(
+      (pattern) =>
+        exception.name.includes(pattern) || exception.message.includes(pattern),
     );
   }
 }

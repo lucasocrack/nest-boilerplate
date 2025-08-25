@@ -34,11 +34,18 @@ export class LogEntity {
    * Verifica se o log é de uma ação crítica
    */
   isCriticalAction(): boolean {
-    const criticalRoutes = ['/auth/login', '/auth/register', '/users', '/auth/reset-password'];
+    const criticalRoutes = [
+      '/auth/login',
+      '/auth/register',
+      '/users',
+      '/auth/reset-password',
+    ];
     const criticalMethods = ['POST', 'DELETE', 'PATCH'];
-    
-    return criticalRoutes.some(route => this.route.includes(route)) || 
-           criticalMethods.includes(this.method);
+
+    return (
+      criticalRoutes.some((route) => this.route.includes(route)) ||
+      criticalMethods.includes(this.method)
+    );
   }
 }
 

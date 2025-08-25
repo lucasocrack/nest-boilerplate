@@ -11,10 +11,12 @@ import { join } from 'path';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
         const mailHost = configService.get<string>('mail.host');
-        
+
         // Se não houver configuração de email, use configuração de desenvolvimento
         if (!mailHost || mailHost === 'your-ethereal-username') {
-          console.warn('⚠️  Email não configurado. Emails serão logados no console em desenvolvimento.');
+          console.warn(
+            '⚠️  Email não configurado. Emails serão logados no console em desenvolvimento.',
+          );
           return {
             transport: {
               streamTransport: true,

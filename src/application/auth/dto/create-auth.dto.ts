@@ -17,7 +17,9 @@ export class CreateUserDto {
   @IsString({ message: 'Nome de usuário deve ser uma string' })
   @IsNotEmpty({ message: 'Nome de usuário é obrigatório' })
   @MinLength(3, { message: 'Nome de usuário deve ter pelo menos 3 caracteres' })
-  @MaxLength(30, { message: 'Nome de usuário deve ter no máximo 30 caracteres' })
+  @MaxLength(30, {
+    message: 'Nome de usuário deve ter no máximo 30 caracteres',
+  })
   @Matches(/^[a-zA-Z0-9_]+$/, {
     message: 'Nome de usuário deve conter apenas letras, números e underscore',
   })
@@ -41,7 +43,7 @@ export class CreateUserDto {
   @IsOptional()
   @IsString({ message: 'Telefone deve ser uma string' })
   @Matches(/^\(?\d{2}\)?[\s-]?\d{4,5}[\s-]?\d{4}$/, {
-    message: 'Telefone deve ter um formato válido (ex: (11) 99999-9999)'
+    message: 'Telefone deve ter um formato válido (ex: (11) 99999-9999)',
   })
   telefone?: string;
 
@@ -54,12 +56,15 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Senha é obrigatória' })
   @MinLength(8, { message: 'Senha deve ter pelo menos 8 caracteres' })
   @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, {
-    message: 'A senha deve conter pelo menos: 1 letra minúscula, 1 maiúscula, 1 número e 1 caractere especial'
+    message:
+      'A senha deve conter pelo menos: 1 letra minúscula, 1 maiúscula, 1 número e 1 caractere especial',
   })
   password: string;
 
   @IsOptional()
-  @IsEnum(Role, { message: 'Role deve ser um valor válido (USER, ADMIN, GERENTE)' })
+  @IsEnum(Role, {
+    message: 'Role deve ser um valor válido (USER, ADMIN, GERENTE)',
+  })
   role?: Role;
 
   @IsOptional()

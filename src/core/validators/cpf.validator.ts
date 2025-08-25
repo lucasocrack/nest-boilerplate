@@ -1,4 +1,9 @@
-import { registerDecorator, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
+import {
+  registerDecorator,
+  ValidationOptions,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+} from 'class-validator';
 import { ValidationUtils } from '../utils/validation.utils';
 
 @ValidatorConstraint({ async: false })
@@ -14,7 +19,7 @@ export class IsCpfConstraint implements ValidatorConstraintInterface {
 }
 
 export function IsCpf(validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+  return function (object: object, propertyName: string) {
     registerDecorator({
       target: object.constructor,
       propertyName: propertyName,

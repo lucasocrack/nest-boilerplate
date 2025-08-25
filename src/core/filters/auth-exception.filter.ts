@@ -7,7 +7,11 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { JsonWebTokenError, TokenExpiredError, NotBeforeError } from 'jsonwebtoken';
+import {
+  JsonWebTokenError,
+  TokenExpiredError,
+  NotBeforeError,
+} from 'jsonwebtoken';
 
 /**
  * Filtro específico para capturar e formatar erros de autenticação e autorização
@@ -23,7 +27,7 @@ export class AuthExceptionFilter implements ExceptionFilter {
   ) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest();
+    const request = ctx.getRequest<Request>();
 
     let statusCode: number;
     let message: string;
@@ -35,17 +39,20 @@ export class AuthExceptionFilter implements ExceptionFilter {
       message: exception.message,
       url: request.url,
       method: request.method,
-      userAgent: request.headers['user-agent'],
-      ip: request.ip,
+      userAgent: request.headers['user-agent'] || 'unknown',
+      ip: (request as any).ip,
     });
 
     if (exception instanceof UnauthorizedException) {
       statusCode = 401;
       error = 'Unauthorized';
-      
+
       // Verificar se há uma mensagem específica na exceção
       const exceptionResponse = exception.getResponse();
-      if (typeof exceptionResponse === 'object' && exceptionResponse['message']) {
+      if (
+        typeof exceptionResponse === 'object' &&
+        exceptionResponse['message']
+      ) {
         message = exceptionResponse['message'];
       } else {
         message = 'Credenciais inválidas ou token de acesso necessário';
@@ -53,10 +60,13 @@ export class AuthExceptionFilter implements ExceptionFilter {
     } else if (exception instanceof ForbiddenException) {
       statusCode = 403;
       error = 'Forbidden';
-      
+
       // Verificar se há uma mensagem específica na exceção
       const exceptionResponse = exception.getResponse();
-      if (typeof exceptionResponse === 'object' && exceptionResponse['message']) {
+      if (
+        typeof exceptionResponse === 'object' &&
+        exceptionResponse['message']
+      ) {
         message = exceptionResponse['message'];
       } else {
         message = 'Acesso negado - permissões insuficientes';
@@ -64,7 +74,7 @@ export class AuthExceptionFilter implements ExceptionFilter {
     } else if (exception instanceof JsonWebTokenError) {
       statusCode = 401;
       error = 'Unauthorized';
-      
+
       if (exception instanceof TokenExpiredError) {
         message = 'Token de acesso expirado - faça login novamente';
       } else if (exception instanceof NotBeforeError) {

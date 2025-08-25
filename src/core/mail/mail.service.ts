@@ -16,7 +16,10 @@ export class MailService {
     return process.env.EMAIL_ENABLED === 'true';
   }
 
-  private async sendEmailIfEnabled(emailOptions: any, logMessage: string): Promise<void> {
+  private async sendEmailIfEnabled(
+    emailOptions: any,
+    logMessage: string,
+  ): Promise<void> {
     if (!this.isEmailEnabled()) {
       this.logger.log(`📧 Email desabilitado: ${logMessage}`);
       return;
@@ -26,9 +29,14 @@ export class MailService {
       await this.mailerService.sendMail(emailOptions);
       this.logger.log(`✅ ${logMessage}`);
     } catch (error) {
-      this.logger.error(`❌ Erro ao enviar email: ${logMessage}`, error.message);
+      this.logger.error(
+        `❌ Erro ao enviar email: ${logMessage}`,
+        error.message,
+      );
       if (process.env.NODE_ENV === 'development') {
-        this.logger.warn('🚀 Modo desenvolvimento: Email seria enviado em produção');
+        this.logger.warn(
+          '🚀 Modo desenvolvimento: Email seria enviado em produção',
+        );
         return;
       }
       throw error;
@@ -37,7 +45,7 @@ export class MailService {
 
   async sendUserConfirmation(user: User): Promise<void> {
     const { email, name } = user;
-    
+
     await this.sendEmailIfEnabled(
       {
         to: email,
@@ -47,14 +55,17 @@ export class MailService {
           name: name,
         },
       },
-      `Email de confirmação enviado para: ${email}`
+      `Email de confirmação enviado para: ${email}`,
     );
   }
 
-  async sendActivationEmail(user: User, activationToken: string): Promise<void> {
+  async sendActivationEmail(
+    user: User,
+    activationToken: string,
+  ): Promise<void> {
     const { email, name } = user;
     const activationUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/activate?token=${activationToken}`;
-    
+
     await this.sendEmailIfEnabled(
       {
         to: email,
@@ -66,18 +77,21 @@ export class MailService {
           token: activationToken,
         },
       },
-      `Email de ativação enviado para: ${email}`
+      `Email de ativação enviado para: ${email}`,
     );
-    
+
     // Log da URL de ativação em desenvolvimento quando email está desabilitado
     if (process.env.NODE_ENV === 'development' && !this.isEmailEnabled()) {
       this.logger.log(`🔗 URL de ativação: ${activationUrl}`);
     }
   }
 
-  async sendSuspiciousLoginAlert(user: User, loginDetails: { ip: string; userAgent: string; timestamp: Date }): Promise<void> {
+  async sendSuspiciousLoginAlert(
+    user: User,
+    loginDetails: { ip: string; userAgent: string; timestamp: Date },
+  ): Promise<void> {
     const { email, name } = user;
-    
+
     await this.sendEmailIfEnabled(
       {
         to: email,
@@ -89,16 +103,20 @@ export class MailService {
           ip: loginDetails.ip,
           userAgent: loginDetails.userAgent,
           timestamp: loginDetails.timestamp.toLocaleString('pt-BR'),
-          message: 'Detectamos um login suspeito em sua conta. Se não foi você, recomendamos alterar sua senha imediatamente.',
+          message:
+            'Detectamos um login suspeito em sua conta. Se não foi você, recomendamos alterar sua senha imediatamente.',
         },
       },
-      `Alerta de login suspeito enviado para: ${email}`
+      `Alerta de login suspeito enviado para: ${email}`,
     );
   }
 
-  async sendMultipleLoginAttemptsAlert(user: User, attemptCount: number): Promise<void> {
+  async sendMultipleLoginAttemptsAlert(
+    user: User,
+    attemptCount: number,
+  ): Promise<void> {
     const { email, name } = user;
-    
+
     await this.sendEmailIfEnabled(
       {
         to: email,
@@ -112,13 +130,16 @@ export class MailService {
           message: `Detectamos ${attemptCount} tentativas de login em sua conta. Por segurança, sua conta pode ser temporariamente bloqueada.`,
         },
       },
-      `Alerta de múltiplas tentativas enviado para: ${email}`
+      `Alerta de múltiplas tentativas enviado para: ${email}`,
     );
   }
 
-  async sendAccountBlockedAlert(user: User, blockDuration: string): Promise<void> {
+  async sendAccountBlockedAlert(
+    user: User,
+    blockDuration: string,
+  ): Promise<void> {
     const { email, name } = user;
-    
+
     await this.sendEmailIfEnabled(
       {
         to: email,
@@ -132,13 +153,13 @@ export class MailService {
           message: `Sua conta foi temporariamente bloqueada devido a múltiplas tentativas de login falhadas. O bloqueio será removido automaticamente em ${blockDuration}.`,
         },
       },
-      `Alerta de conta bloqueada enviado para: ${email}`
+      `Alerta de conta bloqueada enviado para: ${email}`,
     );
   }
 
   async sendWelcomeEmail(email: string, name: string): Promise<void> {
     const frontendUrl = this.configService.get('FRONTEND_URL');
-    
+
     await this.sendEmailIfEnabled(
       {
         to: email,
@@ -149,11 +170,16 @@ export class MailService {
           loginUrl: `${frontendUrl}/auth/login`,
         },
       },
-      `Email de boas-vindas enviado para: ${email}`
+      `Email de boas-vindas enviado para: ${email}`,
     );
   }
 
-  async sendSecurityAlertEmail(email: string, name: string, alertType: string, details: any): Promise<void> {
+  async sendSecurityAlertEmail(
+    email: string,
+    name: string,
+    alertType: string,
+    details: any,
+  ): Promise<void> {
     await this.sendEmailIfEnabled(
       {
         to: email,
@@ -166,13 +192,17 @@ export class MailService {
           timestamp: new Date().toLocaleString('pt-BR'),
         },
       },
-      `Alerta de segurança enviado para: ${email}`
+      `Alerta de segurança enviado para: ${email}`,
     );
   }
 
-  async sendPasswordResetEmail(email: string, name: string, resetToken: string): Promise<void> {
+  async sendPasswordResetEmail(
+    email: string,
+    name: string,
+    resetToken: string,
+  ): Promise<void> {
     const resetUrl = `${this.configService.get('FRONTEND_URL')}/auth/reset-password?token=${resetToken}`;
-    
+
     await this.sendEmailIfEnabled(
       {
         to: email,
@@ -184,11 +214,16 @@ export class MailService {
           token: resetToken,
         },
       },
-      `Email de redefinição de senha enviado para: ${email}`
+      `Email de redefinição de senha enviado para: ${email}`,
     );
   }
 
-  async sendEmail(to: string, subject: string, template: string, context: any): Promise<void> {
+  async sendEmail(
+    to: string,
+    subject: string,
+    template: string,
+    context: any,
+  ): Promise<void> {
     await this.sendEmailIfEnabled(
       {
         to,
@@ -196,7 +231,7 @@ export class MailService {
         template,
         context,
       },
-      `Email genérico enviado para: ${to}`
+      `Email genérico enviado para: ${to}`,
     );
   }
 }

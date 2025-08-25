@@ -3,9 +3,7 @@ import { UserRepository } from './user.repository';
 import { PrismaService } from '../../../core/config/prisma.service';
 import { CreateUserDto } from '../../auth/dto/create-auth.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
-import { UserFiltersDto } from '../dto/user-filters.dto';
 import { User, Role } from '@prisma/client';
-import { NotFoundException } from '../../../core/exceptions/custom-exceptions';
 
 const mockPrismaService = {
   user: {
@@ -20,7 +18,6 @@ const mockPrismaService = {
 
 describe('UserRepository', () => {
   let repository: UserRepository;
-  let prisma: PrismaService;
 
   const mockUser: User = {
     userId: '1',
@@ -262,13 +259,13 @@ describe('UserRepository', () => {
       const deletedUser = { ...mockUser, deletedAt: new Date() };
       mockPrismaService.user.update.mockResolvedValue(deletedUser);
 
-      const result = await repository.remove('1');
+      const result: any = await repository.remove('1');
 
       expect(mockPrismaService.user.update).toHaveBeenCalledWith({
         where: { userId: '1' },
-        data: { 
+        data: {
           deletedAt: expect.any(Date),
-          active: false
+          active: false,
         },
       });
       expect(result).toEqual(deletedUser);
@@ -280,7 +277,7 @@ describe('UserRepository', () => {
 
       await expect(repository.remove('1')).rejects.toThrow(error);
     });
-   });
+  });
 
   describe('findAllPaged', () => {
     it('should find users with pagination and filters', async () => {
@@ -379,11 +376,11 @@ describe('UserRepository', () => {
       const result = await repository.findAllPaged(params);
 
       expect(result).toEqual({
-           data: [],
-           total: 0,
-           page: 1,
-           limit: 10,
-         });
+        data: [],
+        total: 0,
+        page: 1,
+        limit: 10,
+      });
     });
   });
 
@@ -416,7 +413,9 @@ describe('UserRepository', () => {
 
       mockPrismaService.user.update.mockRejectedValue(error);
 
-      await expect(repository.blockUser('1', blockUntil)).rejects.toThrow(error);
+      await expect(repository.blockUser('1', blockUntil)).rejects.toThrow(
+        error,
+      );
     });
   });
 

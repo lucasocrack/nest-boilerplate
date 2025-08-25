@@ -12,15 +12,15 @@ export class ValidationUtils {
    */
   static isValidCpf(cpf: string): boolean {
     if (!cpf) return false;
-    
+
     const normalizedCpf = this.normalizeCpf(cpf);
-    
+
     // Verifica se tem 11 dígitos
     if (normalizedCpf.length !== 11) return false;
-    
+
     // Verifica se todos os dígitos são iguais
     if (/^(\d)\1{10}$/.test(normalizedCpf)) return false;
-    
+
     // Validação do algoritmo do CPF
     let sum = 0;
     for (let i = 0; i < 9; i++) {

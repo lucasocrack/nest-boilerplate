@@ -13,7 +13,6 @@ const mockPrismaService = {
 
 describe('LogService', () => {
   let service: LogService;
-  let prisma: PrismaService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -27,7 +26,6 @@ describe('LogService', () => {
     }).compile();
 
     service = module.get<LogService>(LogService);
-    prisma = module.get<PrismaService>(PrismaService);
   });
 
   it('should be defined', () => {
@@ -52,15 +50,31 @@ describe('LogService', () => {
 
       const result = await service.createLog(logData);
       expect(result).toEqual(expectedLog);
-      expect(mockPrismaService.log.create).toHaveBeenCalledWith({ data: logData });
+      expect(mockPrismaService.log.create).toHaveBeenCalledWith({
+        data: logData,
+      });
     });
   });
 
   describe('findAll', () => {
     it('should return an array of logs', async () => {
       const logs: Log[] = [
-        { logId: 1, timestamp: new Date(), route: '/test1', method: 'GET', userId: null, details: null },
-        { logId: 2, timestamp: new Date(), route: '/test2', method: 'POST', userId: '1', details: { body: { key: 'value' } } },
+        {
+          logId: 1,
+          timestamp: new Date(),
+          route: '/test1',
+          method: 'GET',
+          userId: null,
+          details: null,
+        },
+        {
+          logId: 2,
+          timestamp: new Date(),
+          route: '/test2',
+          method: 'POST',
+          userId: '1',
+          details: { body: { key: 'value' } },
+        },
       ];
       mockPrismaService.log.findMany.mockResolvedValue(logs);
 

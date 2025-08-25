@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from '../src/app.module';
+import { TestAppModule } from './test-app.module';
 import { PrismaService } from '../src/core/config/prisma.service';
 import { CreateUserDto } from 'src/application/auth/dto/create-auth.dto';
 
@@ -11,7 +11,7 @@ describe('AuthController (e2e)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [TestAppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -20,12 +20,16 @@ describe('AuthController (e2e)', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 
   afterEach(async () => {
     // Clean up the database after each test
-    await prisma.user.deleteMany({});
+    if (prisma) {
+      await prisma.user.deleteMany({});
+    }
   });
 
   describe('/auth/register (POST)', () => {
@@ -43,87 +47,103 @@ describe('AuthController (e2e)', () => {
         .expect(201)
         .then((res) => {
           expect(res.body).toBeDefined();
-          expect(res.body.userName).toEqual(createUserDto.userName);
-          expect(res.body.password).toBeUndefined();
+          expect(
+            (res.body as { data: { userName: any; password: any } }).data
+              .userName,
+          ).toEqual(createUserDto.userName);
+          expect(
+            (res.body as { data: { userName: any; password: any } }).data
+              .password,
+          ).toBeUndefined();
         });
     });
   });
 
   describe('/auth/login (POST)', () => {
     it('should login AuthRequest.ts user and return an access token', async () => {
-      const createUserDto: CreateUserDto = {
-        userName: 'e2eloginuser',
-        name: 'E2E Login User',
-        email: 'e2elogin@example.com',
-        password: 'password123',
-      };
-
-      // First, register the user
-      await request(app.getHttpServer())
-        .post('/auth/register')
-        .send(createUserDto)
-        .expect(201);
+      // Create an active user directly in the database
+      const hashedPassword =
+        '$2b$10$Tg.So1.IHvrbCQ8Pg/3nZOGS0lu7.hWHwVSJGrhaUa1LnjFnvHAhm'; // hash of 'password123'
+      await prisma.user.create({
+        data: {
+          userName: 'e2eloginuser',
+          name: 'E2E Login User',
+          email: 'e2elogin@example.com',
+          password: hashedPassword,
+          active: true, // Usuário ativo
+        },
+      });
 
       // Now, login
-      return request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post('/auth/login')
         .send({
-          identification: createUserDto.email,
-          password: createUserDto.password,
-        })
-        .expect(200)
-        .then((res) => {
-          expect(res.body).toBeDefined();
-          expect(res.body.access_token).toBeDefined();
+          identification: 'e2elogin@example.com',
+          password: 'password123',
         });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toBeDefined();
+      expect(
+        (response.body as { data: { access_token: any } }).data.access_token,
+      ).toBeDefined();
     });
   });
 
   describe('/auth/forgot-password (POST)', () => {
     it('should send AuthRequest.ts password reset token', async () => {
-      const createUserDto: CreateUserDto = {
-        userName: 'forgotpassworduser',
-        name: 'Forgot Password User',
-        email: 'forgotpassword@example.com',
-        password: 'password123',
-      };
+      // Create an active user directly in the database
+      const hashedPassword =
+        '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW'; // hash of 'password123'
+      await prisma.user.create({
+        data: {
+          userName: 'forgotpassworduser',
+          name: 'Forgot Password User',
+          email: 'forgotpassword@example.com',
+          password: hashedPassword,
+          active: true, // Usuário ativo
+        },
+      });
 
-      await request(app.getHttpServer())
-        .post('/auth/register')
-        .send(createUserDto)
-        .expect(201);
-
+      // Now, request password reset
       return request(app.getHttpServer())
         .post('/auth/forgot-password')
-        .send({ email: createUserDto.email })
+        .send({
+          email: 'forgotpassword@example.com',
+        })
         .expect(200)
         .then((res) => {
           expect(res.body).toBeDefined();
-          expect(res.body.token).toBeDefined();
+          expect(
+            (res.body as { data: { token: any } }).data.token,
+          ).toBeDefined();
         });
     });
   });
 
   describe('/auth/reset-password (POST)', () => {
     it('should reset the password', async () => {
-      const createUserDto: CreateUserDto = {
-        userName: 'resetpassworduser',
-        name: 'Reset Password User',
-        email: 'resetpassword@example.com',
-        password: 'password123',
-      };
-
-      await request(app.getHttpServer())
-        .post('/auth/register')
-        .send(createUserDto)
-        .expect(201);
+      // Create an active user directly in the database
+      const hashedPassword =
+        '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW'; // hash of 'password123'
+      await prisma.user.create({
+        data: {
+          userName: 'resetpassworduser',
+          name: 'Reset Password User',
+          email: 'resetpassword@example.com',
+          password: hashedPassword,
+          active: true, // Usuário ativo
+        },
+      });
 
       const forgotPasswordResponse = await request(app.getHttpServer())
         .post('/auth/forgot-password')
-        .send({ email: createUserDto.email })
+        .send({ email: 'resetpassword@example.com' })
         .expect(200);
 
-      const resetToken = forgotPasswordResponse.body.token;
+      const resetToken = (
+        forgotPasswordResponse.body as { data: { token: string } }
+      ).data.token;
       const newPassword = 'newpassword456';
 
       await request(app.getHttpServer())
@@ -139,13 +159,15 @@ describe('AuthController (e2e)', () => {
       return request(app.getHttpServer())
         .post('/auth/login')
         .send({
-          identification: createUserDto.email,
+          identification: 'resetpassword@example.com',
           password: newPassword,
         })
         .expect(200)
         .then((res) => {
           expect(res.body).toBeDefined();
-          expect(res.body.access_token).toBeDefined();
+          expect(
+            (res.body as { data: { access_token: any } }).data.access_token,
+          ).toBeDefined();
         });
     });
   });

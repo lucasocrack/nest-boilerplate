@@ -9,13 +9,12 @@ import { User, Role } from '@prisma/client';
 import { MailService } from '../../core/mail/mail.service';
 import { PrismaService } from '../../core/config/prisma.service';
 import { CreateUserDto } from './dto/create-auth.dto';
+import { AUTH_REPOSITORY_TOKEN } from './repositories/auth.repository.interface';
 
 jest.mock('bcrypt');
 
 describe('AuthService', () => {
   let service: AuthService;
-  let userService: UserService;
-  let jwtService: JwtService;
 
   const mockUserService = {
     findOneByUsername: jest.fn(),
@@ -62,24 +61,6 @@ describe('AuthService', () => {
     updateUserTokens: jest.fn(),
   };
 
-  const mockUserRepository = {
-    create: jest.fn(),
-    findById: jest.fn(),
-    findByEmail: jest.fn(),
-    findByUsername: jest.fn(),
-    findByCpf: jest.fn(),
-    findByIdentification: jest.fn(),
-    findByPasswordResetToken: jest.fn(),
-    findAll: jest.fn(),
-    findAllPaged: jest.fn(),
-    update: jest.fn(),
-    blockUser: jest.fn(),
-    unblockUser: jest.fn(),
-    restoreUser: jest.fn(),
-    remove: jest.fn(),
-    checkUserExists: jest.fn(),
-  };
-
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -89,13 +70,11 @@ describe('AuthService', () => {
         { provide: MailService, useValue: mockMailService },
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: ConfigService, useValue: mockConfigService },
-        { provide: 'IAuthRepository', useValue: mockAuthRepository },
+        { provide: AUTH_REPOSITORY_TOKEN, useValue: mockAuthRepository },
       ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    userService = module.get<UserService>(UserService);
-    jwtService = module.get<JwtService>(JwtService);
   });
 
   it('should be defined', () => {
@@ -121,13 +100,13 @@ describe('AuthService', () => {
         cpf: '11144477735',
         telefone: '11999999999',
         avatarUrl: null,
-        role: 'CLIENTE',
+        role: 'CLIENTE' as const,
         lastLogin: null,
         refreshToken: null,
         passwordResetToken: null,
         passwordResetExpires: null,
         activationToken: 'activation_token',
-        activationTokenExpires: expect.any(Date),
+        activationTokenExpires: expect.any(Date) as Date,
         active: false,
         blocked: false,
         blockedUntil: null,
@@ -159,22 +138,25 @@ describe('AuthService', () => {
         refreshToken: mockUserData.refreshToken,
         passwordResetToken: mockUserData.passwordResetToken,
         passwordResetExpires: mockUserData.passwordResetExpires,
-        activationTokenExpires: expect.any(Date),
+        activationTokenExpires: expect.any(Date) as Date,
         active: mockUserData.active,
         blocked: mockUserData.blocked,
         blockedUntil: mockUserData.blockedUntil,
         loginAttempts: mockUserData.loginAttempts,
         lastFailedLogin: mockUserData.lastFailedLogin,
         deletedAt: mockUserData.deletedAt,
-        message: 'Usuário registrado com sucesso. Verifique seu email para ativar a conta.',
+        message:
+          'Usuário registrado com sucesso. Verifique seu email para ativar a conta.',
       });
-      expect(mockAuthRepository.createUser).toHaveBeenCalledWith(expect.objectContaining({
-        userName: createUserDto.userName,
-        name: createUserDto.name,
-        email: createUserDto.email,
-        cpf: createUserDto.cpf,
-        telefone: createUserDto.telefone,
-      }));
+      expect(mockAuthRepository.createUser).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userName: createUserDto.userName,
+          name: createUserDto.name,
+          email: createUserDto.email,
+          cpf: createUserDto.cpf,
+          telefone: createUserDto.telefone,
+        }),
+      );
       expect(mockMailService.sendActivationEmail).toHaveBeenCalledWith(
         mockUserData,
         expect.any(String),
@@ -212,12 +194,17 @@ describe('AuthService', () => {
       };
 
       mockUserService.findByIdentification.mockResolvedValue(user);
-      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+      (
+        bcrypt.compare as jest.MockedFunction<typeof bcrypt.compare>
+      ).mockImplementation(() => true);
       mockJwtService.signAsync.mockResolvedValue('test_token');
 
       const result = await service.signIn('testuser', 'password');
 
-      expect(result).toEqual({ access_token: 'test_token', refresh_token: 'test_token' });
+      expect(result).toEqual({
+        access_token: 'test_token',
+        refresh_token: 'test_token',
+      });
       expect(mockUserService.findByIdentification).toHaveBeenCalledWith(
         'testuser',
       );
@@ -258,7 +245,9 @@ describe('AuthService', () => {
       };
 
       mockUserService.findByIdentification.mockResolvedValue(user);
-      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+      (
+        bcrypt.compare as jest.MockedFunction<typeof bcrypt.compare>
+      ).mockResolvedValue(false);
 
       await expect(service.signIn('testuser', 'wrongpassword')).rejects.toThrow(
         UnauthorizedException,

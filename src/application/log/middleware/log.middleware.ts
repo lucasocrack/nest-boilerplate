@@ -8,26 +8,33 @@ export class LoggerMiddleware implements NestMiddleware {
   constructor(private readonly logService: LogService) {}
 
   use(req: Request, res: Response, next: NextFunction) {
-    const { method, originalUrl, body, params, query, user } = req;
+    const originalSend: any = (res as any).send.bind(res);
+    const { method, originalUrl, body, params, query, user }: any = req as any;
+
+    (res as any).send = function (body: any): Response {
+      return originalSend(body);
+    };
 
     res.on('finish', () => {
-      const { statusCode } = res;
+      const { statusCode }: any = res as any;
       if (statusCode >= 400) {
         return; // Don't log client or server errors for now
       }
 
       // Sanitiza dados sensíveis antes de logar
-      const sanitizedDetails = DataSanitizer.sanitizeHttpRequest({
-        body,
-        params,
-        query,
-        headers: req.headers,
+      const sanitizedDetails: any = DataSanitizer.sanitizeHttpRequest({
+        body: body,
+        params: params,
+        query: query,
+        headers: (req as any).headers,
       });
 
-      this.logService.createLog({
+      void this.logService.createLog({
         route: originalUrl,
-        method,
-        user: user ? { connect: { userId: (user as any).userId } } : undefined,
+        method: method,
+        user: user
+          ? { connect: { userId: (user as { userId: string }).userId } }
+          : undefined,
         details: sanitizedDetails,
       });
     });

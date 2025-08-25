@@ -28,7 +28,7 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString({ message: 'Telefone deve ser uma string' })
   @Matches(/^\(?\d{2}\)?[\s-]?\d{4,5}[\s-]?\d{4}$/, {
-    message: 'Telefone deve ter um formato válido (ex: (11) 99999-9999)'
+    message: 'Telefone deve ter um formato válido (ex: (11) 99999-9999)',
   })
   telefone?: string;
 

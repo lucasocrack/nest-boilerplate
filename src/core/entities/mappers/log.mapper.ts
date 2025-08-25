@@ -15,7 +15,7 @@ export class LogMapper {
       route: prismaLog.route,
       method: prismaLog.method,
       userId: prismaLog.userId || undefined,
-      details: prismaLog.details as Record<string, any> || undefined,
+      details: (prismaLog.details as Record<string, any>) || undefined,
     });
   }
 
@@ -32,7 +32,7 @@ export class LogMapper {
 
     if (logEntity.userId) {
       createData.user = {
-        connect: { userId: logEntity.userId }
+        connect: { userId: logEntity.userId },
       };
     }
 
@@ -47,9 +47,12 @@ export class LogMapper {
 
     if (logEntity.route !== undefined) updateData.route = logEntity.route;
     if (logEntity.method !== undefined) updateData.method = logEntity.method;
-    if (logEntity.userId !== undefined) updateData.userId = logEntity.userId || null;
-    if (logEntity.details !== undefined) updateData.details = logEntity.details || null;
-    if (logEntity.timestamp !== undefined) updateData.timestamp = logEntity.timestamp;
+    if (logEntity.userId !== undefined)
+      updateData.userId = logEntity.userId || null;
+    if (logEntity.details !== undefined)
+      updateData.details = logEntity.details || null;
+    if (logEntity.timestamp !== undefined)
+      updateData.timestamp = logEntity.timestamp;
 
     return updateData;
   }
@@ -58,7 +61,7 @@ export class LogMapper {
    * Converte array de modelos Prisma para array de entidades de domínio
    */
   static toDomainArray(prismaLogs: PrismaLog[]): LogEntity[] {
-    return prismaLogs.map(log => this.toDomain(log));
+    return prismaLogs.map((log) => this.toDomain(log));
   }
 
   /**
@@ -78,7 +81,7 @@ export class LogMapper {
 
     if (data.userId) {
       createData.user = {
-        connect: { userId: data.userId }
+        connect: { userId: data.userId },
       };
     }
 

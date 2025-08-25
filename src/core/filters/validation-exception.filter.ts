@@ -31,7 +31,10 @@ export class ValidationExceptionFilter implements ExceptionFilter {
     const status = exception.getStatus();
 
     // Log do erro para debugging
-    this.logger.warn(`Erro de validação na rota ${request.url}:`, exception.getResponse());
+    this.logger.warn(
+      `Erro de validação na rota ${request.url}:`,
+      exception.getResponse(),
+    );
 
     const exceptionResponse = exception.getResponse() as any;
     let validationErrors: string[] = [];

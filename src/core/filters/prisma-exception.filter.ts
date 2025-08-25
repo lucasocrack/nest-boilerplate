@@ -30,7 +30,7 @@ interface PrismaErrorResponse {
   PrismaClientKnownRequestError,
   PrismaClientUnknownRequestError,
   PrismaClientValidationError,
-  PrismaClientInitializationError
+  PrismaClientInitializationError,
 )
 export class PrismaExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(PrismaExceptionFilter.name);
@@ -50,7 +50,7 @@ export class PrismaExceptionFilter implements ExceptionFilter {
 
     if (exception instanceof PrismaClientKnownRequestError) {
       code = exception.code;
-      
+
       switch (exception.code) {
         case 'P2002':
           // Violação de constraint única
@@ -58,42 +58,42 @@ export class PrismaExceptionFilter implements ExceptionFilter {
           message = this.getUniqueConstraintMessage(exception);
           error = 'Conflict';
           break;
-          
+
         case 'P2025':
           // Registro não encontrado
           status = HttpStatus.NOT_FOUND;
           message = 'Registro não encontrado';
           error = 'Not Found';
           break;
-          
+
         case 'P2003':
           // Violação de foreign key
           status = HttpStatus.BAD_REQUEST;
           message = 'Referência inválida - registro relacionado não existe';
           error = 'Bad Request';
           break;
-          
+
         case 'P2014':
           // Violação de relação obrigatória
           status = HttpStatus.BAD_REQUEST;
           message = 'Operação inválida - violação de relação obrigatória';
           error = 'Bad Request';
           break;
-          
+
         case 'P2021':
           // Tabela não existe
           status = HttpStatus.INTERNAL_SERVER_ERROR;
           message = 'Erro de configuração do banco de dados';
           error = 'Internal Server Error';
           break;
-          
+
         case 'P2022':
           // Coluna não existe
           status = HttpStatus.INTERNAL_SERVER_ERROR;
           message = 'Erro de configuração do banco de dados';
           error = 'Internal Server Error';
           break;
-          
+
         default:
           status = HttpStatus.BAD_REQUEST;
           message = 'Erro na operação do banco de dados';
@@ -119,7 +119,7 @@ export class PrismaExceptionFilter implements ExceptionFilter {
       error,
       timestamp: new Date().toISOString(),
       path: request.url,
-      ...(code && { code })
+      ...(code && { code }),
     };
 
     response.status(status).json(errorResponse);
@@ -128,12 +128,14 @@ export class PrismaExceptionFilter implements ExceptionFilter {
   /**
    * Gera mensagem específica para erros de constraint única
    */
-  private getUniqueConstraintMessage(exception: PrismaClientKnownRequestError): string {
+  private getUniqueConstraintMessage(
+    exception: PrismaClientKnownRequestError,
+  ): string {
     const target = exception.meta?.target as string[];
-    
+
     if (target && target.length > 0) {
       const field = target[0];
-      
+
       switch (field) {
         case 'email':
           return 'Este email já está sendo usado por outro usuário';
@@ -145,7 +147,7 @@ export class PrismaExceptionFilter implements ExceptionFilter {
           return `O campo ${field} já existe no sistema`;
       }
     }
-    
+
     return 'Dados já existem no sistema';
   }
 }

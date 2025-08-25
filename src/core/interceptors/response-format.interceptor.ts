@@ -27,7 +27,7 @@ export class ResponseFormatInterceptor<T>
       301: 'Mudou de endereço, mas te avisa',
       302: 'Mudou temporariamente (vida de nômade)',
     };
-    
+
     return statusMessages[statusCode] || 'Operação realizada com sucesso';
   }
 
@@ -36,16 +36,16 @@ export class ResponseFormatInterceptor<T>
     next: CallHandler,
   ): Observable<StandardResponse<T>> {
     const response = context.switchToHttp().getResponse<Response>();
-    
+
     return next.handle().pipe(
       map((data) => {
         const statusCode = response.statusCode;
-        
+
         // Se já é uma resposta formatada, não reformatar
         if (data && typeof data === 'object' && 'statusCode' in data) {
           return data;
         }
-        
+
         // Para status 204, não retornar data
         if (statusCode === 204) {
           return {
@@ -54,7 +54,7 @@ export class ResponseFormatInterceptor<T>
             timestamp: new Date().toISOString(),
           };
         }
-        
+
         return {
           statusCode,
           message: this.getStandardMessage(statusCode),

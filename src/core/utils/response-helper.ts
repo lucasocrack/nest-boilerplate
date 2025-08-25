@@ -22,14 +22,18 @@ export class ResponseHelper {
       503: 'O serviço decidiu tirar férias',
       504: 'O servidor está te ignorando',
     };
-    
+
     return statusMessages[statusCode] || 'Operação realizada com sucesso';
   }
 
   /**
    * Cria uma resposta de sucesso padronizada
    */
-  static success<T>(data: T, statusCode: number = HttpStatus.OK, customMessage?: string) {
+  static success<T>(
+    data: T,
+    statusCode: number = HttpStatus.OK,
+    customMessage?: string,
+  ) {
     return {
       statusCode,
       message: customMessage || this.getStandardMessage(statusCode),

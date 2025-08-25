@@ -56,13 +56,15 @@ describe('MailService', () => {
       const user = {
         email: 'test@example.com',
         name: 'Test User',
-        userId: '1'
+        userId: '1',
       } as any;
       const activationToken = 'activation_token_123';
       const frontendUrl = 'https://frontend.com';
 
       mockConfigService.get.mockReturnValue(frontendUrl);
-      mockMailerService.sendMail.mockResolvedValue({ messageId: 'test-message-id' });
+      mockMailerService.sendMail.mockResolvedValue({
+        messageId: 'test-message-id',
+      });
 
       await service.sendActivationEmail(user, activationToken);
 
@@ -82,7 +84,7 @@ describe('MailService', () => {
       const user = {
         email: 'test@example.com',
         name: 'Test User',
-        userId: '1'
+        userId: '1',
       } as any;
       const activationToken = 'activation_token_123';
       const frontendUrl = 'https://frontend.com';
@@ -91,7 +93,9 @@ describe('MailService', () => {
       mockConfigService.get.mockReturnValue(frontendUrl);
       mockMailerService.sendMail.mockRejectedValue(error);
 
-      await expect(service.sendActivationEmail(user, activationToken)).rejects.toThrow(error);
+      await expect(
+        service.sendActivationEmail(user, activationToken),
+      ).rejects.toThrow(error);
     });
   });
 
@@ -103,7 +107,9 @@ describe('MailService', () => {
       const frontendUrl = 'https://frontend.com';
 
       mockConfigService.get.mockReturnValue(frontendUrl);
-      mockMailerService.sendMail.mockResolvedValue({ messageId: 'test-message-id' });
+      mockMailerService.sendMail.mockResolvedValue({
+        messageId: 'test-message-id',
+      });
 
       await service.sendPasswordResetEmail(email, name, resetToken);
 
@@ -130,7 +136,9 @@ describe('MailService', () => {
       mockConfigService.get.mockReturnValue(frontendUrl);
       mockMailerService.sendMail.mockRejectedValue(error);
 
-      await expect(service.sendPasswordResetEmail(email, name, resetToken)).rejects.toThrow(error);
+      await expect(
+        service.sendPasswordResetEmail(email, name, resetToken),
+      ).rejects.toThrow(error);
     });
   });
 
@@ -141,7 +149,9 @@ describe('MailService', () => {
       const frontendUrl = 'https://frontend.com';
 
       mockConfigService.get.mockReturnValue(frontendUrl);
-      mockMailerService.sendMail.mockResolvedValue({ messageId: 'test-message-id' });
+      mockMailerService.sendMail.mockResolvedValue({
+        messageId: 'test-message-id',
+      });
 
       await service.sendWelcomeEmail(email, name);
 
@@ -166,7 +176,9 @@ describe('MailService', () => {
       mockConfigService.get.mockReturnValue(frontendUrl);
       mockMailerService.sendMail.mockRejectedValue(error);
 
-      await expect(service.sendWelcomeEmail(email, name)).rejects.toThrow(error);
+      await expect(service.sendWelcomeEmail(email, name)).rejects.toThrow(
+        error,
+      );
     });
   });
 
@@ -177,7 +189,9 @@ describe('MailService', () => {
       const alertType = 'login_attempt';
       const details = 'Tentativa de login de IP suspeito';
 
-      mockMailerService.sendMail.mockResolvedValue({ messageId: 'test-message-id' });
+      mockMailerService.sendMail.mockResolvedValue({
+        messageId: 'test-message-id',
+      });
 
       await service.sendSecurityAlertEmail(email, name, alertType, details);
 
@@ -203,7 +217,9 @@ describe('MailService', () => {
 
       mockMailerService.sendMail.mockRejectedValue(error);
 
-      await expect(service.sendSecurityAlertEmail(email, name, alertType, details)).rejects.toThrow(error);
+      await expect(
+        service.sendSecurityAlertEmail(email, name, alertType, details),
+      ).rejects.toThrow(error);
     });
   });
 
@@ -214,7 +230,9 @@ describe('MailService', () => {
       const template = 'test-template';
       const context = { name: 'Test User' };
 
-      mockMailerService.sendMail.mockResolvedValue({ messageId: 'test-message-id' });
+      mockMailerService.sendMail.mockResolvedValue({
+        messageId: 'test-message-id',
+      });
 
       await service.sendEmail(to, subject, template, context);
 
@@ -235,7 +253,9 @@ describe('MailService', () => {
 
       mockMailerService.sendMail.mockRejectedValue(error);
 
-      await expect(service.sendEmail(to, subject, template, context)).rejects.toThrow(error);
+      await expect(
+        service.sendEmail(to, subject, template, context),
+      ).rejects.toThrow(error);
     });
   });
 });

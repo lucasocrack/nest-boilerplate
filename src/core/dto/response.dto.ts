@@ -18,7 +18,9 @@ export class BaseResponseDto<T = any> {
 
   constructor(data?: T, message?: string, statusCode: number = 200) {
     this.success = statusCode >= 200 && statusCode < 300;
-    this.message = message || (this.success ? 'Operação realizada com sucesso' : 'Erro na operação');
+    this.message =
+      message ||
+      (this.success ? 'Operação realizada com sucesso' : 'Erro na operação');
     this.data = data;
     this.timestamp = new Date().toISOString();
     this.statusCode = statusCode;
@@ -44,7 +46,12 @@ export class ErrorResponseDto {
   @ApiProperty({ description: 'Código de status HTTP' })
   statusCode: number;
 
-  constructor(message: string, statusCode: number, error?: string, details?: any) {
+  constructor(
+    message: string,
+    statusCode: number,
+    error?: string,
+    details?: any,
+  ) {
     this.message = message;
     this.statusCode = statusCode;
     this.error = error;

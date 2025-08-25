@@ -97,7 +97,7 @@ describe('DataSanitizer', () => {
       const req = {
         headers: {
           'content-type': 'application/json',
-          'authorization': 'Bearer token123',
+          authorization: 'Bearer token123',
           'x-api-key': 'secret-key',
         },
         body: {

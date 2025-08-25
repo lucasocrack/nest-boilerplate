@@ -40,7 +40,9 @@ export class UserMapper {
   /**
    * Converte entidade de domínio para modelo Prisma (para criação)
    */
-  static toPrismaCreate(userEntity: Partial<UserEntity>): Omit<PrismaUser, 'userId' | 'createdAt' | 'updatedAt'> {
+  static toPrismaCreate(
+    userEntity: Partial<UserEntity>,
+  ): Omit<PrismaUser, 'userId' | 'createdAt' | 'updatedAt'> {
     return {
       userName: userEntity.userName!,
       name: userEntity.name!,
@@ -72,27 +74,45 @@ export class UserMapper {
   static toPrismaUpdate(userEntity: Partial<UserEntity>): Partial<PrismaUser> {
     const updateData: Partial<PrismaUser> = {};
 
-    if (userEntity.userName !== undefined) updateData.userName = userEntity.userName;
+    if (userEntity.userName !== undefined)
+      updateData.userName = userEntity.userName;
     if (userEntity.name !== undefined) updateData.name = userEntity.name;
     if (userEntity.email !== undefined) updateData.email = userEntity.email;
     if (userEntity.cpf !== undefined) updateData.cpf = userEntity.cpf || null;
-    if (userEntity.telefone !== undefined) updateData.telefone = userEntity.telefone || null;
-    if (userEntity.avatarUrl !== undefined) updateData.avatarUrl = userEntity.avatarUrl || null;
-    if (userEntity.role !== undefined) updateData.role = this.mapUserRoleToPrismaRole(userEntity.role);
-    if (userEntity.password !== undefined) updateData.password = userEntity.password || null;
-    if (userEntity.lastLogin !== undefined) updateData.lastLogin = userEntity.lastLogin || null;
-    if (userEntity.tokenVersion !== undefined) updateData.tokenVersion = userEntity.tokenVersion;
-    if (userEntity.refreshToken !== undefined) updateData.refreshToken = userEntity.refreshToken || null;
-    if (userEntity.passwordResetToken !== undefined) updateData.passwordResetToken = userEntity.passwordResetToken || null;
-    if (userEntity.passwordResetExpires !== undefined) updateData.passwordResetExpires = userEntity.passwordResetExpires || null;
-    if (userEntity.activationToken !== undefined) updateData.activationToken = userEntity.activationToken || null;
-    if (userEntity.activationTokenExpires !== undefined) updateData.activationTokenExpires = userEntity.activationTokenExpires || null;
+    if (userEntity.telefone !== undefined)
+      updateData.telefone = userEntity.telefone || null;
+    if (userEntity.avatarUrl !== undefined)
+      updateData.avatarUrl = userEntity.avatarUrl || null;
+    if (userEntity.role !== undefined)
+      updateData.role = this.mapUserRoleToPrismaRole(userEntity.role);
+    if (userEntity.password !== undefined)
+      updateData.password = userEntity.password || null;
+    if (userEntity.lastLogin !== undefined)
+      updateData.lastLogin = userEntity.lastLogin || null;
+    if (userEntity.tokenVersion !== undefined)
+      updateData.tokenVersion = userEntity.tokenVersion;
+    if (userEntity.refreshToken !== undefined)
+      updateData.refreshToken = userEntity.refreshToken || null;
+    if (userEntity.passwordResetToken !== undefined)
+      updateData.passwordResetToken = userEntity.passwordResetToken || null;
+    if (userEntity.passwordResetExpires !== undefined)
+      updateData.passwordResetExpires = userEntity.passwordResetExpires || null;
+    if (userEntity.activationToken !== undefined)
+      updateData.activationToken = userEntity.activationToken || null;
+    if (userEntity.activationTokenExpires !== undefined)
+      updateData.activationTokenExpires =
+        userEntity.activationTokenExpires || null;
     if (userEntity.active !== undefined) updateData.active = userEntity.active;
-    if (userEntity.blocked !== undefined) updateData.blocked = userEntity.blocked;
-    if (userEntity.blockedUntil !== undefined) updateData.blockedUntil = userEntity.blockedUntil || null;
-    if (userEntity.loginAttempts !== undefined) updateData.loginAttempts = userEntity.loginAttempts;
-    if (userEntity.lastFailedLogin !== undefined) updateData.lastFailedLogin = userEntity.lastFailedLogin || null;
-    if (userEntity.deletedAt !== undefined) updateData.deletedAt = userEntity.deletedAt || null;
+    if (userEntity.blocked !== undefined)
+      updateData.blocked = userEntity.blocked;
+    if (userEntity.blockedUntil !== undefined)
+      updateData.blockedUntil = userEntity.blockedUntil || null;
+    if (userEntity.loginAttempts !== undefined)
+      updateData.loginAttempts = userEntity.loginAttempts;
+    if (userEntity.lastFailedLogin !== undefined)
+      updateData.lastFailedLogin = userEntity.lastFailedLogin || null;
+    if (userEntity.deletedAt !== undefined)
+      updateData.deletedAt = userEntity.deletedAt || null;
 
     return updateData;
   }
@@ -101,7 +121,7 @@ export class UserMapper {
    * Converte array de modelos Prisma para array de entidades de domínio
    */
   static toDomainArray(prismaUsers: PrismaUser[]): UserEntity[] {
-    return prismaUsers.map(user => this.toDomain(user));
+    return prismaUsers.map((user) => this.toDomain(user));
   }
 
   /**

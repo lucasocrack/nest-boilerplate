@@ -52,7 +52,7 @@ export class DataSanitizer {
     }
 
     if (Array.isArray(data)) {
-      return data.map(item => deep ? this.sanitize(item, deep) : item);
+      return data.map((item) => (deep ? this.sanitize(item, deep) : item));
     }
 
     const sanitized = { ...data };
@@ -60,7 +60,7 @@ export class DataSanitizer {
     for (const key in sanitized) {
       if (sanitized.hasOwnProperty(key)) {
         const lowerKey = key.toLowerCase();
-        
+
         // Remove campos sensíveis completamente
         if (this.isSensitiveField(lowerKey)) {
           sanitized[key] = '[REDACTED]';
@@ -70,7 +70,11 @@ export class DataSanitizer {
           sanitized[key] = this.maskValue(sanitized[key]);
         }
         // Sanitização recursiva para objetos aninhados
-        else if (deep && typeof sanitized[key] === 'object' && sanitized[key] !== null) {
+        else if (
+          deep &&
+          typeof sanitized[key] === 'object' &&
+          sanitized[key] !== null
+        ) {
           sanitized[key] = this.sanitize(sanitized[key], deep);
         }
       }
@@ -83,8 +87,8 @@ export class DataSanitizer {
    * Verifica se um campo é sensível e deve ser removido
    */
   private static isSensitiveField(fieldName: string): boolean {
-    return this.SENSITIVE_FIELDS.some(sensitive => 
-      fieldName.includes(sensitive.toLowerCase())
+    return this.SENSITIVE_FIELDS.some((sensitive) =>
+      fieldName.includes(sensitive.toLowerCase()),
     );
   }
 
@@ -92,8 +96,8 @@ export class DataSanitizer {
    * Verifica se um campo deve ser mascarado
    */
   private static isMaskableField(fieldName: string): boolean {
-    return this.MASKABLE_FIELDS.some(maskable => 
-      fieldName.includes(maskable.toLowerCase())
+    return this.MASKABLE_FIELDS.some((maskable) =>
+      fieldName.includes(maskable.toLowerCase()),
     );
   }
 
@@ -112,7 +116,8 @@ export class DataSanitizer {
     // Para emails: mostrar primeiro caractere e domínio
     if (value.includes('@')) {
       const [local, domain] = value.split('@');
-      const maskedLocal = local.charAt(0) + '*'.repeat(Math.max(0, local.length - 1));
+      const maskedLocal =
+        local.charAt(0) + '*'.repeat(Math.max(0, local.length - 1));
       return `${maskedLocal}@${domain}`;
     }
 
@@ -179,9 +184,11 @@ export class DataSanitizer {
     const sanitized = { ...headers };
 
     for (const header in sanitized) {
-      if (sensitiveHeaders.some(sensitive => 
-        header.toLowerCase().includes(sensitive)
-      )) {
+      if (
+        sensitiveHeaders.some((sensitive) =>
+          header.toLowerCase().includes(sensitive),
+        )
+      ) {
         sanitized[header] = '[REDACTED]';
       }
     }
@@ -210,11 +217,16 @@ export class DataSanitizer {
     const sanitized = { ...data };
 
     for (const key in sanitized) {
-      if (restrictedFields.some(field => 
-        key.toLowerCase().includes(field.toLowerCase())
-      )) {
+      if (
+        restrictedFields.some((field) =>
+          key.toLowerCase().includes(field.toLowerCase()),
+        )
+      ) {
         sanitized[key] = '[REDACTED]';
-      } else if (typeof sanitized[key] === 'object' && sanitized[key] !== null) {
+      } else if (
+        typeof sanitized[key] === 'object' &&
+        sanitized[key] !== null
+      ) {
         sanitized[key] = this.sanitizeHttpResponse(sanitized[key]);
       }
     }
@@ -247,17 +259,21 @@ export class DataSanitizer {
  * Decorator para sanitizar automaticamente parâmetros de métodos
  * Uso: @Sanitize() em métodos que recebem dados sensíveis
  */
-export function Sanitize(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+export function Sanitize(
+  target: any,
+  propertyKey: string,
+  descriptor: PropertyDescriptor,
+) {
   const originalMethod = descriptor.value;
 
   descriptor.value = function (...args: any[]) {
     // Sanitiza argumentos antes de processar
-    const sanitizedArgs = args.map(arg => DataSanitizer.sanitize(arg));
-    
+    const sanitizedArgs = args.map((arg) => DataSanitizer.sanitize(arg));
+
     // Chama método original com argumentos sanitizados para logs
     // Mas usa argumentos originais para processamento real
     const result = originalMethod.apply(this, args);
-    
+
     return result;
   };
 

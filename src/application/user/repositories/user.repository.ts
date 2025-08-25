@@ -53,7 +53,7 @@ export class UserRepository implements IUserRepository {
   async findByIdentification(identification: string): Promise<User | null> {
     // Verificar se é um email válido
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
+
     if (emailRegex.test(identification)) {
       return this.findByEmail(identification);
     } else {
@@ -63,7 +63,7 @@ export class UserRepository implements IUserRepository {
         return this.findByCpf(normalizedCpf);
       }
     }
-    
+
     return null;
   }
 
@@ -115,7 +115,7 @@ export class UserRepository implements IUserRepository {
       where.email = { contains: email, mode: 'insensitive' };
     }
 
-    const [data, total] = await Promise.all([
+    const [data, total]: any = await Promise.all([
       this.prisma.user.findMany({
         where,
         skip,
@@ -188,9 +188,15 @@ export class UserRepository implements IUserRepository {
     cpfExists: boolean;
   }> {
     const [userNameExists, emailExists, cpfExists] = await Promise.all([
-      data.userName ? this.prisma.user.findFirst({ where: { userName: data.userName } }) : null,
-      data.email ? this.prisma.user.findUnique({ where: { email: data.email } }) : null,
-      data.cpf ? this.prisma.user.findUnique({ where: { cpf: data.cpf } }) : null,
+      data.userName
+        ? this.prisma.user.findFirst({ where: { userName: data.userName } })
+        : null,
+      data.email
+        ? this.prisma.user.findUnique({ where: { email: data.email } })
+        : null,
+      data.cpf
+        ? this.prisma.user.findUnique({ where: { cpf: data.cpf } })
+        : null,
     ]);
 
     return {

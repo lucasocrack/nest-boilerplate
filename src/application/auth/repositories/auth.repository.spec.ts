@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthRepository } from './auth.repository';
 import { PrismaService } from '../../../core/config/prisma.service';
 import { User, Role } from '@prisma/client';
-import { CreateUserDto } from '../dto/create-auth.dto';
 
 const mockPrismaService = {
   user: {
@@ -15,7 +14,6 @@ const mockPrismaService = {
 
 describe('AuthRepository', () => {
   let repository: AuthRepository;
-  let prisma: PrismaService;
 
   const mockUser: User = {
     userId: '1',
@@ -69,28 +67,28 @@ describe('AuthRepository', () => {
   describe('createUser', () => {
     it('should create a new user successfully', async () => {
       const userData: Omit<User, 'userId' | 'createdAt' | 'updatedAt'> = {
-      userName: 'testuser',
-      name: 'Test User',
-      email: 'test@example.com',
-      password: 'hashedPassword',
-      cpf: '12345678901',
-      telefone: '11999999999',
-      avatarUrl: null,
-      role: Role.CLIENTE,
-      lastLogin: null,
-      tokenVersion: 0,
-      refreshToken: null,
-      passwordResetToken: null,
-      passwordResetExpires: null,
-      activationToken: 'activation_token',
-      activationTokenExpires: new Date(Date.now() + 3600000),
-      active: false,
-      blocked: false,
-      blockedUntil: null,
-      loginAttempts: 0,
-      lastFailedLogin: null,
-      deletedAt: null,
-    };
+        userName: 'testuser',
+        name: 'Test User',
+        email: 'test@example.com',
+        password: 'hashedPassword',
+        cpf: '12345678901',
+        telefone: '11999999999',
+        avatarUrl: null,
+        role: Role.CLIENTE,
+        lastLogin: null,
+        tokenVersion: 0,
+        refreshToken: null,
+        passwordResetToken: null,
+        passwordResetExpires: null,
+        activationToken: 'activation_token',
+        activationTokenExpires: new Date(Date.now() + 3600000),
+        active: false,
+        blocked: false,
+        blockedUntil: null,
+        loginAttempts: 0,
+        lastFailedLogin: null,
+        deletedAt: null,
+      };
 
       mockPrismaService.user.create.mockResolvedValue(mockUser);
 
@@ -149,7 +147,7 @@ describe('AuthRepository', () => {
       expect(mockPrismaService.user.findFirst).toHaveBeenCalledWith({
         where: {
           passwordResetToken: token,
-          passwordResetExpires: { gte: expect.any(Date) },
+          passwordResetExpires: { gte: expect.any(Date) as Date },
         },
       });
       expect(result).toEqual(userWithResetToken);
@@ -180,7 +178,9 @@ describe('AuthRepository', () => {
     it('should return null when email not found', async () => {
       mockPrismaService.user.findUnique.mockResolvedValue(null);
 
-      const result = await repository.findUserByEmail('nonexistent@example.com');
+      const result = await repository.findUserByEmail(
+        'nonexistent@example.com',
+      );
 
       expect(result).toBeNull();
     });
@@ -195,14 +195,16 @@ describe('AuthRepository', () => {
         activationTokenExpires: new Date(Date.now() + 3600000),
         active: false,
       };
-      mockPrismaService.user.findFirst.mockResolvedValue(userWithActivationToken);
+      mockPrismaService.user.findFirst.mockResolvedValue(
+        userWithActivationToken,
+      );
 
       const result = await repository.findUserByActivationToken(token);
 
       expect(mockPrismaService.user.findFirst).toHaveBeenCalledWith({
         where: {
           activationToken: token,
-          activationTokenExpires: { gte: expect.any(Date) },
+          activationTokenExpires: { gte: expect.any(Date) as Date },
           active: false,
         },
       });
@@ -263,7 +265,10 @@ describe('AuthRepository', () => {
       };
       mockPrismaService.user.update.mockResolvedValue(updatedUser);
 
-      const result = await repository.updateUserPassword(userId, hashedPassword);
+      const result = await repository.updateUserPassword(
+        userId,
+        hashedPassword,
+      );
 
       expect(mockPrismaService.user.update).toHaveBeenCalledWith({
         where: { userId },
@@ -283,7 +288,9 @@ describe('AuthRepository', () => {
       const error = new Error('Password update failed');
       mockPrismaService.user.update.mockRejectedValue(error);
 
-      await expect(repository.updateUserPassword('1', hashedPassword)).rejects.toThrow(error);
+      await expect(
+        repository.updateUserPassword('1', hashedPassword),
+      ).rejects.toThrow(error);
     });
   });
 
@@ -316,7 +323,9 @@ describe('AuthRepository', () => {
       const error = new Error('Update failed');
       mockPrismaService.user.update.mockRejectedValue(error);
 
-      await expect(repository.updateUserTokens('1', tokenData)).rejects.toThrow(error);
+      await expect(repository.updateUserTokens('1', tokenData)).rejects.toThrow(
+        error,
+      );
     });
   });
 
@@ -346,7 +355,9 @@ describe('AuthRepository', () => {
       const error = new Error('Update failed');
       mockPrismaService.user.update.mockRejectedValue(error);
 
-      await expect(repository.incrementTokenVersion('1')).rejects.toThrow(error);
+      await expect(repository.incrementTokenVersion('1')).rejects.toThrow(
+        error,
+      );
     });
   });
 });

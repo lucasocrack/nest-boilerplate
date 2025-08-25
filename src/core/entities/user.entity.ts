@@ -56,35 +56,39 @@ export class UserEntity {
    * Verifica se o token de reset de senha é válido
    */
   isPasswordResetTokenValid(): boolean {
-    return !!this.passwordResetToken && 
-           !!this.passwordResetExpires && 
-           new Date() < this.passwordResetExpires;
+    return (
+      !!this.passwordResetToken &&
+      !!this.passwordResetExpires &&
+      new Date() < this.passwordResetExpires
+    );
   }
 
   /**
    * Verifica se o token de ativação é válido
    */
   isActivationTokenValid(): boolean {
-    return !!this.activationToken && 
-           !!this.activationTokenExpires && 
-           new Date() < this.activationTokenExpires;
+    return (
+      !!this.activationToken &&
+      !!this.activationTokenExpires &&
+      new Date() < this.activationTokenExpires
+    );
   }
 
   /**
    * Remove dados sensíveis para retorno público
    */
   toPublic() {
-    const { 
-      password, 
-      refreshToken, 
-      passwordResetToken, 
-      activationToken, 
-      isActive, 
-      isBlocked, 
-      isPasswordResetTokenValid, 
-      isActivationTokenValid, 
-      toPublic, 
-      ...publicData 
+    const {
+      password,
+      refreshToken,
+      passwordResetToken,
+      activationToken,
+      isActive,
+      isBlocked,
+      isPasswordResetTokenValid,
+      isActivationTokenValid,
+      toPublic,
+      ...publicData
     } = this;
     return publicData;
   }
@@ -98,15 +102,26 @@ export enum UserRole {
   FUNCIONARIO = 'FUNCIONARIO',
   GERENTE = 'GERENTE',
   ADMIN = 'ADMIN',
-  SUPERADMIN = 'SUPERADMIN'
+  SUPERADMIN = 'SUPERADMIN',
 }
 
 /**
  * Tipo para criação de usuário (sem campos gerados automaticamente)
  */
-export type CreateUserData = Omit<UserEntity, 'userId' | 'createdAt' | 'updatedAt' | 'tokenVersion' | 'loginAttempts' | 'active' | 'blocked'>;
+export type CreateUserData = Omit<
+  UserEntity,
+  | 'userId'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'tokenVersion'
+  | 'loginAttempts'
+  | 'active'
+  | 'blocked'
+>;
 
 /**
  * Tipo para atualização de usuário (campos opcionais)
  */
-export type UpdateUserData = Partial<Omit<UserEntity, 'userId' | 'createdAt' | 'updatedAt'>>;
+export type UpdateUserData = Partial<
+  Omit<UserEntity, 'userId' | 'createdAt' | 'updatedAt'>
+>;

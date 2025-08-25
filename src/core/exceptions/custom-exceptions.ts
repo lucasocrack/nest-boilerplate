@@ -15,7 +15,7 @@ export class BadRequestException extends HttpException {
       error: 'Bad Request',
       timestamp: new Date().toISOString(),
     };
-    
+
     super(response, HttpStatus.BAD_REQUEST);
   }
 }
@@ -28,7 +28,7 @@ export class UnauthorizedException extends HttpException {
       error: 'Unauthorized',
       timestamp: new Date().toISOString(),
     };
-    
+
     super(response, HttpStatus.UNAUTHORIZED);
   }
 }
@@ -41,7 +41,7 @@ export class ForbiddenException extends HttpException {
       error: 'Forbidden',
       timestamp: new Date().toISOString(),
     };
-    
+
     super(response, HttpStatus.FORBIDDEN);
   }
 }
@@ -54,7 +54,7 @@ export class NotFoundException extends HttpException {
       error: 'Not Found',
       timestamp: new Date().toISOString(),
     };
-    
+
     super(response, HttpStatus.NOT_FOUND);
   }
 }
@@ -67,7 +67,7 @@ export class ConflictException extends HttpException {
       error: 'Conflict',
       timestamp: new Date().toISOString(),
     };
-    
+
     super(response, HttpStatus.CONFLICT);
   }
 }
@@ -80,7 +80,7 @@ export class UnprocessableEntityException extends HttpException {
       error: 'Unprocessable Entity',
       timestamp: new Date().toISOString(),
     };
-    
+
     super(response, HttpStatus.UNPROCESSABLE_ENTITY);
   }
 }
@@ -93,7 +93,7 @@ export class InternalServerErrorException extends HttpException {
       error: 'Internal Server Error',
       timestamp: new Date().toISOString(),
     };
-    
+
     super(response, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

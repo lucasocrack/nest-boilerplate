@@ -9,7 +9,9 @@ import { IUserRepository } from './repositories/user.repository.interface';
  */
 @Injectable()
 export class UserService {
-  constructor(@Inject('IUserRepository') private readonly userRepository: IUserRepository) {}
+  constructor(
+    @Inject('IUserRepository') private readonly userRepository: IUserRepository,
+  ) {}
 
   async createUser(data: CreateUserDto): Promise<User> {
     return this.userRepository.create(data);
@@ -31,7 +33,11 @@ export class UserService {
     return this.userRepository.findByIdentification(identification);
   }
 
-  async checkUserExists(data: { userName?: string; email?: string; cpf?: string }): Promise<{
+  async checkUserExists(data: {
+    userName?: string;
+    email?: string;
+    cpf?: string;
+  }): Promise<{
     userNameExists: boolean;
     emailExists: boolean;
     cpfExists: boolean;
@@ -47,7 +53,14 @@ export class UserService {
     return this.userRepository.findAll();
   }
 
-  async findAllPaged(params: { page: number; limit: number; role?: Role; search?: string; userName?: string; email?: string }): Promise<{ data: User[]; total: number; page: number; limit: number; }> {
+  async findAllPaged(params: {
+    page: number;
+    limit: number;
+    role?: Role;
+    search?: string;
+    userName?: string;
+    email?: string;
+  }): Promise<{ data: User[]; total: number; page: number; limit: number }> {
     return this.userRepository.findAllPaged(params);
   }
 

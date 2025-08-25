@@ -59,7 +59,9 @@ export class GlobalAuthGuard implements CanActivate {
         typeof payload.tokenVersion === 'number' &&
         payload.tokenVersion !== user.tokenVersion
       ) {
-        throw new UnauthorizedException('Token invalidado. Faça login novamente.');
+        throw new UnauthorizedException(
+          'Token invalidado. Faça login novamente.',
+        );
       }
 
       request.user = {
