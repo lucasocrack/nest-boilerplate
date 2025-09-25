@@ -1,0 +1,11 @@
+meta {
+  name: Health Check Liveness
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{host}}/v1/health/live
+  body: none
+  auth: none
+}

@@ -1,0 +1,38 @@
+meta {
+  name: Get Audit Log
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{host}}/v1/audit/audit-id-here
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  # Get Audit Log
+  
+  Obtém um log de auditoria específico pelo ID.
+  
+  ## Parâmetros de URL
+  - `auditId`: ID do log de auditoria (substitua "audit-id-here" na URL)
+  
+  ## Resposta
+  Retorna detalhes completos do log de auditoria:
+  - ID do audit log
+  - Tipo e ID da entidade
+  - Ação realizada
+  - Usuário responsável
+  - Timestamp
+  - Valores antigos e novos
+  - Campos alterados
+  - IP e User Agent
+  - Metadados adicionais
+  
+  **Requer autenticação e role ADMIN**
+}

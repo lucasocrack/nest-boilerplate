@@ -1,0 +1,31 @@
+meta {
+  name: Clear Metrics
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{host}}/v1/monitoring/performance/clear
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  # Clear Metrics
+  
+  Remove todas as métricas de performance armazenadas em memória.
+  
+  ## Uso
+  Útil para limpar dados antigos ou resetar as métricas durante desenvolvimento/testes.
+  
+  ## Resposta
+  Confirmação de que as métricas foram limpas com sucesso.
+  
+  **⚠️ ATENÇÃO: Esta operação remove todos os dados de métricas!**
+  
+  **Requer autenticação e role ADMIN**
+}

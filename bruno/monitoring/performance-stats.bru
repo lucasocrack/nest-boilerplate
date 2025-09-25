@@ -1,0 +1,39 @@
+meta {
+  name: Performance Stats
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/v1/monitoring/performance/stats?timeRange=60
+  body: none
+  auth: bearer
+}
+
+params:query {
+  timeRange: 60
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  # Performance Stats
+  
+  Obtém estatísticas agregadas de performance da aplicação.
+  
+  ## Parâmetros
+  - `timeRange` (opcional): Intervalo de tempo em minutos (padrão: 60)
+  
+  ## Resposta
+  Retorna métricas como:
+  - Total de requisições
+  - Tempo médio de resposta
+  - Número de requisições lentas
+  - Distribuição por método HTTP
+  - Distribuição por status code
+  - Top 10 endpoints mais lentos
+  
+  **Requer autenticação e role ADMIN**
+}

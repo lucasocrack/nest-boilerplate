@@ -1,0 +1,39 @@
+meta {
+  name: Audit Trail
+  type: folder
+}
+
+docs {
+  # Audit Trail
+
+  Esta pasta contém todas as requisições relacionadas ao sistema de auditoria da aplicação.
+
+  ## Endpoints disponíveis:
+
+  - **List Audit Logs**: Lista logs de auditoria com filtros avançados (paginação, filtros por entidade, ação, usuário, data)
+  - **Audit Stats**: Estatísticas agregadas de auditoria (distribuição de ações, entidades mais modificadas, usuários mais ativos)
+  - **Get Audit Log**: Obtém detalhes completos de um log específico
+
+  ## Autenticação
+
+  Todos os endpoints de auditoria requerem:
+  - Token JWT válido
+  - Role de ADMIN
+
+  ## Sistema de Auditoria
+
+  O sistema registra automaticamente:
+  - Todas as operações CRUD em entidades críticas
+  - Usuário responsável pela ação
+  - Timestamp da operação
+  - Valores antigos e novos (para UPDATE)
+  - IP e User Agent do cliente
+  - Metadados adicionais (endpoint, parâmetros)
+
+  ## Compliance e Segurança
+
+  - Dados sensíveis são automaticamente sanitizados ([REDACTED])
+  - Logs são imutáveis após criação
+  - Retenção configurável para compliance
+  - Rastreabilidade completa de mudanças
+}

@@ -5,9 +5,9 @@ meta {
 }
 
 delete {
-  url: http://localhost:3099/users/1
+  url: {{host}}/users/1
 }
 
 headers {
-  Authorization: Bearer {{jwt_token}}
+  Authorization: Bearer {{token}}
 }

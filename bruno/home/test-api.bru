@@ -1,0 +1,34 @@
+meta {
+  name: Test API
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/test-api
+  body: none
+  auth: none
+}
+
+docs {
+  # Test API
+  
+  Testa a conectividade da API.
+  
+  ## Resposta
+  Retorna:
+  - Mensagem de confirmação
+  - Timestamp atual
+  - Versão da API
+  - Ambiente atual (development, production, etc.)
+  
+  ## Uso
+  - Verificar se a API está respondendo
+  - Obter informações básicas do sistema
+  - Útil para health checks simples
+  
+  ## Observações
+  - Endpoint público (não requer autenticação)
+  - Resposta rápida e leve
+  - Ideal para monitoramento básico
+}

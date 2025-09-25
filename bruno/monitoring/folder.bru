@@ -1,0 +1,32 @@
+meta {
+  name: Monitoring
+  type: folder
+}
+
+docs {
+  # Monitoring
+
+  Esta pasta contém todas as requisições relacionadas ao monitoramento de performance da aplicação.
+
+  ## Endpoints disponíveis:
+
+  - **Performance Stats**: Estatísticas agregadas de performance (tempo de resposta, requisições por método, etc.)
+  - **Slow Requests**: Lista das requisições mais lentas registradas no sistema
+  - **Clear Metrics**: Remove todas as métricas armazenadas em memória
+
+  ## Autenticação
+
+  Todos os endpoints de monitoramento requerem:
+  - Token JWT válido
+  - Role de ADMIN
+
+  ## Configuração
+
+  As métricas são coletadas automaticamente pelo `PerformanceInterceptor` e armazenadas em memória pelo `PerformanceMetricsService`.
+
+  ## Limites
+
+  - Máximo de 10.000 métricas em memória
+  - Requisições são consideradas "lentas" se excederem 1 segundo
+  - Dados são mantidos por tempo limitado para evitar vazamento de memória
+}

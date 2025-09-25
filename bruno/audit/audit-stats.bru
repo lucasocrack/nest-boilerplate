@@ -1,0 +1,37 @@
+meta {
+  name: Audit Stats
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/v1/audit/stats?days=30
+  body: none
+  auth: bearer
+}
+
+params:query {
+  days: 30
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  # Audit Stats
+  
+  Obtém estatísticas agregadas de auditoria.
+  
+  ## Parâmetros
+  - `days` (opcional): Número de dias para análise (padrão: 30, máximo: 365)
+  
+  ## Resposta
+  Retorna estatísticas como:
+  - Total de ações registradas
+  - Distribuição de ações por tipo (CREATE, UPDATE, DELETE)
+  - Distribuição de entidades por tipo (User, etc.)
+  - Top 10 usuários mais ativos
+  
+  **Requer autenticação e role ADMIN**
+}

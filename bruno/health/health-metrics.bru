@@ -1,0 +1,11 @@
+meta {
+  name: Health Check Metrics
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{host}}/v1/health/metrics
+  body: none
+  auth: none
+}

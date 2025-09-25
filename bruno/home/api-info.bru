@@ -1,0 +1,29 @@
+meta {
+  name: API Info
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/
+  body: none
+  auth: none
+}
+
+docs {
+  # API Info
+  
+  Obtém informações básicas da API.
+  
+  ## Resposta
+  Retorna informações sobre:
+  - Nome da API
+  - Versão
+  - Descrição
+  - Links úteis (documentação, repositório)
+  
+  ## Observações
+  - Endpoint público (não requer autenticação)
+  - Útil para verificar se a API está online
+  - Fornece informações básicas sobre o sistema
+}

@@ -1,0 +1,50 @@
+meta {
+  name: List Audit Logs
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/v1/audit?page=1&limit=20&entityType=User&action=CREATE
+  body: none
+  auth: bearer
+}
+
+params:query {
+  page: 1
+  limit: 20
+  entityType: User
+  action: CREATE
+  ~userId: 
+  ~entityId: 
+  ~startDate: 
+  ~endDate: 
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  # List Audit Logs
+  
+  Lista logs de auditoria com filtros opcionais.
+  
+  ## Parâmetros de Query (todos opcionais)
+  - `entityType`: Tipo da entidade (User, etc.)
+  - `action`: Ação realizada (CREATE, UPDATE, DELETE, etc.)
+  - `userId`: ID do usuário que realizou a ação
+  - `entityId`: ID da entidade afetada
+  - `startDate`: Data inicial (ISO string)
+  - `endDate`: Data final (ISO string)
+  - `page`: Número da página (padrão: 1)
+  - `limit`: Itens por página (padrão: 20, máximo: 100)
+  
+  ## Resposta
+  Retorna:
+  - Lista paginada de logs de auditoria
+  - Total de registros
+  - Informações de paginação
+  
+  **Requer autenticação e role ADMIN**
+}

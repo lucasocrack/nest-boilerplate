@@ -1,0 +1,40 @@
+meta {
+  name: Slow Requests
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/v1/monitoring/performance/slow-requests?limit=50
+  body: none
+  auth: bearer
+}
+
+params:query {
+  limit: 50
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  # Slow Requests
+  
+  Retorna lista das requisições mais lentas registradas no sistema.
+  
+  ## Parâmetros
+  - `limit` (opcional): Número máximo de requisições a retornar (padrão: 50)
+  
+  ## Resposta
+  Lista de requisições com:
+  - Método HTTP
+  - URL
+  - Status code
+  - Tempo de resposta
+  - Timestamp
+  - User Agent
+  - IP do cliente
+  
+  **Requer autenticação e role ADMIN**
+}

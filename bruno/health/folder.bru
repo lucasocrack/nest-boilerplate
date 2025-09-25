@@ -1,0 +1,20 @@
+meta {
+  name: Health Checks
+  type: folder
+}
+
+docs {
+  # Health Checks
+
+  Esta pasta contém todas as requisições relacionadas aos health checks da aplicação.
+
+  ## Endpoints disponíveis:
+
+  - **Basic**: Health check básico para verificar se a aplicação está respondendo
+  - **Detailed**: Health check detalhado com informações sobre banco de dados, memória, disco e serviços externos
+  - **Liveness**: Probe de liveness para verificar se a aplicação está viva (usado pelo Kubernetes)
+  - **Readiness**: Probe de readiness para verificar se a aplicação está pronta para receber tráfego
+  - **Metrics**: Métricas básicas de performance e uso de recursos
+
+  Todos os endpoints são públicos e não requerem autenticação.
+}
