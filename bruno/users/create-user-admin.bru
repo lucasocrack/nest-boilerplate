@@ -1,0 +1,112 @@
+meta {
+  name: Create User (Admin Only)
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{host}}/users
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{token}}
+}
+
+docs {
+  # Criação de Usuário (Administrativo)
+
+  Endpoint **restrito a administradores** para criar usuários com privilégios avançados.
+
+  ## ⚠️ IMPORTANTE
+  - **Acesso**: Apenas usuários com role ADMIN
+  - **Autenticação**: Token JWT obrigatório
+  - **Autorização**: Verificação de role ADMIN
+  - **Auditoria**: Todas as criações são registradas no audit trail
+
+  ## Diferenças do Registro Público
+  
+  | Recurso | Registro Público (`/auth/register`) | Criação Admin (`/users`) |
+  |---------|-------------------------------------|--------------------------|
+  | **Acesso** | Público | Apenas ADMIN |
+  | **Role** | Sempre USER | Qualquer role |
+  | **Ativação** | Email obrigatório | Opcional |
+  | **Status** | Sempre inativo | Configurável |
+  | **Validações** | Básicas | Avançadas |
+  | **Auditoria** | Limitada | Completa |
+
+  ## Campos Obrigatórios:
+  - **userName**: Nome de usuário único (3-30 caracteres)
+  - **name**: Nome completo (2-100 caracteres)
+  - **email**: Email válido e único
+  - **password**: Senha forte (mínimo 8 caracteres)
+
+  ## Campos Opcionais:
+  - **cpf**: CPF válido (formato brasileiro)
+  - **telefone**: Telefone no formato brasileiro
+  - **avatarUrl**: URL válida para avatar
+  - **role**: Role do usuário (USER, FUNCIONARIO, GERENTE, ADMIN, SUPERADMIN)
+  - **active**: Status de ativação (padrão: true)
+  - **sendEmail**: Enviar email de ativação (padrão: false)
+  - **blocked**: Status de bloqueio (padrão: false)
+  - **blockedUntil**: Data limite do bloqueio
+
+  ## Recursos Administrativos:
+  - ✅ Criação com qualquer role
+  - ✅ Ativação imediata opcional
+  - ✅ Controle de bloqueio
+  - ✅ Bypass de validações de email
+  - ✅ Auditoria completa
+
+  ## Resposta de Sucesso (201):
+  ```json
+  {
+    "data": {
+      "userId": "uuid",
+      "userName": "admin_user",
+      "name": "Admin User",
+      "email": "admin@company.com",
+      "role": "ADMIN",
+      "active": true,
+      "blocked": false,
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    },
+    "message": "Usuário criado com sucesso pelo administrador"
+  }
+  ```
+
+  ## Possíveis Erros:
+  - **400**: Dados inválidos fornecidos
+  - **401**: Token JWT ausente ou inválido
+  - **403**: Acesso negado - apenas administradores
+  - **409**: Conflito - usuário já existe (email, username ou CPF)
+
+  ## Segurança:
+  - 🔒 Guard de autenticação JWT
+  - 🛡️ Guard de autorização ADMIN
+  - 📝 Registro completo no audit trail
+  - 🚫 Prevenção de escalação de privilégios
+  - ⚡ Rate limiting aplicado
+
+  ## Exemplo de Uso:
+  1. Faça login como administrador
+  2. Use o token retornado no header Authorization
+  3. Envie os dados do usuário no body
+  4. Verifique a resposta e logs de auditoria
+}
+
+body:json {
+  {
+    "userName": "novo_funcionario",
+    "name": "João Silva",
+    "email": "joao.silva@empresa.com",
+    "password": "SenhaSegura@123",
+    "cpf": "123.456.789-00",
+    "telefone": "(11) 99999-9999",
+    "role": "FUNCIONARIO",
+    "active": true,
+    "sendEmail": false,
+    "blocked": false
+  }
+}

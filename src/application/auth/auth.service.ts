@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from './dto/create-auth.dto';
+import { RegisterDto } from './dto/register.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ActivateAccountDto } from './dto/activate-account.dto';
@@ -45,7 +45,6 @@ export class AuthService {
   }
 
   private getRefreshTokenExpiry(): string {
-    // Ex: '7d' via env JWT_REFRESH_TTL (fallback para REFRESH_TOKEN_TTL)
     return (
       this.configService.get<string>('JWT_REFRESH_TTL') ||
       this.configService.get<string>('REFRESH_TOKEN_TTL') ||
@@ -81,28 +80,26 @@ export class AuthService {
     const access_token = await this.signAccessToken(user);
     const refresh_token = await this.signRefreshToken(user);
 
-    // opcional: persistir hash do refreshToken
     await this.authRepository.updateRefreshToken(user.userId, refresh_token);
 
     return { access_token, refresh_token };
   }
 
   async register(
-    createUserDto: CreateUserDto,
+    registerDto: RegisterDto,
   ): Promise<Omit<User, 'password' | 'activationToken'> & { message: string }> {
-    // Validar CPF se fornecido
-    if (createUserDto.cpf) {
-      const normalizedCpf = ValidationUtils.normalizeCpf(createUserDto.cpf);
+    if (registerDto.cpf) {
+      const normalizedCpf = ValidationUtils.normalizeCpf(registerDto.cpf);
       if (!ValidationUtils.isValidCpf(normalizedCpf)) {
         throw new BadRequestException('CPF inválido');
       }
-      createUserDto.cpf = normalizedCpf; // Normalizar CPF antes de continuar
+      registerDto.cpf = normalizedCpf;
     }
 
     const existingUser = await this.userService.checkUserExists({
-      userName: createUserDto.userName,
-      email: createUserDto.email,
-      cpf: createUserDto.cpf,
+      userName: registerDto.userName,
+      email: registerDto.email,
+      cpf: registerDto.cpf,
     });
 
     const errors: string[] = [];
@@ -127,7 +124,7 @@ export class AuthService {
 
     const saltOrRounds = 10;
     const hashedPassword = await bcrypt.hash(
-      createUserDto.password,
+      registerDto.password,
       saltOrRounds,
     );
 
@@ -135,11 +132,11 @@ export class AuthService {
     const activationTokenExpires = this.getActivationTokenExpiration();
 
     const result = await this.authRepository.createUser({
-      ...createUserDto,
-      cpf: createUserDto.cpf || null,
-      telefone: createUserDto.telefone || null,
-      avatarUrl: createUserDto.avatarUrl || null,
-      role: createUserDto.role || 'CLIENTE',
+      ...registerDto,
+      cpf: registerDto.cpf || null,
+      telefone: registerDto.telefone || null,
+      avatarUrl: null,
+      role: 'CLIENTE',
       password: hashedPassword,
       active: false,
       activationToken,
@@ -158,7 +155,6 @@ export class AuthService {
 
     await this.mailService.sendActivationEmail(result, activationToken);
 
-    // Registrar criação do usuário no audit trail
     await this.auditTrailService.logCreate(
       'User',
       result.userId,
@@ -168,13 +164,12 @@ export class AuthService {
         role: result.role,
         active: result.active,
       },
-      undefined, // userId (usuário ainda não está logado)
+      undefined,
       'system',
-      'registration',
-      { action: 'user_registration' },
+      'public_registration',
+      { action: 'public_user_registration', securityLevel: 'public' },
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, activationToken: token, ...user } = result;
     return {
       ...user,
@@ -189,7 +184,7 @@ export class AuthService {
     userAgent?: string,
   ): Promise<void> {
     const maxAttempts = 5;
-    const lockoutDuration = 15 * 60 * 1000; // 15 minutos em millisegundos
+    const lockoutDuration = 15 * 60 * 1000;
 
     const newAttempts = user.loginAttempts + 1;
     const updateData: {
@@ -202,7 +197,6 @@ export class AuthService {
       lastFailedLogin: new Date(),
     };
 
-    // Log da tentativa de login falhada
     this.securityLogger.logLoginAttempt({
       userId: user.userId,
       email: user.email,
@@ -215,21 +209,17 @@ export class AuthService {
       timestamp: new Date(),
     });
 
-    // Enviar alerta de múltiplas tentativas se estiver próximo do limite
     if (newAttempts >= 3) {
       await this.mailService.sendMultipleLoginAttemptsAlert(user, newAttempts);
     }
 
-    // Se atingiu o máximo de tentativas, bloquear a conta
     if (newAttempts >= maxAttempts) {
       updateData.blocked = true;
       updateData.blockedUntil = new Date(Date.now() + lockoutDuration);
       updateData.loginAttempts = 0; // Reset contador após bloqueio
 
-      // Log do bloqueio da conta
       this.securityLogger.logAccountBlocked(user, newAttempts, ip, userAgent);
 
-      // Enviar alerta de conta bloqueada
       await this.mailService.sendAccountBlockedAlert(user, '15 minutos');
     }
 
@@ -248,10 +238,9 @@ export class AuthService {
       blockedUntil?: Date | null;
     } = {
       lastLogin: new Date(),
-      loginAttempts: 0, // Reset contador de tentativas
+      loginAttempts: 0,
     };
 
-    // Log do login bem-sucedido
     this.securityLogger.logLoginAttempt({
       userId: user.userId,
       email: user.email,
@@ -262,12 +251,9 @@ export class AuthService {
       timestamp: new Date(),
     });
 
-    // Se estava bloqueado temporariamente, desbloquear
     if (user.blocked && user.blockedUntil && user.blockedUntil <= new Date()) {
       updateData.blocked = false;
       updateData.blockedUntil = null;
-
-      // Log do desbloqueio automático
       this.securityLogger.logAccountUnblocked(user, ip, userAgent);
     }
 
@@ -312,7 +298,6 @@ export class AuthService {
 
     const isMatch = await bcrypt.compare(pass, user.password);
     if (!isMatch) {
-      // Registrar tentativa de login falhada
       await this.handleFailedLogin(
         user,
         loginDetails?.ip,
@@ -330,9 +315,7 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas.');
     }
 
-    // Login bem-sucedido - verificar se é suspeito
     if (loginDetails && this.isSuspiciousLogin(user)) {
-      // Log do login suspeito
       this.securityLogger.logSuspiciousLogin(
         user,
         loginDetails.ip,
@@ -354,7 +337,6 @@ export class AuthService {
       loginDetails?.userAgent,
     );
 
-    // Registrar login bem-sucedido no audit trail
     await this.auditTrailService.logSecurityAction(
       'LOGIN',
       'User',
@@ -491,7 +473,6 @@ export class AuthService {
 
     await this.authRepository.updateUserPassword(user.userId, hashedPassword);
 
-    // Log do reset de senha bem-sucedido
     this.securityLogger.logPasswordReset(user, ip, userAgent);
 
     return { message: 'Redefinição de senha com sucesso' };
@@ -524,17 +505,14 @@ export class AuthService {
       throw new BadRequestException('Esta conta já está ativada');
     }
 
-    // Gerar novo token de ativação
     const activationToken = crypto.randomBytes(32).toString('hex');
     const activationTokenExpires = this.getActivationTokenExpiration();
 
-    // Atualizar o token no banco
     await this.authRepository.updateUserTokens(user.userId, {
       activationToken,
       activationTokenExpires,
     });
 
-    // Enviar email de ativação
     await this.mailService.sendActivationEmail(
       { ...user, activationToken, activationTokenExpires },
       activationToken,
@@ -546,10 +524,8 @@ export class AuthService {
   async logout(userId: string, ip?: string, userAgent?: string): Promise<void> {
     await this.authRepository.incrementTokenVersion(userId);
 
-    // Log do logout bem-sucedido
     this.securityLogger.logLogout(userId, ip, userAgent);
 
-    // Registrar logout no audit trail
     await this.auditTrailService.logSecurityAction(
       'LOGOUT',
       'User',

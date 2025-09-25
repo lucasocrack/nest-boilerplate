@@ -424,7 +424,11 @@ bruno/
 │   ├── get-all-users.bru
 │   ├── get-user-by-id.bru
 │   ├── update-user.bru
-│   └── delete-user.bru
+│   ├── delete-user.bru
+│   └── create-user-admin.bru # 🔐 Criação administrativa (ADMIN only)
+├── audit/                    # Logs de auditoria (ADMIN only)
+├── monitoring/               # Métricas de performance (ADMIN only)
+├── health/                   # Health checks (público)
 └── environments/             # Configurações de ambiente
     ├── local.bru
     └── docker.bru

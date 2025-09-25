@@ -1,12 +1,17 @@
-import { Injectable, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { CreateUserDto } from '../auth/dto/create-auth.dto';
+import { CreateUserAdminDto } from './dto/create-user-admin.dto';
 import { User, Role } from '@prisma/client';
 import { IUserRepository } from './repositories/user.repository.interface';
+import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
+import { ValidationUtils } from '../../core/utils/validation.utils';
 
-/**
- * Service responsável pela lógica de negócio relacionada aos usuários
- * Utiliza o padrão Repository para separar a lógica de negócio do acesso a dados
- */
 @Injectable()
 export class UserService {
   constructor(
@@ -15,6 +20,69 @@ export class UserService {
 
   async createUser(data: CreateUserDto): Promise<User> {
     return this.userRepository.create(data);
+  }
+
+  async createUserAdmin(createUserAdminDto: CreateUserAdminDto): Promise<User> {
+    if (
+      createUserAdminDto.cpf &&
+      !ValidationUtils.isValidCpf(createUserAdminDto.cpf)
+    ) {
+      throw new BadRequestException('CPF inválido');
+    }
+
+    const userExists = await this.userRepository.checkUserExists({
+      userName: createUserAdminDto.userName,
+      email: createUserAdminDto.email,
+      cpf: createUserAdminDto.cpf,
+    });
+
+    if (userExists.userNameExists) {
+      throw new ConflictException('Nome de usuário já existe');
+    }
+
+    if (userExists.emailExists) {
+      throw new ConflictException('Email já está em uso');
+    }
+
+    if (userExists.cpfExists) {
+      throw new ConflictException('CPF já está em uso');
+    }
+
+    const hashedPassword = await bcrypt.hash(createUserAdminDto.password, 12);
+
+    let activationToken: string | null = null;
+    let activationTokenExpires: Date | null = null;
+
+    if (!createUserAdminDto.active) {
+      activationToken = crypto.randomBytes(32).toString('hex');
+      activationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    }
+
+    const userData: Omit<User, 'userId' | 'createdAt' | 'updatedAt'> = {
+      userName: createUserAdminDto.userName,
+      name: createUserAdminDto.name,
+      email: createUserAdminDto.email,
+      password: hashedPassword,
+      cpf: createUserAdminDto.cpf || null,
+      telefone: createUserAdminDto.telefone || null,
+      avatarUrl: createUserAdminDto.avatarUrl || null,
+      role: createUserAdminDto.role,
+      active: createUserAdminDto.active ?? true,
+      lastLogin: null,
+      tokenVersion: 1,
+      refreshToken: null,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      activationToken,
+      activationTokenExpires,
+      blocked: false,
+      blockedUntil: null,
+      loginAttempts: 0,
+      lastFailedLogin: null,
+      deletedAt: null,
+    };
+
+    return this.userRepository.createAdmin(userData);
   }
 
   async findOneByUsername(userName: string): Promise<User | null> {

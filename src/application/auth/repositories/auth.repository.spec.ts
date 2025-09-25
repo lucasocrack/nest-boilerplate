@@ -55,7 +55,6 @@ describe('AuthRepository', () => {
 
     repository = module.get<AuthRepository>(AuthRepository);
 
-    // Limpar todos os mocks antes de cada teste
     jest.clearAllMocks();
   });
 

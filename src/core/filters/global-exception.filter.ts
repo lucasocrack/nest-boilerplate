@@ -61,7 +61,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     let details: any = undefined;
     let useStandardMessage = false; // Preferir mensagens específicas
 
-    // Log do erro para debugging
     this.logger.error(`Erro capturado pelo GlobalExceptionFilter:`, {
       message: exception instanceof Error ? exception.message : 'Unknown error',
       stack: exception instanceof Error ? exception.stack : undefined,
@@ -83,7 +82,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         error = exception.name;
       }
     } else if (exception instanceof JsonWebTokenError) {
-      // Tratar erros de JWT
       status = HttpStatus.UNAUTHORIZED;
       error = 'Unauthorized';
 
@@ -95,18 +93,15 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         message = 'Token de acesso inválido';
       }
     } else if (exception instanceof TypeError) {
-      // Erros de tipo (geralmente bugs no código)
       status = HttpStatus.INTERNAL_SERVER_ERROR;
       message = 'Erro interno do servidor';
       error = 'Type Error';
       useStandardMessage = true;
     } else if (exception instanceof SyntaxError) {
-      // Erros de sintaxe (JSON malformado, etc.)
       status = HttpStatus.BAD_REQUEST;
       message = 'Formato de dados inválido';
       error = 'Syntax Error';
     } else if (exception instanceof Error) {
-      // Outros erros genéricos
       message = exception.message || 'Erro desconhecido';
       error = exception.name || 'Unknown Error';
 
@@ -117,13 +112,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         useStandardMessage = true;
       }
     } else {
-      // Exceções que não são Error objects
       message = 'Erro desconhecido';
       error = 'Unknown Error';
       useStandardMessage = true;
     }
 
-    // Usar mensagem padrão se solicitado
     if (useStandardMessage) {
       message = this.getStandardMessage(status);
     }

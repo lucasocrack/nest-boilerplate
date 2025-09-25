@@ -16,7 +16,7 @@ import {
 } from '@nestjs/swagger';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from './dto/create-auth.dto';
+import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -62,10 +62,13 @@ export class AuthController {
   @Post('register')
   @IsPublic()
   @AuthThrottle()
-  @ApiOperation({ summary: 'Registrar novo usuário' })
+  @ApiOperation({ 
+    summary: 'Registrar novo usuário (público)',
+    description: 'Registro público que cria usuários com role USER automaticamente. Para criar usuários com privilégios administrativos, use a rota administrativa em /users.'
+  })
   @ApiResponse({
     status: 201,
-    description: 'Usuário registrado com sucesso - email de ativação enviado',
+    description: 'Usuário registrado com sucesso - email de ativação enviado. Role definido automaticamente como USER.',
   })
   @ApiResponse({ status: 400, description: 'Dados inválidos fornecidos' })
   @ApiResponse({
@@ -76,8 +79,8 @@ export class AuthController {
     status: 429,
     description: 'Muitas tentativas de registro - rate limit atingido',
   })
-  async signUp(@Body() createUserDto: CreateUserDto) {
-    return this.authService.register(createUserDto);
+  async signUp(@Body() registerDto: RegisterDto) {
+    return this.authService.register(registerDto);
   }
 
   @Post('forgot-password')

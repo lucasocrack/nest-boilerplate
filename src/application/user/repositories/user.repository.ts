@@ -25,6 +25,14 @@ export class UserRepository implements IUserRepository {
     });
   }
 
+  async createAdmin(
+    data: Omit<User, 'userId' | 'createdAt' | 'updatedAt'>,
+  ): Promise<User> {
+    return this.prisma.user.create({
+      data,
+    });
+  }
+
   async findById(id: string): Promise<User | null> {
     return this.prisma.user.findUnique({
       where: { userId: id },

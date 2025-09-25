@@ -11,7 +11,9 @@ describe('UserController (e2e)', () => {
   let prisma: PrismaService;
   let user: User;
   let adminUser: User;
+  let regularUser: User;
   let accessToken: string;
+  let regularUserToken: string;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -50,10 +52,39 @@ describe('UserController (e2e)', () => {
 
     accessToken = (loginResponse.body as { data: { access_token: string } })
       .data.access_token;
+
+    const regularUserPassword = await bcrypt.hash('password123', 10);
+    regularUser = await prisma.user.create({
+      data: {
+        userName: 'regular-user-e2e',
+        name: 'Regular User',
+        email: 'regular-e2e@example.com',
+        password: regularUserPassword,
+        role: Role.CLIENTE,
+        active: true,
+        tokenVersion: 1,
+      },
+    });
+
+    const regularLoginResponse = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        identification: 'regular-e2e@example.com',
+        password: 'password123',
+      });
+
+    if (regularLoginResponse.status !== 200) {
+      throw new Error(
+        `Regular user login failed with status ${regularLoginResponse.status}`,
+      );
+    }
+
+    regularUserToken = (
+      regularLoginResponse.body as { data: { access_token: string } }
+      .data.access_token;
   });
 
   beforeEach(async () => {
-    // Create regular user to be used in tests
     const hashedPassword = await bcrypt.hash('password123', 10);
     user = await prisma.user.create({
       data: {
@@ -66,20 +97,26 @@ describe('UserController (e2e)', () => {
   });
 
   afterEach(async () => {
-    // Clean up only the test user, keep admin user
-    await prisma.user.deleteMany({
-      where: {
-        userId: {
-          not: adminUser.userId,
+    // Clean up only the test user, keep admin and regular users
+    if (prisma && adminUser && regularUser) {
+      await prisma.user.deleteMany({
+        where: {
+          userId: {
+            notIn: [adminUser.userId, regularUser.userId],
+          },
         },
-      },
-    });
+      });
+    }
   });
 
   afterAll(async () => {
     // Clean up all users
-    await prisma.user.deleteMany({});
-    await app.close();
+    if (prisma) {
+      await prisma.user.deleteMany({});
+    }
+    if (app) {
+      await app.close();
+    }
   });
 
   describe('/users (GET)', () => {
@@ -148,6 +185,94 @@ describe('UserController (e2e)', () => {
           expect(deletedUser).not.toBeNull();
           expect(deletedUser!.deletedAt).not.toBeNull();
         });
+    });
+  });
+
+  describe('Security Tests - Authorization', () => {
+    describe('/users/admin (POST)', () => {
+      const createUserAdminDto = {
+        userName: 'admin-created-user',
+        name: 'Admin Created User',
+        email: 'admin-created@example.com',
+        password: 'password123',
+        role: 'ADMIN',
+        active: true,
+      };
+
+      it('should allow admin to create user via admin endpoint', async () => {
+        return request(app.getHttpServer())
+          .post('/users/admin')
+          .set('Authorization', `Bearer ${accessToken}`)
+          .send(createUserAdminDto)
+          .expect(201)
+          .then((res) => {
+            expect((res.body as { data: any }).data).toBeDefined();
+            expect((res.body as { data: { userName: any } }).data.userName).toEqual(createUserAdminDto.userName);
+            expect((res.body as { data: { role: any } }).data.role).toEqual(createUserAdminDto.role);
+            expect((res.body as { data: { active: any } }).data.active).toEqual(createUserAdminDto.active);
+          });
+      });
+
+      it('should deny regular user access to admin endpoint', async () => {
+        return request(app.getHttpServer())
+          .post('/users/admin')
+          .set('Authorization', `Bearer ${regularUserToken}`)
+          .send(createUserAdminDto)
+          .expect(403)
+          .then((res) => {
+            expect(res.body).toHaveProperty('message');
+            expect(res.body.message).toContain('Acesso negado');
+          });
+      });
+
+      it('should deny unauthenticated access to admin endpoint', async () => {
+        return request(app.getHttpServer())
+          .post('/users/admin')
+          .send(createUserAdminDto)
+          .expect(401);
+      });
+
+      it('should deny access with invalid token to admin endpoint', async () => {
+        return request(app.getHttpServer())
+          .post('/users/admin')
+          .set('Authorization', 'Bearer invalid-token')
+          .send(createUserAdminDto)
+          .expect(401);
+      });
+    });
+
+    describe('Privilege Escalation Prevention', () => {
+      it('should not allow regular user to access any admin-only routes', async () => {
+        const adminOnlyRoutes = [
+          { method: 'post', path: '/users/admin' },
+        ];
+
+        for (const route of adminOnlyRoutes) {
+          const response = await request(app.getHttpServer())
+            [route.method](route.path)
+            .set('Authorization', `Bearer ${regularUserToken}`)
+            .send({});
+
+          expect([401, 403]).toContain(response.status);
+        }
+      });
+
+      it('should validate that regular user cannot escalate privileges through token manipulation', async () => {
+        // Tentar acessar com token modificado (simulação de ataque)
+        const maliciousToken = regularUserToken.replace(/.$/, 'X'); // Modifica último caractere
+        
+        return request(app.getHttpServer())
+          .post('/users/admin')
+          .set('Authorization', `Bearer ${maliciousToken}`)
+          .send({
+            userName: 'malicious-user',
+            name: 'Malicious User',
+            email: 'malicious@example.com',
+            password: 'password123',
+            role: 'ADMIN',
+          })
+          .expect(401);
+      });
     });
   });
 });

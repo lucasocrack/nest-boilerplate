@@ -6,6 +6,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { apiReference } from '@scalar/nestjs-api-reference';
 import helmet from 'helmet';
 import * as compression from 'compression';
+import { Request, Response } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -172,7 +173,7 @@ async function bootstrap() {
   );
 
   if (isDevelopment) {
-    app.use('/docs-json', (req, res) => {
+    app.use('/docs-json', (req: Request, res: Response) => {
       res.json(document);
     });
   }
@@ -187,7 +188,7 @@ async function bootstrap() {
   Logger.log(`🔒 Ambiente: ${isDevelopment ? 'Desenvolvimento' : 'Produção'}`);
 }
 
-bootstrap().catch((error) => {
+bootstrap().catch((error: unknown) => {
   Logger.error('❌ Erro ao inicializar a aplicação:', error);
   process.exit(1);
 });

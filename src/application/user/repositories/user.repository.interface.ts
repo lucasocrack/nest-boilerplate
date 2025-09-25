@@ -8,6 +8,9 @@ import { CreateUserDto } from '../../auth/dto/create-auth.dto';
 export interface IUserRepository {
   // Operações de criação
   create(data: CreateUserDto): Promise<User>;
+  createAdmin(
+    data: Omit<User, 'userId' | 'createdAt' | 'updatedAt'>,
+  ): Promise<User>;
 
   // Operações de busca
   findById(id: string): Promise<User | null>;

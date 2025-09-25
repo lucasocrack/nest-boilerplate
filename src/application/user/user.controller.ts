@@ -23,6 +23,7 @@ import { UserService } from './user.service';
 import { UpdateUserDto } from '../auth/dto/update-auth.dto';
 import { Role } from '@prisma/client';
 import { BlockUserDto } from './dto/block-user.dto';
+import { CreateUserAdminDto } from './dto/create-user-admin.dto';
 import { OwnershipGuard } from '../../core/guards/ownership.guard';
 import {
   ManagerAndAbove,
@@ -42,6 +43,33 @@ import {
 @UseInterceptors(AuditTrailInterceptor)
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @Post()
+  @AdminOnly()
+  @Auditable({ entityType: 'User', action: 'CREATE' })
+  @ApiOperation({
+    summary: 'Criar usuário com privilégios administrativos',
+    description:
+      'Rota restrita a administradores para criar usuários com qualquer role e configurações avançadas. Para registro público de usuários comuns, use a rota /auth/register.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Usuário criado com sucesso',
+  })
+  @ApiResponse({ status: 400, description: 'Dados inválidos fornecidos' })
+  @ApiResponse({ status: 401, description: 'Não autorizado' })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Acesso negado - apenas administradores podem criar usuários com privilégios',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflito - usuário já existe (email, username ou CPF)',
+  })
+  async createUser(@Body() createUserAdminDto: CreateUserAdminDto) {
+    return this.userService.createUserAdmin(createUserAdminDto);
+  }
 
   @Get()
   @ManagerAndAbove()
