@@ -37,7 +37,8 @@ model User {
   updatedAt        DateTime  @updatedAt
   deletedAt        DateTime?
 
-  logs Log[]
+  logs      Log[]
+  auditLogs AuditLog[]
 
   @@map("users")
 }
@@ -61,4 +62,37 @@ model Log {
   user User? @relation(fields: [userId], references: [userId])
 
   @@map("logs")
+}
+
+model AuditLog {
+  auditId       String      @id @default(cuid())
+  entityType    String      // Tipo da entidade (User, Log, etc.)
+  entityId      String      // ID da entidade afetada
+  action        AuditAction // Ação realizada (CREATE, UPDATE, DELETE)
+  userId        String?     // Usuário que realizou a ação
+  timestamp     DateTime    @default(now())
+  oldValues     Json?       // Valores anteriores (para UPDATE e DELETE)
+  newValues     Json?       // Novos valores (para CREATE e UPDATE)
+  changedFields String[]    // Campos que foram alterados
+  ip            String?     // IP do usuário
+  userAgent     String?     // User agent do navegador
+  metadata      Json?       // Metadados adicionais
+
+  user User? @relation(fields: [userId], references: [userId])
+
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([timestamp])
+  @@map("audit_logs")
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  PASSWORD_RESET
+  ACCOUNT_BLOCKED
+  ACCOUNT_UNBLOCKED
 }
