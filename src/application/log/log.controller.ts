@@ -11,8 +11,8 @@ import { Roles } from '../../core/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 
 @ApiTags('Logs')
-@ApiBearerAuth()
-@Controller('logs')
+@ApiBearerAuth('JWT-auth')
+@Controller({ path: 'logs', version: '1' })
 @UseGuards(RolesGuard)
 export class LogController {
   constructor(private readonly logService: LogService) {}

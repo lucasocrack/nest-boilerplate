@@ -40,6 +40,16 @@ export class AuthRepository implements IAuthRepository {
     });
   }
 
+  async updateRefreshToken(
+    userId: string,
+    refreshToken: string | null,
+  ): Promise<User> {
+    return this.prisma.user.update({
+      where: { userId },
+      data: { refreshToken },
+    });
+  }
+
   async updateUserTokens(
     userId: string,
     data: {

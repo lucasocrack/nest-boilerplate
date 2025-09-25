@@ -21,6 +21,8 @@ import {
   BadRequestException,
   ConflictException,
 } from '../../core/exceptions/custom-exceptions';
+import { SecurityLoggerService } from '../../core/security/security-logger.service';
+import { AuditTrailService } from '../../core/audit/audit-trail.service';
 
 @Injectable()
 export class AuthService {
@@ -31,6 +33,8 @@ export class AuthService {
     @Inject(AUTH_REPOSITORY_TOKEN)
     private readonly authRepository: IAuthRepository,
     private readonly configService: ConfigService,
+    private readonly securityLogger: SecurityLoggerService,
+    private readonly auditTrailService: AuditTrailService,
   ) {}
 
   private getActivationTokenExpiration(): Date {
@@ -52,7 +56,7 @@ export class AuthService {
   private async signAccessToken(user: User): Promise<string> {
     const payload = {
       sub: user.userId,
-      username: user.userName,
+      username: user.userName || undefined,
       tokenVersion: user.tokenVersion,
     };
     return this.jwtService.signAsync(payload);
@@ -78,9 +82,7 @@ export class AuthService {
     const refresh_token = await this.signRefreshToken(user);
 
     // opcional: persistir hash do refreshToken
-    await this.authRepository.updateUserTokens(user.userId, {
-      refreshToken: refresh_token,
-    });
+    await this.authRepository.updateRefreshToken(user.userId, refresh_token);
 
     return { access_token, refresh_token };
   }
@@ -157,6 +159,22 @@ export class AuthService {
 
     await this.mailService.sendActivationEmail(result, activationToken);
 
+    // Registrar criação do usuário no audit trail
+    await this.auditTrailService.logCreate(
+      'User',
+      result.userId,
+      {
+        userName: result.userName,
+        email: result.email,
+        role: result.role,
+        active: result.active,
+      },
+      undefined, // userId (usuário ainda não está logado)
+      'system',
+      'registration',
+      { action: 'user_registration' },
+    );
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, activationToken: token, ...user } = result;
     return {
@@ -166,7 +184,11 @@ export class AuthService {
     };
   }
 
-  private async handleFailedLogin(user: User): Promise<void> {
+  private async handleFailedLogin(
+    user: User,
+    ip?: string,
+    userAgent?: string,
+  ): Promise<void> {
     const maxAttempts = 5;
     const lockoutDuration = 15 * 60 * 1000; // 15 minutos em millisegundos
 
@@ -181,6 +203,19 @@ export class AuthService {
       lastFailedLogin: new Date(),
     };
 
+    // Log da tentativa de login falhada
+    this.securityLogger.logLoginAttempt({
+      userId: user.userId,
+      email: user.email,
+      username: user.userName || undefined,
+      ip,
+      userAgent,
+      success: false,
+      reason: 'Senha incorreta',
+      attempts: newAttempts,
+      timestamp: new Date(),
+    });
+
     // Enviar alerta de múltiplas tentativas se estiver próximo do limite
     if (newAttempts >= 3) {
       await this.mailService.sendMultipleLoginAttemptsAlert(user, newAttempts);
@@ -192,6 +227,9 @@ export class AuthService {
       updateData.blockedUntil = new Date(Date.now() + lockoutDuration);
       updateData.loginAttempts = 0; // Reset contador após bloqueio
 
+      // Log do bloqueio da conta
+      this.securityLogger.logAccountBlocked(user, newAttempts, ip, userAgent);
+
       // Enviar alerta de conta bloqueada
       await this.mailService.sendAccountBlockedAlert(user, '15 minutos');
     }
@@ -199,7 +237,11 @@ export class AuthService {
     await this.userService.update(user.userId, updateData);
   }
 
-  private async handleSuccessfulLogin(user: User): Promise<void> {
+  private async handleSuccessfulLogin(
+    user: User,
+    ip?: string,
+    userAgent?: string,
+  ): Promise<void> {
     const updateData: {
       lastLogin: Date;
       loginAttempts: number;
@@ -210,10 +252,24 @@ export class AuthService {
       loginAttempts: 0, // Reset contador de tentativas
     };
 
+    // Log do login bem-sucedido
+    this.securityLogger.logLoginAttempt({
+      userId: user.userId,
+      email: user.email,
+      username: user.userName || undefined,
+      ip,
+      userAgent,
+      success: true,
+      timestamp: new Date(),
+    });
+
     // Se estava bloqueado temporariamente, desbloquear
     if (user.blocked && user.blockedUntil && user.blockedUntil <= new Date()) {
       updateData.blocked = false;
       updateData.blockedUntil = null;
+
+      // Log do desbloqueio automático
+      this.securityLogger.logAccountUnblocked(user, ip, userAgent);
     }
 
     await this.userService.update(user.userId, updateData);
@@ -262,7 +318,11 @@ export class AuthService {
     const isMatch = await bcrypt.compare(pass, user.password);
     if (!isMatch) {
       // Registrar tentativa de login falhada
-      await this.handleFailedLogin(user);
+      await this.handleFailedLogin(
+        user,
+        loginDetails?.ip,
+        loginDetails?.userAgent,
+      );
 
       // Verificar se a conta foi bloqueada após esta tentativa
       const updatedUser =
@@ -278,13 +338,43 @@ export class AuthService {
 
     // Login bem-sucedido - verificar se é suspeito
     if (loginDetails && this.isSuspiciousLogin(user)) {
+      // Log do login suspeito
+      this.securityLogger.logSuspiciousLogin(
+        user,
+        loginDetails.ip,
+        loginDetails.userAgent,
+        {
+          reason: 'Login após longo período de inatividade ou primeiro login',
+        },
+      );
+
       await this.mailService.sendSuspiciousLoginAlert(user, {
         ...loginDetails,
         timestamp: new Date(),
       });
     }
 
-    await this.handleSuccessfulLogin(user);
+    await this.handleSuccessfulLogin(
+      user,
+      loginDetails?.ip,
+      loginDetails?.userAgent,
+    );
+
+    // Registrar login bem-sucedido no audit trail
+    await this.auditTrailService.logSecurityAction(
+      'LOGIN',
+      'User',
+      user.userId,
+      user.userId,
+      loginDetails?.ip,
+      loginDetails?.userAgent,
+      {
+        identification,
+        loginTime: new Date(),
+        suspicious: this.isSuspiciousLogin(user),
+      },
+    );
+
     return this.issueTokens(user);
   }
 
@@ -317,6 +407,8 @@ export class AuthService {
 
   async refreshToken(
     token: string,
+    ip?: string,
+    userAgent?: string,
   ): Promise<{ access_token: string; refresh_token: string }> {
     try {
       const payload = await this.jwtService.verifyAsync<{
@@ -337,6 +429,10 @@ export class AuthService {
       if (user.tokenVersion !== payload.tv) {
         throw new UnauthorizedException('Refresh token expirado/invalidado');
       }
+
+      // Log do refresh de token bem-sucedido
+      this.securityLogger.logTokenRefresh(user.userId, ip, userAgent);
+
       return this.issueTokens(user);
     } catch {
       throw new UnauthorizedException('Refresh token inválido ou expirado');
@@ -373,6 +469,8 @@ export class AuthService {
 
   async resetPassword(
     resetPasswordDto: ResetPasswordDto,
+    ip?: string,
+    userAgent?: string,
   ): Promise<{ message: string }> {
     const { token, password, passwordConfirmation } = resetPasswordDto;
 
@@ -398,6 +496,9 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await this.authRepository.updateUserPassword(user.userId, hashedPassword);
+
+    // Log do reset de senha bem-sucedido
+    this.securityLogger.logPasswordReset(user, ip, userAgent);
 
     return { message: 'Redefinição de senha com sucesso' };
   }
@@ -449,8 +550,24 @@ export class AuthService {
     return { message: 'Email de ativação reenviado com sucesso' };
   }
 
-  async logout(userId: string): Promise<void> {
+  async logout(userId: string, ip?: string, userAgent?: string): Promise<void> {
     await this.authRepository.incrementTokenVersion(userId);
+
+    // Log do logout bem-sucedido
+    this.securityLogger.logLogout(userId, ip, userAgent);
+
+    // Registrar logout no audit trail
+    await this.auditTrailService.logSecurityAction(
+      'LOGOUT',
+      'User',
+      userId,
+      userId,
+      ip,
+      userAgent,
+      {
+        logoutTime: new Date(),
+      },
+    );
   }
 
   async validateUser(identifier: string, password: string) {

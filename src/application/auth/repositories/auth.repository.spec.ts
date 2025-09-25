@@ -14,6 +14,7 @@ const mockPrismaService = {
 
 describe('AuthRepository', () => {
   let repository: AuthRepository;
+  let prisma: PrismaService;
 
   const mockUser: User = {
     userId: '1',

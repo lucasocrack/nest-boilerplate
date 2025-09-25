@@ -10,6 +10,8 @@ import { MailService } from '../../core/mail/mail.service';
 import { PrismaService } from '../../core/config/prisma.service';
 import { CreateUserDto } from './dto/create-auth.dto';
 import { AUTH_REPOSITORY_TOKEN } from './repositories/auth.repository.interface';
+import { SecurityLoggerService } from '../../core/security/security-logger.service';
+import { AuditTrailService } from '../../core/audit/audit-trail.service';
 
 jest.mock('bcrypt');
 
@@ -61,6 +63,23 @@ describe('AuthService', () => {
     updateUserTokens: jest.fn(),
   };
 
+  const mockSecurityLoggerService = {
+    logLoginAttempt: jest.fn(),
+    logAccountBlocked: jest.fn(),
+    logAccountUnblocked: jest.fn(),
+    logSuspiciousLogin: jest.fn(),
+    logTokenRefresh: jest.fn(),
+    logPasswordReset: jest.fn(),
+    logLogout: jest.fn(),
+  };
+
+  const mockAuditTrailService = {
+    logCreate: jest.fn(),
+    logSecurityAction: jest.fn(),
+    findAuditLogs: jest.fn(),
+    getAuditStats: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -71,6 +90,8 @@ describe('AuthService', () => {
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: AUTH_REPOSITORY_TOKEN, useValue: mockAuthRepository },
+        { provide: SecurityLoggerService, useValue: mockSecurityLoggerService },
+        { provide: AuditTrailService, useValue: mockAuditTrailService },
       ],
     }).compile();
 
@@ -247,7 +268,7 @@ describe('AuthService', () => {
       mockUserService.findByIdentification.mockResolvedValue(user);
       (
         bcrypt.compare as jest.MockedFunction<typeof bcrypt.compare>
-      ).mockResolvedValue(false);
+      ).mockImplementation(() => false);
 
       await expect(service.signIn('testuser', 'wrongpassword')).rejects.toThrow(
         UnauthorizedException,

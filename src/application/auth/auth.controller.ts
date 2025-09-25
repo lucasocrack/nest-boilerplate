@@ -28,7 +28,7 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthThrottle } from '../../core/decorators/auth-throttle.decorator';
 
 @ApiTags('Autenticação')
-@Controller('auth')
+@Controller({ path: 'auth', version: '1' })
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -109,8 +109,10 @@ export class AuthController {
     description: 'Dados inválidos ou senhas não conferem',
   })
   @ApiResponse({ status: 401, description: 'Token inválido ou expirado' })
-  resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-    return this.authService.resetPassword(resetPasswordDto);
+  resetPassword(@Body() resetPasswordDto: ResetPasswordDto, @Req() req: Request) {
+    const ip = req.ip || 'unknown';
+    const userAgent = req.headers['user-agent'] || 'unknown';
+    return this.authService.resetPassword(resetPasswordDto, ip, userAgent);
   }
 
   @Post('activate')
@@ -148,12 +150,14 @@ export class AuthController {
     status: 401,
     description: 'Refresh token inválido ou expirado',
   })
-  async refresh(@Body() body: RefreshTokenDto) {
-    return this.authService.refreshToken(body.refreshToken);
+  async refresh(@Body() body: RefreshTokenDto, @Req() req: Request) {
+    const ip = req.ip || 'unknown';
+    const userAgent = req.headers['user-agent'] || 'unknown';
+    return this.authService.refreshToken(body.refreshToken, ip, userAgent);
   }
 
   @Get('me')
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Obter perfil do usuário autenticado' })
   @ApiResponse({
     status: 200,
@@ -171,7 +175,7 @@ export class AuthController {
   }
 
   @Post('logout')
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Fazer logout e invalidar tokens' })
   @ApiResponse({ status: 200, description: 'Logout realizado com sucesso' })
   @ApiResponse({
@@ -193,7 +197,10 @@ export class AuthController {
     }
 
     const userId = req.user.userId;
-    await this.authService.logout(userId);
+    const ip = req.ip || 'unknown';
+    const userAgent = req.headers['user-agent'] || 'unknown';
+    
+    await this.authService.logout(userId, ip, userAgent);
     return { message: 'Saindo do sistema' };
   }
 }

@@ -7,6 +7,9 @@ import {
   Delete,
   Query,
   Post,
+  UseGuards,
+  Req,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -18,19 +21,30 @@ import {
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { UpdateUserDto } from '../auth/dto/update-auth.dto';
-import { Roles } from '../../core/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { BlockUserDto } from './dto/block-user.dto';
-import { RestoreUserDto } from './dto/restore-user.dto';
+import { OwnershipGuard } from '../../core/guards/ownership.guard';
+import {
+  ManagerAndAbove,
+  AllRolesWithOwnership,
+  AllRoles,
+  AdminOnly,
+} from '../../core/decorators/role-ownership.decorator';
+import {
+  AuditTrailInterceptor,
+  Auditable,
+} from '../../core/interceptors/audit-trail.interceptor';
 
 @ApiTags('Usuários')
-@ApiBearerAuth()
-@Controller('users')
+@ApiBearerAuth('JWT-auth')
+@Controller({ path: 'users', version: '1' })
+@UseGuards(OwnershipGuard)
+@UseInterceptors(AuditTrailInterceptor)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  @Roles(Role.ADMIN, Role.GERENTE)
+  @ManagerAndAbove()
   @ApiOperation({ summary: 'Listar usuários com paginação e filtros' })
   @ApiResponse({
     status: 200,
@@ -92,14 +106,27 @@ export class UserController {
     });
   }
 
+  @Get('me')
+  @AllRoles()
+  @ApiOperation({ summary: 'Buscar dados do próprio usuário logado' })
+  @ApiResponse({
+    status: 200,
+    description: 'Dados do usuário retornados com sucesso',
+  })
+  @ApiResponse({ status: 401, description: 'Não autorizado' })
+  findMe(@Req() request: any) {
+    const userId = request.user.userId;
+    return this.userService.findOneById(userId);
+  }
+
   @Get(':id')
-  @Roles(Role.ADMIN, Role.GERENTE)
+  @AllRolesWithOwnership()
   @ApiOperation({ summary: 'Buscar usuário por ID' })
   @ApiResponse({ status: 200, description: 'Usuário encontrado com sucesso' })
   @ApiResponse({ status: 401, description: 'Não autorizado' })
   @ApiResponse({
     status: 403,
-    description: 'Acesso negado - permissão insuficiente',
+    description: 'Acesso negado - permissão insuficiente ou ownership',
   })
   @ApiResponse({ status: 404, description: 'Usuário não encontrado' })
   @ApiParam({ name: 'id', description: 'ID único do usuário' })
@@ -108,14 +135,15 @@ export class UserController {
   }
 
   @Patch(':id')
-  @Roles(Role.ADMIN, Role.GERENTE)
+  @AllRolesWithOwnership()
+  @Auditable({ entityType: 'User', action: 'UPDATE', entityIdParam: 'id' })
   @ApiOperation({ summary: 'Atualizar dados do usuário' })
   @ApiResponse({ status: 200, description: 'Usuário atualizado com sucesso' })
   @ApiResponse({ status: 400, description: 'Dados inválidos fornecidos' })
   @ApiResponse({ status: 401, description: 'Não autorizado' })
   @ApiResponse({
     status: 403,
-    description: 'Acesso negado - permissão insuficiente',
+    description: 'Acesso negado - permissão insuficiente ou ownership',
   })
   @ApiResponse({ status: 404, description: 'Usuário não encontrado' })
   @ApiParam({ name: 'id', description: 'ID único do usuário' })
@@ -123,8 +151,21 @@ export class UserController {
     return this.userService.update(id, updateUserDto);
   }
 
+  @Patch('me')
+  @AllRoles()
+  @Auditable({ entityType: 'User', action: 'UPDATE' })
+  @ApiOperation({ summary: 'Atualizar dados do próprio usuário logado' })
+  @ApiResponse({ status: 200, description: 'Dados atualizados com sucesso' })
+  @ApiResponse({ status: 400, description: 'Dados inválidos fornecidos' })
+  @ApiResponse({ status: 401, description: 'Não autorizado' })
+  updateMe(@Req() request: any, @Body() updateUserDto: UpdateUserDto) {
+    const userId = request.user.userId;
+    return this.userService.update(userId, updateUserDto);
+  }
+
   @Delete(':id')
-  @Roles(Role.ADMIN)
+  @AdminOnly()
+  @Auditable({ entityType: 'User', action: 'DELETE', entityIdParam: 'id' })
   @ApiOperation({ summary: 'Excluir usuário (soft delete)' })
   @ApiResponse({ status: 200, description: 'Usuário excluído com sucesso' })
   @ApiResponse({ status: 401, description: 'Não autorizado' })
@@ -139,7 +180,7 @@ export class UserController {
   }
 
   @Post(':id/block')
-  @Roles(Role.ADMIN, Role.GERENTE)
+  @ManagerAndAbove()
   @ApiOperation({ summary: 'Bloquear usuário' })
   @ApiResponse({ status: 200, description: 'Usuário bloqueado com sucesso' })
   @ApiResponse({ status: 400, description: 'Dados inválidos fornecidos' })
@@ -158,7 +199,7 @@ export class UserController {
   }
 
   @Post(':id/unblock')
-  @Roles(Role.ADMIN, Role.GERENTE)
+  @ManagerAndAbove()
   @ApiOperation({ summary: 'Desbloquear usuário' })
   @ApiResponse({ status: 200, description: 'Usuário desbloqueado com sucesso' })
   @ApiResponse({ status: 401, description: 'Não autorizado' })
@@ -173,7 +214,7 @@ export class UserController {
   }
 
   @Post(':id/restore')
-  @Roles(Role.ADMIN)
+  @AdminOnly()
   @ApiOperation({ summary: 'Restaurar usuário excluído' })
   @ApiResponse({ status: 200, description: 'Usuário restaurado com sucesso' })
   @ApiResponse({ status: 401, description: 'Não autorizado' })
@@ -183,7 +224,7 @@ export class UserController {
   })
   @ApiResponse({ status: 404, description: 'Usuário não encontrado' })
   @ApiParam({ name: 'id', description: 'ID único do usuário' })
-  async restoreUser(@Param('id') id: string, @Body() _dto: RestoreUserDto) {
+  async restoreUser(@Param('id') id: string) {
     return this.userService.restoreUser(id);
   }
 }

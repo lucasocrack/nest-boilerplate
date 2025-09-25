@@ -7,17 +7,34 @@ import { Role } from '@prisma/client';
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
+  // Hierarquia de roles: maior número = maior privilégio
+  private readonly roleHierarchy = {
+    [Role.CLIENTE]: 1,
+    [Role.FUNCIONARIO]: 2,
+    [Role.GERENTE]: 3,
+    [Role.ADMIN]: 4,
+    [Role.SUPERADMIN]: 5,
+  };
+
   canActivate(context: ExecutionContext): boolean {
     const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
+    
     if (!requiredRoles) {
       return true;
     }
+    
     const { user } = context.switchToHttp().getRequest();
     if (!user) return false;
-    // user.role é um único enum; permita se corresponder a qualquer um dos exigidos
-    return requiredRoles.some((role) => user.role === role);
+
+    const userRoleLevel = this.roleHierarchy[user.role];
+    const minRequiredLevel = Math.min(
+      ...requiredRoles.map(role => this.roleHierarchy[role])
+    );
+
+    // Usuário tem acesso se seu nível for >= ao mínimo exigido
+    return userRoleLevel >= minRequiredLevel;
   }
 }

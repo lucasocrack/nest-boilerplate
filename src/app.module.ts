@@ -14,6 +14,12 @@ import { GlobalExceptionFilter } from './core/filters/global-exception.filter';
 import { ResponseFormatInterceptor } from './core/interceptors/response-format.interceptor';
 import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { PrismaModule } from './core/database/prisma.module';
+import { AuditModule as CoreAuditModule } from './core/audit/audit.module';
+import { AuditModule } from './application/audit/audit.module';
+import { MonitoringModule } from './application/monitoring/monitoring.module';
+import { HealthModule } from './application/health/health.module';
+import { PerformanceInterceptor } from './core/interceptors/performance.interceptor';
 
 @Module({
   imports: [
@@ -48,11 +54,16 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
       secret: process.env.JWT_SECRET || 'default-secret',
       signOptions: { expiresIn: process.env.JWT_ACCESS_TTL || '1h' },
     }),
+    PrismaModule,
+    CoreAuditModule,
     AuthModule,
     UserModule,
     LogModule,
     HomeModule,
     MailModule,
+    AuditModule,
+    MonitoringModule,
+    HealthModule,
   ],
   controllers: [],
   providers: [
@@ -72,6 +83,10 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
     {
       provide: APP_INTERCEPTOR,
       useClass: ResponseFormatInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: PerformanceInterceptor,
     },
   ],
   exports: [PrismaService],
