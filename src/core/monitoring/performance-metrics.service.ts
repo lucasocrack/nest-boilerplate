@@ -51,28 +51,33 @@ export class PerformanceMetricsService {
     ).length;
 
     // Agrupar por método HTTP
-    const requestsByMethod = recentMetrics.reduce((acc, metric) => {
-      acc[metric.method] = (acc[metric.method] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const requestsByMethod = recentMetrics.reduce(
+      (acc, metric) => {
+        acc[metric.method] = (acc[metric.method] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
     // Agrupar por status code
-    const requestsByStatus = recentMetrics.reduce((acc, metric) => {
-      const statusRange = `${Math.floor(metric.statusCode / 100)}xx`;
-      acc[statusRange] = (acc[statusRange] || 0) + 1;
-      return acc;
-    },
+    const requestsByStatus = recentMetrics.reduce(
+      (acc, metric) => {
+        const statusRange = `${Math.floor(metric.statusCode / 100)}xx`;
+        acc[statusRange] = (acc[statusRange] || 0) + 1;
+        return acc;
+      },
       {} as Record<string, number>,
     );
 
     // Top endpoints mais lentos
-    const endpointStats = recentMetrics.reduce((acc, metric) => {
-      const key = `${metric.method} ${metric.url}`;
-      if (!acc[key]) {
-        acc[key] = { totalTime: 0, count: 0 };
-      }
-      acc[key].totalTime += metric.responseTime;
-      acc[key].count += 1;
+    const endpointStats = recentMetrics.reduce(
+      (acc, metric) => {
+        const key = `${metric.method} ${metric.url}`;
+        if (!acc[key]) {
+          acc[key] = { totalTime: 0, count: 0 };
+        }
+        acc[key].totalTime += metric.responseTime;
+        acc[key].count += 1;
         return acc;
       },
       {} as Record<string, { totalTime: number; count: number }>,

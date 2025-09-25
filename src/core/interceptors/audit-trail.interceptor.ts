@@ -47,7 +47,10 @@ export class AuditTrailInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const handler = context.getHandler();
-    const auditMetadata = this.reflector.get<AuditMetadata>('audit-metadata', handler);
+    const auditMetadata = this.reflector.get<AuditMetadata>(
+      'audit-metadata',
+      handler,
+    );
 
     // Se não há metadados de auditoria, prossegue sem auditoria
     if (!auditMetadata || auditMetadata.skipAudit) {
@@ -60,20 +63,18 @@ export class AuditTrailInterceptor implements NestInterceptor {
     const userAgent = request.headers['user-agent'] || 'unknown';
 
     return next.handle().pipe(
-      tap(async (result) => {
-        try {
-          await this.processAuditLog(
-            auditMetadata,
-            request,
-            result,
-            userId,
-            ip,
-            userAgent,
-          );
-        } catch (error) {
+      tap((result) => {
+        this.processAuditLog(
+          auditMetadata,
+          request,
+          result,
+          userId,
+          ip,
+          userAgent,
+        ).catch((error) => {
           this.logger.error('Erro ao processar audit log:', error);
           // Não propaga o erro para não afetar a operação principal
-        }
+        });
       }),
     );
   }
@@ -90,9 +91,11 @@ export class AuditTrailInterceptor implements NestInterceptor {
     userAgent?: string,
   ): Promise<void> {
     const entityId = this.extractEntityId(metadata, request, result);
-    
+
     if (!entityId) {
-      this.logger.warn(`Não foi possível extrair entityId para auditoria de ${metadata.entityType}`);
+      this.logger.warn(
+        `Não foi possível extrair entityId para auditoria de ${metadata.entityType}`,
+      );
       return;
     }
 

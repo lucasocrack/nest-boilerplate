@@ -47,7 +47,6 @@ export class AuthExceptionFilter implements ExceptionFilter {
       statusCode = 401;
       error = 'Unauthorized';
 
-      // Verificar se há uma mensagem específica na exceção
       const exceptionResponse = exception.getResponse();
       if (
         typeof exceptionResponse === 'object' &&
@@ -61,7 +60,6 @@ export class AuthExceptionFilter implements ExceptionFilter {
       statusCode = 403;
       error = 'Forbidden';
 
-      // Verificar se há uma mensagem específica na exceção
       const exceptionResponse = exception.getResponse();
       if (
         typeof exceptionResponse === 'object' &&

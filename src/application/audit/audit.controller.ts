@@ -114,7 +114,6 @@ export class AuditController {
       limit: Math.min(100, Math.max(1, limit)),
     };
 
-    // Remove filtros undefined
     Object.keys(filters).forEach(
       (key) => filters[key] === undefined && delete filters[key],
     );

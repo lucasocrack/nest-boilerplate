@@ -10,13 +10,7 @@ import { PrismaModule } from '../database/prisma.module';
 @Global()
 @Module({
   imports: [PrismaModule],
-  providers: [
-    AuditTrailService,
-    AuditTrailInterceptor,
-  ],
-  exports: [
-    AuditTrailService,
-    AuditTrailInterceptor,
-  ],
+  providers: [AuditTrailService, AuditTrailInterceptor],
+  exports: [AuditTrailService, AuditTrailInterceptor],
 })
 export class AuditModule {}

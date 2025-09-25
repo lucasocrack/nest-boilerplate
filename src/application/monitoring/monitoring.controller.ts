@@ -38,7 +38,7 @@ export class MonitoringController {
     status: 200,
     description: 'Estatísticas de performance retornadas com sucesso',
   })
-  async getPerformanceStats(
+  getPerformanceStats(
     @Query('timeRange', new DefaultValuePipe(60), ParseIntPipe)
     timeRange: number,
   ) {
@@ -66,11 +66,11 @@ export class MonitoringController {
     status: 200,
     description: 'Requisições lentas retornadas com sucesso',
   })
-  async getSlowRequests(
+  getSlowRequests(
     @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number,
   ) {
     const slowRequests = this.performanceMetricsService.getSlowRequests(limit);
-    
+
     return ResponseHelper.success(
       slowRequests,
       200,
@@ -87,9 +87,9 @@ export class MonitoringController {
     status: 200,
     description: 'Métricas limpas com sucesso',
   })
-  async clearMetrics() {
+  clearMetrics() {
     this.performanceMetricsService.clearMetrics();
-    
+
     return ResponseHelper.success(
       null,
       200,

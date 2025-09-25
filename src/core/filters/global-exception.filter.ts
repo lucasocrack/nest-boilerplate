@@ -110,7 +110,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       message = exception.message || 'Erro desconhecido';
       error = exception.name || 'Unknown Error';
 
-      // Verificar se é um erro conhecido que deve ser tratado como 400
       if (this.isBadRequestError(exception)) {
         status = HttpStatus.BAD_REQUEST;
         error = 'Bad Request';

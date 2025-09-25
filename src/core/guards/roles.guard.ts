@@ -21,17 +21,17 @@ export class RolesGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-    
+
     if (!requiredRoles) {
       return true;
     }
-    
+
     const { user } = context.switchToHttp().getRequest();
     if (!user) return false;
 
     const userRoleLevel = this.roleHierarchy[user.role];
     const minRequiredLevel = Math.min(
-      ...requiredRoles.map(role => this.roleHierarchy[role])
+      ...requiredRoles.map((role) => this.roleHierarchy[role]),
     );
 
     // Usuário tem acesso se seu nível for >= ao mínimo exigido

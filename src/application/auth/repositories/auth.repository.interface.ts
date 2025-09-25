@@ -9,7 +9,10 @@ export interface IAuthRepository {
   findUserByPasswordResetToken(token: string): Promise<User | null>;
   findUserByActivationToken(token: string): Promise<User | null>;
   findUserByEmail(email: string): Promise<User | null>;
-  updateRefreshToken(userId: string, refreshToken: string | null): Promise<User>;
+  updateRefreshToken(
+    userId: string,
+    refreshToken: string | null,
+  ): Promise<User>;
   updateUserTokens(
     userId: string,
     data: {

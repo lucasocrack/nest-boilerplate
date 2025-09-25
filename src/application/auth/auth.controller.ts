@@ -109,7 +109,10 @@ export class AuthController {
     description: 'Dados inválidos ou senhas não conferem',
   })
   @ApiResponse({ status: 401, description: 'Token inválido ou expirado' })
-  resetPassword(@Body() resetPasswordDto: ResetPasswordDto, @Req() req: Request) {
+  resetPassword(
+    @Body() resetPasswordDto: ResetPasswordDto,
+    @Req() req: Request,
+  ) {
     const ip = req.ip || 'unknown';
     const userAgent = req.headers['user-agent'] || 'unknown';
     return this.authService.resetPassword(resetPasswordDto, ip, userAgent);
@@ -199,7 +202,7 @@ export class AuthController {
     const userId = req.user.userId;
     const ip = req.ip || 'unknown';
     const userAgent = req.headers['user-agent'] || 'unknown';
-    
+
     await this.authService.logout(userId, ip, userAgent);
     return { message: 'Saindo do sistema' };
   }

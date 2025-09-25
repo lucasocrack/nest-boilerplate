@@ -1,7 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../config/prisma.service';
 import { AuditAction } from '@prisma/client';
-import { AuditLogEntity, CreateAuditLogData, AuditLogFilters, EntityComparison } from '../entities/audit-log.entity';
+import {
+  AuditLogEntity,
+  CreateAuditLogData,
+  AuditLogFilters,
+  EntityComparison,
+} from '../entities/audit-log.entity';
 import { AuditLogMapper } from '../entities/mappers/audit-log.mapper';
 
 /**
@@ -71,7 +76,7 @@ export class AuditTrailService {
     metadata?: Record<string, any>,
   ): Promise<AuditLogEntity | null> {
     const comparison = this.compareEntities(oldValues, newValues);
-    
+
     // Só registra se houve mudanças
     if (comparison.changedFields.length === 0) {
       return null;
@@ -254,7 +259,12 @@ export class AuditTrailService {
    * Remove campos sensíveis dos valores antes de armazenar
    */
   private sanitizeValues(values: Record<string, any>): Record<string, any> {
-    const sensitiveFields = ['password', 'refreshToken', 'passwordResetToken', 'activationToken'];
+    const sensitiveFields = [
+      'password',
+      'refreshToken',
+      'passwordResetToken',
+      'activationToken',
+    ];
     const sanitized = { ...values };
 
     for (const field of sensitiveFields) {
@@ -269,7 +279,10 @@ export class AuditTrailService {
   /**
    * Obtém estatísticas de auditoria
    */
-  async getAuditStats(startDate?: Date, endDate?: Date): Promise<{
+  async getAuditStats(
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<{
     totalActions: number;
     actionsByType: Record<string, number>;
     entitiesByType: Record<string, number>;
@@ -282,26 +295,27 @@ export class AuditTrailService {
       if (endDate) where.timestamp.lte = endDate;
     }
 
-    const [totalActions, actionsByType, entitiesByType, topUsers] = await Promise.all([
-      this.prisma.auditLog.count({ where }),
-      this.prisma.auditLog.groupBy({
-        by: ['action'],
-        where,
-        _count: { action: true },
-      }),
-      this.prisma.auditLog.groupBy({
-        by: ['entityType'],
-        where,
-        _count: { entityType: true },
-      }),
-      this.prisma.auditLog.groupBy({
-        by: ['userId'],
-        where: { ...where, userId: { not: null } },
-        _count: { userId: true },
-        orderBy: { _count: { userId: 'desc' } },
-        take: 10,
-      }),
-    ]);
+    const [totalActions, actionsByType, entitiesByType, topUsers] =
+      await Promise.all([
+        this.prisma.auditLog.count({ where }),
+        this.prisma.auditLog.groupBy({
+          by: ['action'],
+          where,
+          _count: { action: true },
+        }),
+        this.prisma.auditLog.groupBy({
+          by: ['entityType'],
+          where,
+          _count: { entityType: true },
+        }),
+        this.prisma.auditLog.groupBy({
+          by: ['userId'],
+          where: { ...where, userId: { not: null } },
+          _count: { userId: true },
+          orderBy: { _count: { userId: 'desc' } },
+          take: 10,
+        }),
+      ]);
 
     return {
       totalActions,
@@ -314,8 +328,8 @@ export class AuditTrailService {
         return acc;
       }, {}),
       topUsers: topUsers
-        .filter(item => item.userId !== null)
-        .map(item => ({
+        .filter((item) => item.userId !== null)
+        .map((item) => ({
           userId: item.userId!,
           count: item._count.userId,
         })),

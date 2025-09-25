@@ -14,10 +14,7 @@ export class IsFutureDateConstraint implements ValidatorConstraintInterface {
       const date = new Date(dateString);
       const now = new Date();
 
-      // Verificar se é uma data válida
       if (isNaN(date.getTime())) return false;
-
-      // Verificar se é no futuro
       return date > now;
     } catch {
       return false;

@@ -58,10 +58,9 @@ export class DataSanitizer {
     const sanitized = { ...data };
 
     for (const key in sanitized) {
-      if (sanitized.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(sanitized, key)) {
         const lowerKey = key.toLowerCase();
 
-        // Remove campos sensíveis completamente
         if (this.isSensitiveField(lowerKey)) {
           sanitized[key] = '[REDACTED]';
         }
@@ -113,23 +112,14 @@ export class DataSanitizer {
       return '*'.repeat(value.length);
     }
 
-    // Para emails: mostrar primeiro caractere e domínio
     if (value.includes('@')) {
       const [local, domain] = value.split('@');
-      const maskedLocal =
-        local.charAt(0) + '*'.repeat(Math.max(0, local.length - 1));
-      return `${maskedLocal}@${domain}`;
+      return `${local.charAt(0)}***@${domain}`;
     }
 
-    // Para outros campos: mostrar primeiros 2 e últimos 2 caracteres
     if (value.length > 6) {
-      const start = value.substring(0, 2);
-      const end = value.substring(value.length - 2);
-      const middle = '*'.repeat(value.length - 4);
-      return `${start}${middle}${end}`;
+      return `${value.substring(0, 2)}***${value.substring(value.length - 2)}`;
     }
-
-    // Para campos curtos: mostrar apenas primeiro caractere
     return value.charAt(0) + '*'.repeat(value.length - 1);
   }
 
@@ -200,7 +190,6 @@ export class DataSanitizer {
    * Sanitiza dados de resposta (menos restritivo que requisição)
    */
   static sanitizeHttpResponse(data: any): any {
-    // Para respostas, apenas removemos tokens e senhas
     // Mantemos outros dados para debugging
     const restrictedFields = [
       'password',
@@ -267,11 +256,6 @@ export function Sanitize(
   const originalMethod = descriptor.value;
 
   descriptor.value = function (...args: any[]) {
-    // Sanitiza argumentos antes de processar
-    const sanitizedArgs = args.map((arg) => DataSanitizer.sanitize(arg));
-
-    // Chama método original com argumentos sanitizados para logs
-    // Mas usa argumentos originais para processamento real
     const result = originalMethod.apply(this, args);
 
     return result;

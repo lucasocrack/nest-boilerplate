@@ -99,7 +99,6 @@ export class AuthService {
       createUserDto.cpf = normalizedCpf; // Normalizar CPF antes de continuar
     }
 
-    // Verificar se o usuário já existe
     const existingUser = await this.userService.checkUserExists({
       userName: createUserDto.userName,
       email: createUserDto.email,
@@ -285,19 +284,15 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas.');
     }
 
-    // Verificar se a conta está excluída
     if (user.deletedAt) {
       throw new UnauthorizedException('Conta excluída.');
     }
 
-    // Verificar se a conta está ativa
     if (!user.active) {
       throw new UnauthorizedException('Conta inativa.');
     }
 
-    // Verificar se a conta está bloqueada
     if (user.blocked) {
-      // Se o bloqueio expirou, desbloquear automaticamente
       if (user.blockedUntil && user.blockedUntil <= new Date()) {
         await this.userService.update(user.userId, {
           blocked: false,
@@ -324,7 +319,6 @@ export class AuthService {
         loginDetails?.userAgent,
       );
 
-      // Verificar se a conta foi bloqueada após esta tentativa
       const updatedUser =
         await this.userService.findByIdentification(identification);
       if (updatedUser?.blocked) {
@@ -520,7 +514,6 @@ export class AuthService {
   }
 
   async resendActivationEmail(email: string): Promise<{ message: string }> {
-    // Buscar usuário pelo email
     const user = await this.authRepository.findUserByEmail(email);
 
     if (!user) {

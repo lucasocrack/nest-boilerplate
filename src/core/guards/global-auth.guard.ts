@@ -18,7 +18,6 @@ export class GlobalAuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // Verificar se a rota está marcada como pública
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
@@ -70,7 +69,7 @@ export class GlobalAuthGuard implements CanActivate {
         tokenVersion: user.tokenVersion,
         role: user.role,
       };
-    } catch (error) {
+    } catch {
       throw new UnauthorizedException({
         statusCode: 401,
         message: 'Token de acesso inválido ou expirado',

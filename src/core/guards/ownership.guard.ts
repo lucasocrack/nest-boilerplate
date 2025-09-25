@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { OWNERSHIP_KEY } from '../decorators/ownership.decorator';
 import { Role } from '@prisma/client';
@@ -8,10 +13,10 @@ export class OwnershipGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requireOwnership = this.reflector.getAllAndOverride<boolean>(OWNERSHIP_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const requireOwnership = this.reflector.getAllAndOverride<boolean>(
+      OWNERSHIP_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
     // Se não há requisito de ownership, permite acesso
     if (requireOwnership === undefined || requireOwnership === false) {
@@ -27,8 +32,10 @@ export class OwnershipGuard implements CanActivate {
     }
 
     // Hierarquia de acesso: SUPERADMIN, ADMIN, GERENTE têm acesso total
-    const hasFullAccess = [Role.SUPERADMIN, Role.ADMIN, Role.GERENTE].includes(user.role);
-    
+    const hasFullAccess = [Role.SUPERADMIN, Role.ADMIN, Role.GERENTE].includes(
+      user.role,
+    );
+
     if (hasFullAccess) {
       return true;
     }
@@ -46,9 +53,10 @@ export class OwnershipGuard implements CanActivate {
         throw new ForbiddenException('ID do recurso é obrigatório');
       }
 
-      // Verifica se o usuário está tentando acessar seus próprios dados
       if (user.userId !== resourceId) {
-        throw new ForbiddenException('Acesso negado: você só pode acessar seus próprios dados');
+        throw new ForbiddenException(
+          'Acesso negado: você só pode acessar seus próprios dados',
+        );
       }
     }
 

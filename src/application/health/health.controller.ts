@@ -58,12 +58,13 @@ export class HealthController {
   })
   async detailedCheck() {
     const systemHealth = await this.healthService.getSystemHealth();
-    
-    const statusCode = systemHealth.status === 'healthy' 
-      ? HttpStatus.OK 
-      : systemHealth.status === 'degraded' 
-        ? HttpStatus.OK 
-        : HttpStatus.SERVICE_UNAVAILABLE;
+
+    const statusCode =
+      systemHealth.status === 'healthy'
+        ? HttpStatus.OK
+        : systemHealth.status === 'degraded'
+          ? HttpStatus.OK
+          : HttpStatus.SERVICE_UNAVAILABLE;
 
     return ResponseHelper.success(
       systemHealth,
@@ -75,7 +76,8 @@ export class HealthController {
   @Get('live')
   @ApiOperation({
     summary: 'Liveness probe',
-    description: 'Endpoint para verificar se a aplicação está viva (usado pelo Kubernetes)',
+    description:
+      'Endpoint para verificar se a aplicação está viva (usado pelo Kubernetes)',
   })
   @ApiResponse({
     status: 200,
@@ -87,9 +89,9 @@ export class HealthController {
   })
   async liveness() {
     const isHealthy = await this.healthService.isHealthy();
-    
+
     if (!isHealthy) {
-      return ResponseHelper.custom(
+      return ResponseHelper.custom<{ status: string; error: string }>(
         HttpStatus.SERVICE_UNAVAILABLE,
         { status: 'unhealthy', error: 'UNHEALTHY' },
         'Aplicação não está saudável',
@@ -106,7 +108,8 @@ export class HealthController {
   @Get('ready')
   @ApiOperation({
     summary: 'Readiness probe',
-    description: 'Endpoint para verificar se a aplicação está pronta para receber tráfego',
+    description:
+      'Endpoint para verificar se a aplicação está pronta para receber tráfego',
   })
   @ApiResponse({
     status: 200,
@@ -118,7 +121,7 @@ export class HealthController {
   })
   async readiness() {
     const isReady = await this.healthService.isReady();
-    
+
     if (!isReady) {
       return ResponseHelper.custom(
         HttpStatus.SERVICE_UNAVAILABLE,
@@ -143,10 +146,10 @@ export class HealthController {
     status: 200,
     description: 'Métricas retornadas com sucesso',
   })
-  async metrics() {
+  metrics() {
     const memoryUsage = process.memoryUsage();
     const cpuUsage = process.cpuUsage();
-    
+
     const metrics = {
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),

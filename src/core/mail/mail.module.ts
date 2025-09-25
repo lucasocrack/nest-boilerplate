@@ -9,7 +9,7 @@ import { join } from 'path';
   imports: [
     MailerModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => {
+      useFactory: (configService: ConfigService) => {
         const mailHost = configService.get<string>('mail.host');
 
         // Se não houver configuração de email, use configuração de desenvolvimento

@@ -51,7 +51,6 @@ export class UserRepository implements IUserRepository {
   }
 
   async findByIdentification(identification: string): Promise<User | null> {
-    // Verificar se é um email válido
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (emailRegex.test(identification)) {

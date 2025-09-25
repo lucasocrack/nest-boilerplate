@@ -20,28 +20,38 @@ async function bootstrap() {
   });
 
   // Configurações de segurança
-  app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        imgSrc: ["'self'", "data:", "https:"],
-        scriptSrc: ["'self'"],
-        connectSrc: ["'self'"],
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: [
+            "'self'",
+            "'unsafe-inline'",
+            'https://fonts.googleapis.com',
+          ],
+          fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+          imgSrc: ["'self'", 'data:', 'https:'],
+          scriptSrc: ["'self'"],
+          connectSrc: ["'self'"],
+        },
       },
-    },
-    hsts: {
-      maxAge: 31536000,
-      includeSubDomains: true,
-      preload: true,
-    },
-  }));
+      hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true,
+      },
+    }),
+  );
 
   // Configuração de CORS
   app.enableCors({
-    origin: isDevelopment 
-      ? ['http://localhost:3000', 'http://localhost:3099', 'http://localhost:5173']
+    origin: isDevelopment
+      ? [
+          'http://localhost:3000',
+          'http://localhost:3099',
+          'http://localhost:5173',
+        ]
       : process.env.ALLOWED_ORIGINS?.split(',') || false,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
@@ -65,7 +75,8 @@ async function bootstrap() {
   // Configuração do OpenAPI/Scalar
   const config = new DocumentBuilder()
     .setTitle('NestJS Boilerplate API')
-    .setDescription(`
+    .setDescription(
+      `
       API robusta e escalável construída com NestJS, implementando:
       
       🔐 **Segurança:**
@@ -91,9 +102,14 @@ async function bootstrap() {
       - Formato de URL: /v{version}/endpoint
       - Backward compatibility mantida
       - Deprecação gradual de versões antigas
-    `)
+    `,
+    )
     .setVersion('1.0.0')
-    .setContact('Equipe de Desenvolvimento', 'https://github.com/seu-usuario/nest-boilerplate', 'dev@empresa.com')
+    .setContact(
+      'Equipe de Desenvolvimento',
+      'https://github.com/seu-usuario/nest-boilerplate',
+      'dev@empresa.com',
+    )
     .setLicense('MIT', 'https://opensource.org/licenses/MIT')
     .addBearerAuth(
       {
@@ -107,8 +123,10 @@ async function bootstrap() {
       'JWT-auth', // Nome da referência de segurança
     )
     .addServer(
-      isDevelopment ? 'http://localhost:3099' : process.env.API_URL || 'https://api.empresa.com',
-      isDevelopment ? 'Servidor de Desenvolvimento' : 'Servidor de Produção'
+      isDevelopment
+        ? 'http://localhost:3099'
+        : process.env.API_URL || 'https://api.empresa.com',
+      isDevelopment ? 'Servidor de Desenvolvimento' : 'Servidor de Produção',
     )
     .build();
 

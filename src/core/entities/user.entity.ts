@@ -79,15 +79,14 @@ export class UserEntity {
    */
   toPublic() {
     const {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       password,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       refreshToken,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       passwordResetToken,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       activationToken,
-      isActive,
-      isBlocked,
-      isPasswordResetTokenValid,
-      isActivationTokenValid,
-      toPublic,
       ...publicData
     } = this;
     return publicData;

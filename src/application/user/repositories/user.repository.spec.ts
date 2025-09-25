@@ -18,7 +18,6 @@ const mockPrismaService = {
 
 describe('UserRepository', () => {
   let repository: UserRepository;
-  let prisma: PrismaService;
 
   const mockUser: User = {
     userId: '1',
@@ -59,7 +58,6 @@ describe('UserRepository', () => {
     }).compile();
 
     repository = module.get<UserRepository>(UserRepository);
-    prisma = module.get<PrismaService>(PrismaService);
 
     // Limpar todos os mocks antes de cada teste
     jest.clearAllMocks();
