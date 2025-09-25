@@ -1,0 +1,52 @@
+meta {
+  name: Register User (Complete)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/auth/register
+  body: json
+  auth: none
+}
+
+docs {
+  # Registro de Usuário - Exemplo Completo
+
+  Este exemplo demonstra o registro com todos os campos disponíveis.
+
+  ## Campos Obrigatórios:
+  - **userName**: Nome de usuário único
+  - **name**: Nome completo
+  - **email**: Email válido
+  - **password**: Senha com complexidade
+
+  ## Campos Opcionais Incluídos:
+  - **cpf**: CPF válido (formato brasileiro)
+  - **telefone**: Telefone com DDD
+  - **avatarUrl**: URL da foto de perfil
+  - **role**: Papel do usuário (USER, ADMIN, GERENTE)
+  - **active**: Status de ativação
+  - **sendEmail**: Controle de envio de email
+
+  ## Observações:
+  - CPF deve ser válido e único
+  - Telefone aceita formatos: (11) 99999-9999 ou 11999999999
+  - avatarUrl deve ser uma URL válida
+  - role padrão é USER se não especificado
+}
+
+body:json {
+  {
+    "userName": "maria_admin",
+    "name": "Maria Santos",
+    "email": "maria.santos@example.com",
+    "cpf": "12345678901",
+    "telefone": "(11) 99999-8888",
+    "avatarUrl": "https://example.com/avatars/maria.jpg",
+    "password": "MinhaSenh@456",
+    "role": "ADMIN",
+    "active": true,
+    "sendEmail": false
+  }
+}

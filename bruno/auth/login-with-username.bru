@@ -1,0 +1,46 @@
+meta {
+  name: Login with Username
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{host}}/auth/login
+  body: json
+  auth: none
+}
+
+docs {
+  # Login com Username
+
+  Este exemplo demonstra login usando nome de usuário como identificação.
+
+  ## Campos:
+  - **identification**: Nome de usuário (username)
+  - **password**: Senha do usuário
+
+  ## Características do Username:
+  - Apenas letras, números e underscore
+  - Entre 3 e 30 caracteres
+  - Único no sistema
+
+  ## Vantagens:
+  - Mais fácil de lembrar que email
+  - Não expõe informações pessoais
+  - Ideal para sistemas com foco em privacidade
+}
+
+body:json {
+  {
+    "identification": "joao123",
+    "password": "MinhaSenh@123"
+  }
+}
+
+script:post-response {
+  if (res.status === 200 && res.body.data) {
+    bru.setVar("accessToken", res.body.data.access_token);
+    bru.setVar("refreshToken", res.body.data.refresh_token);
+    bru.setVar("userId", res.body.data.user.userId);
+  }
+}

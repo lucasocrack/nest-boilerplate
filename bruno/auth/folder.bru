@@ -1,0 +1,119 @@
+meta {
+  name: Autenticação
+  type: folder
+}
+
+docs {
+  # Sistema de Autenticação
+
+  Esta pasta contém todas as requisições relacionadas ao sistema de autenticação da aplicação.
+
+  ## Endpoints Disponíveis:
+
+  ### 🔐 **Register** - Registro de Usuário
+  - **Método**: POST `/auth/register`
+  - **Acesso**: Público (sem autenticação)
+  - **Rate Limit**: Aplicado (proteção contra spam)
+  - **Descrição**: Registra um novo usuário no sistema
+  - **Ativação**: Envia email de ativação automaticamente
+
+  ### 🚪 **Login** - Autenticação
+  - **Método**: POST `/auth/login`
+  - **Acesso**: Público (sem autenticação)
+  - **Rate Limit**: Aplicado (proteção contra ataques de força bruta)
+  - **Descrição**: Autentica usuário e retorna tokens JWT
+  - **Suporte**: Login por email, username ou CPF
+
+  ### 🔑 **Forgot Password** - Recuperação de Senha
+  - **Método**: POST `/auth/forgot-password`
+  - **Acesso**: Público (sem autenticação)
+  - **Rate Limit**: Aplicado (proteção contra spam)
+  - **Descrição**: Solicita redefinição de senha via email
+
+  ### 🔄 **Reset Password** - Redefinir Senha
+  - **Método**: POST `/auth/reset-password`
+  - **Acesso**: Público (requer token válido)
+  - **Descrição**: Redefine senha usando token recebido por email
+
+  ## Recursos de Segurança:
+
+  ### 🛡️ **Rate Limiting**
+  - Proteção contra ataques de força bruta
+  - Limites específicos por endpoint
+  - Bloqueio temporário após tentativas excessivas
+
+  ### 🔒 **Bloqueio de Conta**
+  - Máximo 5 tentativas de login incorretas
+  - Bloqueio automático por 15 minutos
+  - Reset automático após login bem-sucedido
+
+  ### 📧 **Sistema de Email**
+  - Ativação de conta obrigatória
+  - Recuperação de senha segura
+  - Templates responsivos e profissionais
+
+  ### 🔐 **JWT Tokens**
+  - Access Token: 15 minutos (segurança)
+  - Refresh Token: 7 dias (conveniência)
+  - Rotação automática de tokens
+
+  ## Validações Implementadas:
+
+  ### 👤 **Usuário**
+  - Username único (3-30 caracteres, alfanumérico + underscore)
+  - Email válido e único
+  - CPF brasileiro válido (opcional)
+  - Telefone formato brasileiro (opcional)
+
+  ### 🔑 **Senha**
+  - Mínimo 8 caracteres
+  - Pelo menos 1 letra minúscula
+  - Pelo menos 1 letra maiúscula
+  - Pelo menos 1 número
+  - Pelo menos 1 caractere especial (@$!%*?&)
+
+  ## Códigos de Resposta:
+
+  ### ✅ **Sucesso**
+  - **200**: Operação realizada com sucesso
+  - **201**: Usuário criado com sucesso
+
+  ### ⚠️ **Erro do Cliente**
+  - **400**: Dados inválidos fornecidos
+  - **401**: Credenciais inválidas
+  - **404**: Usuário não encontrado
+  - **409**: Conflito (dados já existem)
+  - **429**: Rate limit atingido
+
+  ### 🚨 **Erro do Servidor**
+  - **500**: Erro interno do servidor
+
+  ## Auditoria e Compliance:
+
+  - Todas as operações são registradas no audit trail
+  - Dados sensíveis são automaticamente sanitizados
+  - Logs incluem IP, User Agent e timestamp
+  - Rastreabilidade completa para compliance
+
+  ## Variáveis de Ambiente:
+
+  ```env
+  # Configurações JWT
+  JWT_SECRET=your-secret-key
+  JWT_EXPIRES_IN=15m
+  JWT_REFRESH_SECRET=your-refresh-secret
+  REFRESH_TOKEN_TTL=7d
+
+  # Rate Limiting
+  THROTTLE_TTL=60000
+  THROTTLE_LIMIT=10
+
+  # Segurança de Conta
+  MAX_LOGIN_ATTEMPTS=5
+  ACCOUNT_LOCK_TIME=15m
+  ```
+
+  ## Exemplos de Uso:
+
+  Consulte cada endpoint individual para exemplos detalhados de requisições e respostas.
+}

@@ -1,7 +1,7 @@
 meta {
-  name: login
+  name: Login with Email
   type: http
-  seq: 2
+  seq: 4
 }
 
 post {
@@ -10,13 +10,55 @@ post {
   auth: none
 }
 
+docs {
+  # Login de Usuário
+
+  Endpoint para autenticar usuário no sistema.
+
+  ## Campos Obrigatórios:
+  - **identification**: Email, username ou CPF do usuário
+  - **password**: Senha do usuário
+
+  ## Recursos:
+  - Suporte a múltiplos tipos de identificação (email, username, CPF)
+  - Rate limiting para proteção contra ataques de força bruta
+  - Bloqueio automático após 5 tentativas incorretas
+  - Retorna access token e refresh token
+
+  ## Resposta de Sucesso (200):
+  ```json
+  {
+    "user": {
+      "userId": "...",
+      "userName": "...",
+      "name": "...",
+      "email": "...",
+      "role": "..."
+    },
+    "token": "access_token_jwt",
+    "refreshToken": "refresh_token_jwt"
+  }
+  ```
+
+  ## Possíveis Erros:
+  - **400**: Dados inválidos
+  - **401**: Credenciais incorretas
+  - **423**: Conta bloqueada (muitas tentativas)
+  - **429**: Rate limit atingido
+}
+
 body:json {
   {
-    "identification": "admin@admin.com",
-    "password": "12345678"
+    "identification": "bruno.silva@example.com",
+    "password": "MinhaSenh@123"
   }
 }
 
 script:post-response {
-  const token = res.getBody().token
+  if (res.getStatus() === 200) {
+    const responseBody = res.getBody();
+    bru.setVar("accessToken", responseBody.token);
+    bru.setVar("refreshToken", responseBody.refreshToken);
+    bru.setVar("userId", responseBody.user.userId);
+  }
 }

@@ -1,0 +1,45 @@
+meta {
+  name: Login with CPF
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{host}}/auth/login
+  body: json
+  auth: none
+}
+
+docs {
+  # Login com CPF
+
+  Este exemplo demonstra login usando CPF como identificação.
+
+  ## Campos:
+  - **identification**: CPF do usuário (com ou sem formatação)
+  - **password**: Senha do usuário
+
+  ## Formatos de CPF Aceitos:
+  - 12345678901 (apenas números)
+  - 123.456.789-01 (formatado)
+
+  ## Observações:
+  - O sistema aceita email, username ou CPF no campo identification
+  - Rate limiting aplicado para prevenir ataques de força bruta
+  - Conta pode ser bloqueada após múltiplas tentativas falhadas
+}
+
+body:json {
+  {
+    "identification": "12345678901",
+    "password": "MinhaSenh@123"
+  }
+}
+
+script:post-response {
+  if (res.status === 200 && res.body.data) {
+    bru.setVar("accessToken", res.body.data.access_token);
+    bru.setVar("refreshToken", res.body.data.refresh_token);
+    bru.setVar("userId", res.body.data.user.userId);
+  }
+}

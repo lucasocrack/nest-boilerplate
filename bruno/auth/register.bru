@@ -1,5 +1,5 @@
 meta {
-  name: Register
+  name: Register User (Standard)
   type: http
   seq: 1
 }
@@ -10,11 +10,46 @@ post {
   auth: none
 }
 
+docs {
+  # Registro de Usuário
+
+  Endpoint para registrar um novo usuário no sistema.
+
+  ## Campos Obrigatórios:
+  - **userName**: Nome de usuário único (3-30 caracteres, apenas letras, números e underscore)
+  - **name**: Nome completo (2-100 caracteres)
+  - **email**: Email válido e único
+  - **password**: Senha forte (mínimo 8 caracteres, deve conter: 1 minúscula, 1 maiúscula, 1 número, 1 caractere especial)
+
+  ## Campos Opcionais:
+  - **cpf**: CPF válido (formato brasileiro)
+  - **telefone**: Telefone no formato brasileiro (ex: (11) 99999-9999)
+  - **avatarUrl**: URL válida para avatar do usuário
+  - **role**: Papel do usuário (USER, ADMIN, GERENTE) - padrão: USER
+  - **active**: Se o usuário deve estar ativo - padrão: false (requer ativação por email)
+  - **sendEmail**: Se deve enviar email de ativação - padrão: true
+
+  ## Resposta de Sucesso (201):
+  - Usuário criado com dados públicos (sem senha)
+  - Email de ativação enviado automaticamente
+  - Mensagem de confirmação
+
+  ## Possíveis Erros:
+  - **400**: Dados inválidos (validação falhou)
+  - **409**: Conflito (email, username ou CPF já existem)
+  - **429**: Rate limit atingido (muitas tentativas)
+}
+
 body:json {
   {
-    "username": "bruno",
-    "name": "Bruno",
-    "email": "bruno@example.com",
-    "password": "password123"
+    "userName": "bruno_silva",
+    "name": "Bruno Silva",
+    "email": "bruno.silva@example.com",
+    "password": "MinhaSenh@123",
+    "cpf": "123.456.789-00",
+    "telefone": "(11) 99999-9999",
+    "avatarUrl": "https://example.com/avatar.jpg",
+    "role": "USER",
+    "sendEmail": true
   }
 }

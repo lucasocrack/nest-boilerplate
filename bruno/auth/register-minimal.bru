@@ -1,0 +1,40 @@
+meta {
+  name: Register User (Minimal)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/auth/register
+  body: json
+  auth: none
+}
+
+docs {
+  # Registro de Usuário - Exemplo Mínimo
+
+  Este exemplo demonstra o registro com apenas os campos obrigatórios.
+
+  ## Campos Incluídos:
+  - **userName**: Nome de usuário único
+  - **name**: Nome completo
+  - **email**: Email válido
+  - **password**: Senha com complexidade
+
+  ## Campos Opcionais Omitidos:
+  - cpf, telefone, avatarUrl, role, active, sendEmail
+
+  ## Comportamento Padrão:
+  - role: USER (padrão)
+  - active: false (requer ativação por email)
+  - sendEmail: true (padrão - envia email de ativação)
+}
+
+body:json {
+  {
+    "userName": "joao123",
+    "name": "João Silva",
+    "email": "joao.silva@example.com",
+    "password": "MinhaSenh@123"
+  }
+}
