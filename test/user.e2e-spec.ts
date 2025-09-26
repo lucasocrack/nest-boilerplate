@@ -81,7 +81,7 @@ describe('UserController (e2e)', () => {
 
     regularUserToken = (
       regularLoginResponse.body as { data: { access_token: string } }
-      .data.access_token;
+    ).data.access_token;
   });
 
   beforeEach(async () => {
@@ -97,7 +97,6 @@ describe('UserController (e2e)', () => {
   });
 
   afterEach(async () => {
-    // Clean up only the test user, keep admin and regular users
     if (prisma && adminUser && regularUser) {
       await prisma.user.deleteMany({
         where: {
@@ -110,7 +109,6 @@ describe('UserController (e2e)', () => {
   });
 
   afterAll(async () => {
-    // Clean up all users
     if (prisma) {
       await prisma.user.deleteMany({});
     }
@@ -207,9 +205,15 @@ describe('UserController (e2e)', () => {
           .expect(201)
           .then((res) => {
             expect((res.body as { data: any }).data).toBeDefined();
-            expect((res.body as { data: { userName: any } }).data.userName).toEqual(createUserAdminDto.userName);
-            expect((res.body as { data: { role: any } }).data.role).toEqual(createUserAdminDto.role);
-            expect((res.body as { data: { active: any } }).data.active).toEqual(createUserAdminDto.active);
+            expect(
+              (res.body as { data: { userName: any } }).data.userName,
+            ).toEqual(createUserAdminDto.userName);
+            expect((res.body as { data: { role: any } }).data.role).toEqual(
+              createUserAdminDto.role,
+            );
+            expect((res.body as { data: { active: any } }).data.active).toEqual(
+              createUserAdminDto.active,
+            );
           });
       });
 
@@ -243,9 +247,7 @@ describe('UserController (e2e)', () => {
 
     describe('Privilege Escalation Prevention', () => {
       it('should not allow regular user to access any admin-only routes', async () => {
-        const adminOnlyRoutes = [
-          { method: 'post', path: '/users/admin' },
-        ];
+        const adminOnlyRoutes = [{ method: 'post', path: '/users/admin' }];
 
         for (const route of adminOnlyRoutes) {
           const response = await request(app.getHttpServer())
@@ -260,7 +262,7 @@ describe('UserController (e2e)', () => {
       it('should validate that regular user cannot escalate privileges through token manipulation', async () => {
         // Tentar acessar com token modificado (simulação de ataque)
         const maliciousToken = regularUserToken.replace(/.$/, 'X'); // Modifica último caractere
-        
+
         return request(app.getHttpServer())
           .post('/users/admin')
           .set('Authorization', `Bearer ${maliciousToken}`)

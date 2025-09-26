@@ -6,7 +6,7 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import {
   JsonWebTokenError,
   TokenExpiredError,
@@ -19,7 +19,13 @@ interface ErrorResponse {
   error: string;
   timestamp: string;
   path: string;
-  details?: any;
+  details?: Record<string, unknown>;
+}
+
+interface HttpExceptionResponse {
+  message?: string | string[];
+  error?: string;
+  details?: Record<string, unknown>;
 }
 
 @Catch()
@@ -53,13 +59,13 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest();
+    const request = ctx.getRequest<Request>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Erro interno do servidor';
     let error = 'Internal Server Error';
-    let details: any = undefined;
-    let useStandardMessage = false; // Preferir mensagens específicas
+    let details: Record<string, unknown> | undefined = undefined;
+    let useStandardMessage = false;
 
     this.logger.error(`Erro capturado pelo GlobalExceptionFilter:`, {
       message: exception instanceof Error ? exception.message : 'Unknown error',
@@ -73,7 +79,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       const exceptionResponse = exception.getResponse();
 
       if (typeof exceptionResponse === 'object') {
-        const responseObj = exceptionResponse as any;
+        const responseObj = exceptionResponse as HttpExceptionResponse;
         message = responseObj.message || this.getStandardMessage(status);
         error = responseObj.error || exception.name;
         details = responseObj.details;

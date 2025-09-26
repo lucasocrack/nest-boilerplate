@@ -19,7 +19,7 @@ export class RegisterDto {
     description: 'Nome de usuário único',
     example: 'joao_silva',
     minLength: 3,
-    maxLength: 30
+    maxLength: 30,
   })
   @IsString({ message: 'Nome de usuário deve ser uma string' })
   @IsNotEmpty({ message: 'Nome de usuário é obrigatório' })

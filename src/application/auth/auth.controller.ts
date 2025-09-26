@@ -62,13 +62,15 @@ export class AuthController {
   @Post('register')
   @IsPublic()
   @AuthThrottle()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Registrar novo usuário (público)',
-    description: 'Registro público que cria usuários com role USER automaticamente. Para criar usuários com privilégios administrativos, use a rota administrativa em /users.'
+    description:
+      'Registro público que cria usuários com role USER automaticamente. Para criar usuários com privilégios administrativos, use a rota administrativa em /users.',
   })
   @ApiResponse({
     status: 201,
-    description: 'Usuário registrado com sucesso - email de ativação enviado. Role definido automaticamente como USER.',
+    description:
+      'Usuário registrado com sucesso - email de ativação enviado. Role definido automaticamente como USER.',
   })
   @ApiResponse({ status: 400, description: 'Dados inválidos fornecidos' })
   @ApiResponse({

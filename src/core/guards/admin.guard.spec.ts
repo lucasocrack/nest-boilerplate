@@ -39,7 +39,10 @@ describe('AdminGuard', () => {
   });
 
   describe('canActivate', () => {
-    const createMockContext = (token?: string, role?: Role): ExecutionContext => {
+    const createMockContext = (
+      token?: string,
+      role?: Role,
+    ): ExecutionContext => {
       const request = {
         headers: {
           authorization: token ? `Bearer ${token}` : undefined,
@@ -119,7 +122,7 @@ describe('AdminGuard', () => {
     it('should prevent privilege escalation attempts', async () => {
       const mockContext = createMockContext('manipulated-token');
       mockReflector.getAllAndOverride.mockReturnValue(false);
-      
+
       // Simula tentativa de escalação de privilégios com token manipulado
       mockJwtService.verify.mockReturnValue({
         sub: 'user-id',
