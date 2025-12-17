@@ -18,6 +18,7 @@ import { AuditModule } from './application/audit/audit.module';
 import { MonitoringModule } from './application/monitoring/monitoring.module';
 import { HealthModule } from './application/health/health.module';
 import { PerformanceInterceptor } from './core/interceptors/performance.interceptor';
+import { MailModule } from './core/mail/mail.module';
 
 @Module({
   imports: [
@@ -61,7 +62,8 @@ import { PerformanceInterceptor } from './core/interceptors/performance.intercep
 
     AuditModule,
     MonitoringModule,
-    HealthModule,
+    MonitoringModule,
+    MailModule,
   ],
   controllers: [],
   providers: [
