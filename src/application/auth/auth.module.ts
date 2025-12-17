@@ -7,7 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from '../../core/guards/jwt.strategy';
 import { ConfigModule } from '@nestjs/config';
-import { MailModule } from '../../core/mail/mail.module';
+
 import { PrismaModule } from '../../core/config/prisma.module';
 import { AuthRepository } from './repositories/auth.repository';
 import { AUTH_REPOSITORY_TOKEN } from './repositories/auth.repository.interface';
@@ -18,7 +18,7 @@ import { SecurityLoggerService } from '../../core/security/security-logger.servi
     PrismaModule,
     ConfigModule.forRoot(),
     UserModule,
-    MailModule,
+
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'default-secret',

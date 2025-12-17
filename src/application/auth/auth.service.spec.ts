@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { UnauthorizedException } from '../../core/exceptions/custom-exceptions';
 import * as bcrypt from 'bcrypt';
 import { User, Role } from '@prisma/client';
-import { MailService } from '../../core/mail/mail.service';
+
 import { PrismaService } from '../../core/config/prisma.service';
 import { CreateUserDto } from './dto/create-auth.dto';
 import { AUTH_REPOSITORY_TOKEN } from './repositories/auth.repository.interface';
@@ -28,11 +28,6 @@ describe('AuthService', () => {
 
   const mockJwtService = {
     signAsync: jest.fn(),
-  };
-
-  const mockMailService = {
-    sendUserConfirmation: jest.fn(),
-    sendActivationEmail: jest.fn(),
   };
 
   const mockPrismaService = {
@@ -86,7 +81,7 @@ describe('AuthService', () => {
         AuthService,
         { provide: UserService, useValue: mockUserService },
         { provide: JwtService, useValue: mockJwtService },
-        { provide: MailService, useValue: mockMailService },
+
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: AUTH_REPOSITORY_TOKEN, useValue: mockAuthRepository },
@@ -142,8 +137,6 @@ describe('AuthService', () => {
         cpfExists: false,
       });
       mockAuthRepository.createUser.mockResolvedValue(mockUserData);
-      mockMailService.sendUserConfirmation.mockResolvedValue(undefined);
-      mockMailService.sendActivationEmail.mockResolvedValue(undefined);
 
       const result = await service.register(createUserDto);
 
@@ -177,10 +170,6 @@ describe('AuthService', () => {
           cpf: createUserDto.cpf,
           telefone: createUserDto.telefone,
         }),
-      );
-      expect(mockMailService.sendActivationEmail).toHaveBeenCalledWith(
-        mockUserData,
-        expect.any(String),
       );
     });
   });

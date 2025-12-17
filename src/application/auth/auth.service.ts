@@ -9,7 +9,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ActivateAccountDto } from './dto/activate-account.dto';
 import * as crypto from 'crypto';
 import { User } from '@prisma/client';
-import { MailService } from '../../core/mail/mail.service';
+
 import { ValidationUtils } from '../../core/utils/validation.utils';
 import {
   IAuthRepository,
@@ -29,7 +29,7 @@ export class AuthService {
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
-    private mailService: MailService,
+
     @Inject(AUTH_REPOSITORY_TOKEN)
     private readonly authRepository: IAuthRepository,
     private readonly configService: ConfigService,
@@ -153,8 +153,6 @@ export class AuthService {
       deletedAt: null,
     });
 
-    await this.mailService.sendActivationEmail(result, activationToken);
-
     await this.auditTrailService.logCreate(
       'User',
       result.userId,
@@ -170,7 +168,7 @@ export class AuthService {
       { action: 'public_user_registration', securityLevel: 'public' },
     );
 
-    const { password, activationToken: token, ...user } = result;
+    const { activationToken: token, ...user } = result;
     return {
       ...user,
       message:
@@ -209,18 +207,12 @@ export class AuthService {
       timestamp: new Date(),
     });
 
-    if (newAttempts >= 3) {
-      await this.mailService.sendMultipleLoginAttemptsAlert(user, newAttempts);
-    }
-
     if (newAttempts >= maxAttempts) {
       updateData.blocked = true;
       updateData.blockedUntil = new Date(Date.now() + lockoutDuration);
       updateData.loginAttempts = 0; // Reset contador após bloqueio
 
       this.securityLogger.logAccountBlocked(user, newAttempts, ip, userAgent);
-
-      await this.mailService.sendAccountBlockedAlert(user, '15 minutos');
     }
 
     await this.userService.update(user.userId, updateData);
@@ -324,11 +316,6 @@ export class AuthService {
           reason: 'Login após longo período de inatividade ou primeiro login',
         },
       );
-
-      await this.mailService.sendSuspiciousLoginAlert(user, {
-        ...loginDetails,
-        timestamp: new Date(),
-      });
     }
 
     await this.handleSuccessfulLogin(
@@ -513,11 +500,6 @@ export class AuthService {
       activationTokenExpires,
     });
 
-    await this.mailService.sendActivationEmail(
-      { ...user, activationToken, activationTokenExpires },
-      activationToken,
-    );
-
     return { message: 'Email de ativação reenviado com sucesso' };
   }
 
@@ -543,7 +525,6 @@ export class AuthService {
     const user = await this.userService.findOneByEmail(identifier);
     if (user && user.deletedAt === null) {
       if (!user.active) {
-        await this.mailService.sendUserConfirmation(user);
         throw new UnauthorizedException(
           'A conta do usuário não está ativada. Um e-mail de ativação foi enviado.',
         );

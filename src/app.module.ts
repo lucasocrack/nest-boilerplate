@@ -6,8 +6,6 @@ import { LogModule } from './application/log/log.module';
 import { LoggerMiddleware } from './application/log/middleware/log.middleware';
 import { HomeModule } from './application/home/home.module';
 import { ConfigModule } from '@nestjs/config';
-import { MailModule } from './core/mail/mail.module';
-import mailConfig from './core/mail/mail.config';
 import { APP_GUARD, APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { GlobalAuthGuard } from './core/guards/global-auth.guard';
 import { GlobalExceptionFilter } from './core/filters/global-exception.filter';
@@ -25,7 +23,7 @@ import { PerformanceInterceptor } from './core/interceptors/performance.intercep
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [mailConfig],
+      load: [],
     }),
     ThrottlerModule.forRoot([
       {
@@ -60,7 +58,7 @@ import { PerformanceInterceptor } from './core/interceptors/performance.intercep
     UserModule,
     LogModule,
     HomeModule,
-    MailModule,
+
     AuditModule,
     MonitoringModule,
     HealthModule,

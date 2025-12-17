@@ -62,7 +62,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message = 'Erro interno do servidor';
+    let message: string | string[] = 'Erro interno do servidor';
     let error = 'Internal Server Error';
     let details: Record<string, unknown> | undefined = undefined;
     let useStandardMessage = false;
