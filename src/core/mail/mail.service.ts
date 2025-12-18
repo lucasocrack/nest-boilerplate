@@ -26,8 +26,9 @@ export class MailService {
   }
 
   async sendMail(options: SendMailOptions): Promise<void> {
-    const from = this.configService.get<string>('SMTP_FROM') || 'no-reply@localhost';
-    
+    const from =
+      this.configService.get<string>('SMTP_FROM') || 'no-reply@localhost';
+
     try {
       const info = await this.transporter.sendMail({
         from,
