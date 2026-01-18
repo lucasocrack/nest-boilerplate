@@ -27,8 +27,8 @@ Criado e mantido por [lucascampos42](https://github.com/lucascampos42).
 
 ### Documentação & API
 
-- **[@nestjs/swagger](https://www.npmjs.com/package/@nestjs/swagger)** - Documentação OpenAPI
-- **[@scalar/nestjs-api-reference](https://www.npmjs.com/package/@scalar/nestjs-api-reference)** - Interface moderna para documentação
+- **[@nestjs/swagger](https://www.npmjs.com/package/@nestjs/swagger)** - Decorators para documentação OpenAPI
+- **[@scalar/nestjs-api-reference](https://www.npmjs.com/package/@scalar/nestjs-api-reference)** - Interface moderna para documentação da API
 - **[@compodoc/compodoc](https://www.npmjs.com/package/@compodoc/compodoc)** - Documentação do código
 
 ### E-mail & Notificações
@@ -408,22 +408,55 @@ npm run lint && npm run test:cov && npm run test:e2e
 
 ## 📚 Documentação
 
-### Documentação da API (OpenAPI/Swagger)
+### Documentação da API (Scalar API Reference)
 
-O projeto gera automaticamente documentação da API usando OpenAPI 3.0 com interface moderna do Scalar.
+O projeto utiliza **[Scalar](https://scalar.com/)** para gerar uma documentação interativa e moderna da API automaticamente a partir das anotações OpenAPI 3.0 no código NestJS.
+
+**Por que Scalar?**
+
+- 🎨 **Interface moderna e intuitiva** - Design superior ao Swagger UI tradicional
+- 🚀 **Performance otimizada** - Carregamento rápido e experiência fluida
+- 🔍 **Busca avançada** - Encontre endpoints rapidamente
+- 📱 **Totalmente responsivo** - Funciona perfeitamente em mobile
+- 🌙 **Dark mode nativo** - Tema escuro integrado
+- 🧪 **Teste de APIs integrado** - Faça requisições diretamente da documentação
 
 **Acessar a documentação:**
 
 - **Desenvolvimento:** `http://localhost:3099/docs`
 - **Produção:** `https://seu-dominio.com/docs`
 
-**Características:**
+**Características principais:**
 
 - 📋 Documentação automática de todos os endpoints
-- 🔧 Interface interativa para testar APIs
-- 📝 Schemas de request/response detalhados
-- 🔐 Suporte para autenticação JWT
-- 📱 Interface responsiva e moderna
+- 🔧 Interface interativa para testar APIs (substitui Postman/Insomnia)
+- 📝 Schemas de request/response detalhados com exemplos
+- 🔐 Suporte para autenticação JWT (Bearer token)
+- 📊 Visualização clara de tipos de dados e validações
+- � Atualização automática ao modificar decorators no código
+
+**Como funciona:**
+
+1. Use decorators do `@nestjs/swagger` nos controllers
+2. A documentação é gerada automaticamente em `/docs`
+3. Scalar renderiza a interface moderna a partir do OpenAPI spec
+
+**Exemplo de decorators:**
+
+```typescript
+@ApiTags('users')
+@ApiBearerAuth()
+@Controller('users')
+export class UserController {
+  @Get(':id')
+  @ApiOperation({ summary: 'Buscar usuário por ID' })
+  @ApiResponse({ status: 200, description: 'Usuário encontrado' })
+  @ApiResponse({ status: 404, description: 'Usuário não encontrado' })
+  async findOne(@Param('id') id: string) {
+    // ...
+  }
+}
+```
 
 ### Documentação do Código
 
