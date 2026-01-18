@@ -6,12 +6,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Response } from 'express';
-import {
-  PrismaClientKnownRequestError,
-  PrismaClientUnknownRequestError,
-  PrismaClientValidationError,
-  PrismaClientInitializationError,
-} from '@prisma/client/runtime/library';
+import { Prisma } from '@prisma/client';
 
 interface PrismaErrorResponse {
   statusCode: number;
@@ -27,10 +22,10 @@ interface PrismaErrorResponse {
  * Converte códigos de erro do Prisma em respostas HTTP apropriadas
  */
 @Catch(
-  PrismaClientKnownRequestError,
-  PrismaClientUnknownRequestError,
-  PrismaClientValidationError,
-  PrismaClientInitializationError,
+  Prisma.PrismaClientKnownRequestError,
+  Prisma.PrismaClientUnknownRequestError,
+  Prisma.PrismaClientValidationError,
+  Prisma.PrismaClientInitializationError,
 )
 export class PrismaExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(PrismaExceptionFilter.name);
@@ -48,7 +43,7 @@ export class PrismaExceptionFilter implements ExceptionFilter {
     // Log do erro para debugging
     this.logger.error(`Erro do Prisma: ${exception.message}`, exception.stack);
 
-    if (exception instanceof PrismaClientKnownRequestError) {
+    if (exception instanceof Prisma.PrismaClientKnownRequestError) {
       code = exception.code;
 
       switch (exception.code) {
@@ -99,15 +94,15 @@ export class PrismaExceptionFilter implements ExceptionFilter {
           message = 'Erro na operação do banco de dados';
           error = 'Database Error';
       }
-    } else if (exception instanceof PrismaClientValidationError) {
+    } else if (exception instanceof Prisma.PrismaClientValidationError) {
       status = HttpStatus.BAD_REQUEST;
       message = 'Dados inválidos fornecidos';
       error = 'Validation Error';
-    } else if (exception instanceof PrismaClientInitializationError) {
+    } else if (exception instanceof Prisma.PrismaClientInitializationError) {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
       message = 'Erro de conexão com o banco de dados';
       error = 'Database Connection Error';
-    } else if (exception instanceof PrismaClientUnknownRequestError) {
+    } else if (exception instanceof Prisma.PrismaClientUnknownRequestError) {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
       message = 'Erro desconhecido no banco de dados';
       error = 'Unknown Database Error';
@@ -129,7 +124,7 @@ export class PrismaExceptionFilter implements ExceptionFilter {
    * Gera mensagem específica para erros de constraint única
    */
   private getUniqueConstraintMessage(
-    exception: PrismaClientKnownRequestError,
+    exception: Prisma.PrismaClientKnownRequestError,
   ): string {
     const target = exception.meta?.target as string[];
 

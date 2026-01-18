@@ -68,7 +68,7 @@ export class AuthService {
       type: 'refresh',
     };
     return this.jwtService.signAsync(payload, {
-      expiresIn: this.getRefreshTokenExpiry(),
+      expiresIn: this.getRefreshTokenExpiry() as any,
       secret:
         this.configService.get<string>('JWT_REFRESH_SECRET') ||
         process.env.JWT_SECRET ||

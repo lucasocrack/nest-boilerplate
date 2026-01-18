@@ -20,7 +20,7 @@ export class ResponseFormatInterceptor<T>
   implements NestInterceptor<T, StandardResponse<T>>
 {
   private getStandardMessage(statusCode: number): string {
-    const statusMessages = {
+    const statusMessages: Record<number, string> = {
       200: 'O raro momento em que tudo funciona',
       201: 'Criado. E você jurando que não ia dar certo',
       204: 'OK, mas sem resposta... tipo ghosting',

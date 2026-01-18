@@ -51,7 +51,7 @@ import { MailModule } from './core/mail/mail.module';
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET || 'default-secret',
-      signOptions: { expiresIn: process.env.JWT_ACCESS_TTL || '1h' },
+      signOptions: { expiresIn: (process.env.JWT_ACCESS_TTL || '1h') as any },
     }),
     PrismaModule,
     CoreAuditModule,

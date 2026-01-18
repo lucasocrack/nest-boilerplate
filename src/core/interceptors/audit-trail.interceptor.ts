@@ -169,7 +169,7 @@ export class AuditTrailInterceptor implements NestInterceptor {
   ): string | undefined {
     // Tenta extrair do parâmetro especificado
     if (metadata.entityIdParam && request.params[metadata.entityIdParam]) {
-      return request.params[metadata.entityIdParam];
+      return String(request.params[metadata.entityIdParam]);
     }
 
     // Tenta extrair do resultado (para operações CREATE)
@@ -185,7 +185,7 @@ export class AuditTrailInterceptor implements NestInterceptor {
 
     // Tenta extrair do parâmetro 'id' padrão
     if (request.params.id) {
-      return request.params.id;
+      return String(request.params.id);
     }
 
     return undefined;

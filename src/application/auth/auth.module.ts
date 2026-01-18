@@ -22,7 +22,7 @@ import { SecurityLoggerService } from '../../core/security/security-logger.servi
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'default-secret',
-      signOptions: { expiresIn: process.env.JWT_ACCESS_TTL || '15m' },
+      signOptions: { expiresIn: (process.env.JWT_ACCESS_TTL || '15m') as any },
     }),
   ],
   controllers: [AuthController, AuthV2Controller],

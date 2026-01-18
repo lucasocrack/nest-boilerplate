@@ -8,7 +8,7 @@ import { PrismaService } from '../src/core/config/prisma.service';
 import { LogModule } from '../src/application/log/log.module';
 import { HomeModule } from '../src/application/home/home.module';
 import { MailModule } from '../src/core/mail/mail.module';
-import mailConfig from '../src/core/mail/mail.config';
+
 import { GlobalAuthGuard } from '../src/core/guards/global-auth.guard';
 import { GlobalExceptionFilter } from '../src/core/filters/global-exception.filter';
 import { ResponseFormatInterceptor } from '../src/core/interceptors/response-format.interceptor';
@@ -18,13 +18,13 @@ import { ResponseFormatInterceptor } from '../src/core/interceptors/response-for
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env.test',
-      load: [mailConfig],
+      load: [],
     }),
     // Removido ThrottlerModule para testes
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET || 'test-secret',
-      signOptions: { expiresIn: process.env.JWT_ACCESS_TTL || '1h' },
+      signOptions: { expiresIn: (process.env.JWT_ACCESS_TTL || '1h') as any },
     }),
     AuthModule,
     UserModule,
