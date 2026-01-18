@@ -12,6 +12,7 @@ import { CreateUserDto } from './dto/create-auth.dto';
 import { AUTH_REPOSITORY_TOKEN } from './repositories/auth.repository.interface';
 import { SecurityLoggerService } from '../../core/security/security-logger.service';
 import { AuditTrailService } from '../../core/audit/audit-trail.service';
+import { MailService } from '../../core/mail/mail.service';
 
 jest.mock('bcrypt');
 
@@ -75,7 +76,20 @@ describe('AuthService', () => {
     getAuditStats: jest.fn(),
   };
 
+  const mockMailService = {
+    sendMail: jest.fn(),
+  };
+
   beforeEach(async () => {
+    // Reset all mocks before each test
+    jest.clearAllMocks();
+    
+    // Configure ConfigService mockget to return EMAIL_ENABLED as false for tests
+    mockConfigService.get = jest.fn((key: string, defaultValue?: string) => {
+      if (key === 'EMAIL_ENABLED') return 'false';
+      return defaultValue;
+    });
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -87,6 +101,7 @@ describe('AuthService', () => {
         { provide: AUTH_REPOSITORY_TOKEN, useValue: mockAuthRepository },
         { provide: SecurityLoggerService, useValue: mockSecurityLoggerService },
         { provide: AuditTrailService, useValue: mockAuditTrailService },
+        { provide: MailService, useValue: mockMailService },
       ],
     }).compile();
 

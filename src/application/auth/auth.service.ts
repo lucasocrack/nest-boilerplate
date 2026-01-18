@@ -9,6 +9,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ActivateAccountDto } from './dto/activate-account.dto';
 import * as crypto from 'crypto';
 import { User } from '@prisma/client';
+import { MailService } from '../../core/mail/mail.service';
 
 import { ValidationUtils } from '../../core/utils/validation.utils';
 import {
@@ -29,7 +30,7 @@ export class AuthService {
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
-
+    private mailService: MailService,
     @Inject(AUTH_REPOSITORY_TOKEN)
     private readonly authRepository: IAuthRepository,
     private readonly configService: ConfigService,
@@ -167,6 +168,30 @@ export class AuthService {
       'public_registration',
       { action: 'public_user_registration', securityLevel: 'public' },
     );
+
+    // Enviar email de ativação (opcional)
+    const emailEnabled = this.configService.get<string>('EMAIL_ENABLED') === 'true';
+    if (emailEnabled) {
+      try {
+        const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:4200';
+        const activationUrl = `${frontendUrl}/auth/activate?token=${activationToken}`;
+        
+        await this.mailService.sendMail({
+          to: result.email,
+          subject: 'Ative sua conta',
+          html: `
+            <h1>Bem-vindo ao NestJS Boilerplate!</h1>
+            <p>Olá ${result.name || result.userName},</p>
+            <p>Clique no link abaixo para ativar sua conta:</p>
+            <a href="${activationUrl}">${activationUrl}</a>
+            <p>Este link expira em ${this.configService.get('ACTIVATION_TOKEN_EXPIRY_HOURS', '24')} horas.</p>
+          `,
+        });
+      } catch (error) {
+        // Log do erro mas não falha o registro
+        console.error('Erro ao enviar email de ativação:', error);
+      }
+    }
 
     const { activationToken: token, ...user } = result;
     return {

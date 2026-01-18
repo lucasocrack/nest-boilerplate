@@ -7,59 +7,66 @@ Criado e mantido por [lucascampos42](https://github.com/lucascampos42).
 ## 🚀 Stack Tecnológica
 
 ### Core
+
 - **[NestJS](https://nestjs.com/)** v11 - Framework Node.js progressivo com TypeScript
-- **[Prisma](https://www.prisma.io/)** v6 - ORM de próxima geração com type-safety
+- **[Prisma](https://www.prisma.io/)** v7 - ORM de próxima geração com type-safety
 - **[TypeScript](https://www.typescriptlang.org/)** v5 - Superset tipado do JavaScript
 - **[PostgreSQL](https://www.postgresql.org/)** - Banco de dados relacional
 
 ### Autenticação & Segurança
+
 - **[Passport](https://www.passportjs.org/)** - Middleware de autenticação
 - **[JWT](https://jwt.io/)** - JSON Web Tokens para autenticação stateless
 - **[bcrypt](https://www.npmjs.com/package/bcrypt)** - Hash de senhas
 - **[@nestjs/throttler](https://www.npmjs.com/package/@nestjs/throttler)** - Rate limiting
 
 ### Validação & Transformação
+
 - **[class-validator](https://www.npmjs.com/package/class-validator)** - Validação de DTOs
 - **[class-transformer](https://www.npmjs.com/package/class-transformer)** - Transformação de objetos
 
 ### Documentação & API
+
 - **[@nestjs/swagger](https://www.npmjs.com/package/@nestjs/swagger)** - Documentação OpenAPI
 - **[@scalar/nestjs-api-reference](https://www.npmjs.com/package/@scalar/nestjs-api-reference)** - Interface moderna para documentação
 - **[@compodoc/compodoc](https://www.npmjs.com/package/@compodoc/compodoc)** - Documentação do código
 
 ### E-mail & Notificações
+
 - **[@nestjs-modules/mailer](https://www.npmjs.com/package/@nestjs-modules/mailer)** - Sistema de e-mail
 - **[nodemailer](https://www.npmjs.com/package/nodemailer)** - Envio de e-mails
 
 ### Testes
+
 - **[Jest](https://jestjs.io/)** - Framework de testes
 - **[Supertest](https://www.npmjs.com/package/supertest)** - Testes de integração HTTP
 
 ### Desenvolvimento
+
 - **[ESLint](https://eslint.org/)** - Linting de código
 - **[Prettier](https://prettier.io/)** - Formatação de código
 - **[Docker](https://www.docker.com/)** - Containerização (opcional)
 
 ## Funcionalidades
 
-*   **Framework:** [NestJS](https://nestjs.com/) - Um framework Node.js progressivo para construir aplicações server-side eficientes e escaláveis.
-*   **ORM:** [Prisma](https://www.prisma.io/) - ORM de próxima geração para Node.js e TypeScript.
-*   **Autenticação:** Autenticação completa com JWT (login e registro).
-*   **Autorização:** Controle de acesso baseado em papéis (Role-Based Access Control - RBAC) com guards.
-*   **Notificações de Segurança:** Sistema de alertas por e-mail para logins suspeitos, múltiplas tentativas de login e bloqueios de conta.
-*   **Logs de Ações do Usuário:** Middleware para registrar automaticamente as ações dos usuários em uma tabela de log no banco de dados.
-*   **Docker (Opcional):** Configuração completa para um ambiente de desenvolvimento e produção containerizado. Veja o guia [DOCKER.md](./DOCKER.md) para detalhes.
-*   **Testes:** Estrutura de testes com Jest para testes unitários e e2e.
-*   **Validação:** Validação de DTOs com `class-validator`.
-*   **Cliente de API:** Coleção do [Bruno](https://www.usebruno.com/) para testar a API.
+- **Framework:** [NestJS](https://nestjs.com/) - Um framework Node.js progressivo para construir aplicações server-side eficientes e escaláveis.
+- **ORM:** [Prisma](https://www.prisma.io/) - ORM de próxima geração para Node.js e TypeScript.
+- **Autenticação:** Autenticação completa com JWT (login e registro).
+- **Autorização:** Controle de acesso baseado em papéis (Role-Based Access Control - RBAC) com guards.
+- **Notificações de Segurança:** Sistema de alertas por e-mail para logins suspeitos, múltiplas tentativas de login e bloqueios de conta.
+- **Logs de Ações do Usuário:** Middleware para registrar automaticamente as ações dos usuários em uma tabela de log no banco de dados.
+- **Docker (Opcional):** Configuração completa para um ambiente de desenvolvimento e produção containerizado. Veja o guia [DOCKER.md](./DOCKER.md) para detalhes.
+- **Testes:** Estrutura de testes com Jest para testes unitários e e2e.
+- **Validação:** Validação de DTOs com `class-validator`.
+- **Cliente de API:** Coleção do [Bruno](https://www.usebruno.com/) para testar a API.
 
 ## Como Começar
 
 ### Pré-requisitos
 
-*   [Node.js](https://nodejs.org/en/) (v20 ou superior)
-*   [Docker](https://www.docker.com/) (opcional, para rodar com Docker)
-*   [NPM](https://www.npmjs.com/)
+- [Node.js](https://nodejs.org/en/) (v20 ou superior)
+- [Docker](https://www.docker.com/) (opcional, para rodar com Docker)
+- [NPM](https://www.npmjs.com/)
 
 ### Instalação
 
@@ -85,6 +92,10 @@ Criado e mantido por [lucascampos42](https://github.com/lucascampos42).
 3.  Rode as migrações do Prisma para criar as tabelas no banco de dados:
     ```bash
     npx prisma migrate dev
+    ```
+4.  Gere o cliente Prisma:
+    ```bash
+    npx prisma generate
     ```
 
 ## ⚙️ Configuração de Ambiente
@@ -128,15 +139,37 @@ NODE_ENV="development"
 
 ### Configuração de E-mail
 
+O sistema possui envio automatizado de e-mails para:
+
+- 📧 **Ativação de conta** - Link de ativação após registro
+- 🔐 **Recuperação de senha** - Token para redefinir senha
+- 🚨 **Alertas de segurança** - Notificações de login suspeito, bloqueio de conta, etc.
+
 Para configurar o envio de e-mails:
 
-1. **Gmail:** Use senhas de aplicativo (App Passwords)
-2. **Outros provedores:** Configure SMTP conforme documentação
-3. **Desenvolvimento:** Defina `EMAIL_ENABLED=false` para desabilitar
+1. **Ativar/Desativar e-mails:**
+
+   ```bash
+   EMAIL_ENABLED=true   # Habilita envio de e-mails
+   EMAIL_ENABLED=false  # Desabilita (útil para desenvolvimento/testes)
+   ```
+
+2. **Gmail:** Use senhas de aplicativo (App Passwords)
+   - Acesse: https://myaccount.google.com/apppasswords
+   - Gere uma senha de app e use no `MAIL_PASS`
+
+3. **Outros provedores:** Configure SMTP conforme documentação
+   - **Ethereal Email** (desenvolvimento): https://ethereal.email
+   - **SendGrid**, **Mailgun**, **AWS SES** (produção)
+
+4. **Desenvolvimento:**
+   - Defina `EMAIL_ENABLED=false` para desabilitar completamente
+   - Ou use Ethereal Email para testar sem enviar emails reais
 
 ### Segurança
 
 ⚠️ **Importante:**
+
 - Nunca commite arquivos `.env` com dados sensíveis
 - Use senhas fortes para JWT secrets
 - Configure rate limiting adequadamente
@@ -153,6 +186,7 @@ npm run seed
 ```
 
 O usuário administrador será criado com as seguintes credenciais:
+
 - **E-mail:** `admin@admin.com`
 - **Senha:** `12345678`
 
@@ -173,7 +207,7 @@ npm run start:all
 # Build para produção
 npm run build
 
-# Iniciar versão de produção
+# Iniciar versão de produção (requer build primeiro)
 npm run start:prod
 ```
 
@@ -230,9 +264,9 @@ O sistema inclui notificações automáticas por e-mail para eventos de seguran�
 
 ### Tipos de Alertas
 
-*   **Login Suspeito:** Detecta logins após longos períodos de inatividade (30+ dias)
-*   **Múltiplas Tentativas de Login:** Alerta a partir da 3ª tentativa de login falhada
-*   **Conta Bloqueada:** Notifica quando a conta é temporariamente bloqueada por excesso de tentativas
+- **Login Suspeito:** Detecta logins após longos períodos de inatividade (30+ dias)
+- **Múltiplas Tentativas de Login:** Alerta a partir da 3ª tentativa de login falhada
+- **Conta Bloqueada:** Notifica quando a conta é temporariamente bloqueada por excesso de tentativas
 
 ### Configuração
 
@@ -309,10 +343,11 @@ O projeto possui uma suíte completa de testes unitários e de integração (e2e
 Antes de executar os testes e2e, certifique-se de:
 
 1. **Configurar banco de dados de teste:**
+
    ```bash
    # Copiar arquivo de configuração de teste
    cp .env.example .env.test
-   
+
    # Editar .env.test com URL do banco de teste
    # DATABASE_URL="postgresql://user:password@localhost:5432/nest_test"
    ```
@@ -359,6 +394,7 @@ src/
 ### Cobertura de Testes
 
 O projeto mantém alta cobertura de testes:
+
 - **Testes Unitários:** Services, Repositories, Guards, Interceptors
 - **Testes E2E:** Endpoints da API, Autenticação, Autorização
 - **Mocks:** Banco de dados, E-mail, Serviços externos
@@ -377,10 +413,12 @@ npm run lint && npm run test:cov && npm run test:e2e
 O projeto gera automaticamente documentação da API usando OpenAPI 3.0 com interface moderna do Scalar.
 
 **Acessar a documentação:**
+
 - **Desenvolvimento:** `http://localhost:3099/docs`
 - **Produção:** `https://seu-dominio.com/docs`
 
 **Características:**
+
 - 📋 Documentação automática de todos os endpoints
 - 🔧 Interface interativa para testar APIs
 - 📝 Schemas de request/response detalhados
@@ -403,6 +441,7 @@ npm run start:all
 ```
 
 **A documentação inclui:**
+
 - 🏗️ Arquitetura e estrutura dos módulos
 - 📊 Gráficos de dependências
 - 📖 Documentação de classes e métodos
@@ -435,6 +474,7 @@ bruno/
 ```
 
 **Para usar:**
+
 1. Instale o [Bruno](https://www.usebruno.com/)
 2. Abra a pasta `bruno/` no Bruno
 3. Configure o ambiente (local/docker)
