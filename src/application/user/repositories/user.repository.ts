@@ -3,6 +3,7 @@ import { User, Role } from '@prisma/client';
 import { PrismaService } from '../../../core/config/prisma.service';
 import { CreateUserDto } from '../../auth/dto/create-auth.dto';
 import { IUserRepository } from './user.repository.interface';
+import { ValidationUtils } from '../../../core/utils/validation.utils';
 
 /**
  * Implementação concreta do repositório User usando Prisma
@@ -59,9 +60,7 @@ export class UserRepository implements IUserRepository {
   }
 
   async findByIdentification(identification: string): Promise<User | null> {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (emailRegex.test(identification)) {
+    if (ValidationUtils.isValidEmail(identification)) {
       return this.findByEmail(identification);
     } else {
       // Assumir que é CPF e normalizar
