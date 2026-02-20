@@ -244,22 +244,3 @@ export class DataSanitizer {
   }
 }
 
-/**
- * Decorator para sanitizar automaticamente parâmetros de métodos
- * Uso: @Sanitize() em métodos que recebem dados sensíveis
- */
-export function Sanitize(
-  target: any,
-  propertyKey: string,
-  descriptor: PropertyDescriptor,
-) {
-  const originalMethod = descriptor.value;
-
-  descriptor.value = function (...args: any[]) {
-    const result = originalMethod.apply(this, args);
-
-    return result;
-  };
-
-  return descriptor;
-}
