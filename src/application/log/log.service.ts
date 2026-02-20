@@ -10,7 +10,30 @@ export class LogService {
     return this.prisma.log.create({ data });
   }
 
-  async findAll(): Promise<Log[]> {
-    return this.prisma.log.findMany();
+  async findAllPaged(params: {
+    page: number;
+    limit: number;
+  }): Promise<{ data: Log[]; total: number; page: number; limit: number }> {
+    const { page, limit } = params;
+
+    const [total, data] = await this.prisma.$transaction([
+      this.prisma.log.count(),
+      this.prisma.log.findMany({
+        orderBy: { timestamp: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+        include: {
+          user: {
+            select: {
+              userId: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    return { data, total, page, limit };
   }
 }

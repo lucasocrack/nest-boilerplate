@@ -7,8 +7,10 @@ import { Log, Prisma } from '@prisma/client';
 const mockPrismaService = {
   log: {
     create: jest.fn(),
+    count: jest.fn(),
     findMany: jest.fn(),
   },
+  $transaction: jest.fn(),
 };
 
 describe('LogService', () => {
@@ -28,6 +30,8 @@ describe('LogService', () => {
 
     service = module.get<LogService>(LogService);
     prisma = module.get<PrismaService>(PrismaService);
+
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -35,7 +39,7 @@ describe('LogService', () => {
   });
 
   describe('createLog', () => {
-    it('should create AuthRequest.ts new log', async () => {
+    it('should create a new log', async () => {
       const logData: Prisma.LogCreateInput = {
         route: '/test',
         method: 'GET',
@@ -56,17 +60,57 @@ describe('LogService', () => {
     });
   });
 
-  describe('findAll', () => {
-    it('should return an array of logs', async () => {
+  describe('findAllPaged', () => {
+    it('should return a paginated object of logs', async () => {
       const logs: Log[] = [
-        { logId: 1, timestamp: new Date(), route: '/test1', method: 'GET', userId: null, details: null },
-        { logId: 2, timestamp: new Date(), route: '/test2', method: 'POST', userId: '1', details: { body: { key: 'value' } } },
+        {
+          logId: 1,
+          timestamp: new Date(),
+          route: '/test1',
+          method: 'GET',
+          userId: null,
+          details: null,
+        },
+        {
+          logId: 2,
+          timestamp: new Date(),
+          route: '/test2',
+          method: 'POST',
+          userId: '1',
+          details: { body: { key: 'value' } },
+        },
       ];
-      mockPrismaService.log.findMany.mockResolvedValue(logs);
+      const total = 2;
+      const page = 1;
+      const limit = 20;
 
-      const result = await service.findAll();
-      expect(result).toEqual(logs);
-      expect(mockPrismaService.log.findMany).toHaveBeenCalled();
+      mockPrismaService.$transaction.mockResolvedValue([total, logs]);
+
+      const result = await service.findAllPaged({ page, limit });
+
+      expect(result).toEqual({
+        data: logs,
+        total,
+        page,
+        limit,
+      });
+
+      expect(mockPrismaService.$transaction).toHaveBeenCalled();
+      expect(mockPrismaService.log.count).toHaveBeenCalled();
+      expect(mockPrismaService.log.findMany).toHaveBeenCalledWith({
+        orderBy: { timestamp: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+        include: {
+          user: {
+            select: {
+              userId: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      });
     });
   });
 });
