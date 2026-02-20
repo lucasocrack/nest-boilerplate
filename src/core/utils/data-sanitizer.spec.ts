@@ -66,8 +66,8 @@ describe('DataSanitizer', () => {
 
       const result = DataSanitizer.sanitize(data);
 
-      expect(result.email).toBe('j*******@example.com');
-      expect(result.shortEmail).toBe('a@b.co'); // Short emails are handled differently
+      expect(result.email).toBe('j***@example.com');
+      expect(result.shortEmail).toBe('a***@b.co');
     });
 
     it('should mask other fields correctly', () => {
@@ -79,8 +79,8 @@ describe('DataSanitizer', () => {
 
       const result = DataSanitizer.sanitize(data);
 
-      expect(result.cpf).toBe('12*******01');
-      expect(result.telefone).toBe('11*******66');
+      expect(result.cpf).toBe('12***01');
+      expect(result.telefone).toBe('11***66');
       expect(result.shortField).toBe('abc'); // Not a maskable field
     });
 
