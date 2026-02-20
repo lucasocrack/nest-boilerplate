@@ -1,4 +1,13 @@
+import { isEmail } from 'class-validator';
+
 export class ValidationUtils {
+  /**
+   * Valida se um email é válido
+   */
+  static isValidEmail(email: string): boolean {
+    return isEmail(email);
+  }
+
   /**
    * Normaliza o CPF removendo pontos e hífens
    */
