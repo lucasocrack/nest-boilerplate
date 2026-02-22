@@ -5,7 +5,7 @@ import { PrismaService } from './core/config/prisma.service';
 import { LogModule } from './application/log/log.module';
 import { LoggerMiddleware } from './application/log/middleware/log.middleware';
 import { HomeModule } from './application/home/home.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailModule } from './core/mail/mail.module';
 import mailConfig from './core/mail/mail.config';
 import { APP_GUARD, APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
@@ -43,10 +43,22 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
         limit: 5, // 5 tentativas de login por minuto
       },
     ]),
-    JwtModule.register({
+    JwtModule.registerAsync({
       global: true,
-      secret: process.env.JWT_SECRET || 'default-secret',
-      signOptions: { expiresIn: process.env.JWT_ACCESS_TTL || '1h' },
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => {
+        const secret = configService.get<string>('JWT_SECRET');
+        if (!secret) {
+          throw new Error('JWT_SECRET environment variable is not defined');
+        }
+        return {
+          secret: secret,
+          signOptions: {
+            expiresIn: configService.get<string>('JWT_ACCESS_TTL') || '1h',
+          },
+        };
+      },
+      inject: [ConfigService],
     }),
     AuthModule,
     UserModule,

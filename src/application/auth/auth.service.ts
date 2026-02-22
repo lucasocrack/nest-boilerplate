@@ -60,7 +60,9 @@ export class AuthService {
     };
     return this.jwtService.signAsync(payload, {
       expiresIn: this.getRefreshTokenExpiry(),
-      secret: this.configService.get<string>('JWT_REFRESH_SECRET') || (process.env.JWT_SECRET || 'default-secret'),
+      secret:
+        this.configService.get<string>('JWT_REFRESH_SECRET') ||
+        this.configService.get<string>('JWT_SECRET'),
     });
   }
 
@@ -283,8 +285,14 @@ export class AuthService {
 
   async refreshToken(token: string): Promise<{ access_token: string; refresh_token: string }> {
     try {
-      const payload = await this.jwtService.verifyAsync<{ sub: string; tv: number; type: string }>(token, {
-        secret: this.configService.get<string>('JWT_REFRESH_SECRET') || (process.env.JWT_SECRET || 'default-secret'),
+      const payload = await this.jwtService.verifyAsync<{
+        sub: string;
+        tv: number;
+        type: string;
+      }>(token, {
+        secret:
+          this.configService.get<string>('JWT_REFRESH_SECRET') ||
+          this.configService.get<string>('JWT_SECRET'),
       });
       if (payload.type !== 'refresh') {
         throw new UnauthorizedException('Token inválido');
