@@ -163,6 +163,7 @@ describe('AuthService', () => {
         telefone: mockUserData.telefone,
         avatarUrl: mockUserData.avatarUrl,
         role: mockUserData.role,
+        password: mockUserData.password,
         lastLogin: mockUserData.lastLogin,
         refreshToken: mockUserData.refreshToken,
         passwordResetToken: mockUserData.passwordResetToken,

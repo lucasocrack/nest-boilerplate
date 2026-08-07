@@ -12,7 +12,23 @@ describe('AuthController (e2e)', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [TestAppModule],
-    }).compile();
+    })
+      .overrideProvider(PrismaService)
+      .useValue({
+        $connect: jest.fn(),
+        onModuleInit: jest.fn(),
+        user: {
+          create: jest.fn().mockResolvedValue({ id: 1 }),
+          deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
+          findUnique: jest.fn().mockResolvedValue(null),
+          findFirst: jest.fn().mockResolvedValue(null),
+          update: jest.fn().mockResolvedValue({ id: 1 }),
+        },
+        auditLog: {
+          create: jest.fn().mockResolvedValue({ id: 1 }),
+        },
+      })
+      .compile();
 
     app = moduleFixture.createNestApplication();
     prisma = app.get<PrismaService>(PrismaService);

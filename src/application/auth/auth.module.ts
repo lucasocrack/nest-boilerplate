@@ -12,6 +12,7 @@ import { PrismaModule } from '../../core/config/prisma.module';
 import { AuthRepository } from './repositories/auth.repository';
 import { AUTH_REPOSITORY_TOKEN } from './repositories/auth.repository.interface';
 import { SecurityLoggerService } from '../../core/security/security-logger.service';
+import { AuditTrailService } from '../../core/audit/audit-trail.service';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { SecurityLoggerService } from '../../core/security/security-logger.servi
     AuthService,
     JwtStrategy,
     SecurityLoggerService,
+    AuditTrailService,
     {
       provide: AUTH_REPOSITORY_TOKEN,
       useClass: AuthRepository,
